@@ -303,11 +303,12 @@ const ICONS  = /*__ICONS__*/ {};
     const fl=cut? Math.max(0, lo-(hi-lo)*1.2) : 0, mx=fl+(hi-fl)*1.12, Y=v=>T+PH-((v-fl)/(mx-fl))*PH;
     bars.forEach(b=>{ if(b.y0===0) b.y0=fl; });
     add(st,'line',{x1:20,y1:T+PH,x2:W-20,y2:T+PH},'s-axis');
-    if(cut){ [0,bars.length-1].forEach(i=>{ const x=30+i*cw+(cw-bw)/2, x0=x-8, x1=x+bw+8, y=T+PH-26, amp=4.5, gap=9, n=Math.max(2,Math.round((x1-x0)/18)), step=(x1-x0)/n;
-        // 축 하단 생략은 물결(≈) 띠로 — 배경색 띠 + 가는 물결선 두 줄
-        const wv=(yy,dir)=>{ let d=''; for(let k=0;k<n;k++){ const xa=dir>0?x0+k*step:x1-k*step, xm=xa+dir*step/2, xe=xa+dir*step; d+=' Q '+xm.toFixed(1)+' '+(yy+((k%2)?amp:-amp)*dir).toFixed(1)+' '+xe.toFixed(1)+' '+yy.toFixed(1); } return d; };
-        add(st,'path',{d:'M '+x0+' '+(y-gap/2)+wv(y-gap/2,1)+' L '+x1+' '+(y+gap/2)+wv(y+gap/2,-1)+' Z','fill':'var(--bg)','stroke':'none'});
-        add(st,'path',{d:'M '+x0+' '+(y-gap/2)+wv(y-gap/2,1)},'s-thin'); add(st,'path',{d:'M '+x1+' '+(y+gap/2)+wv(y+gap/2,-1)},'s-thin'); });
+    if(cut){ [0,bars.length-1].forEach(i=>{ const x=30+i*cw+(cw-bw)/2, x0=x-10, x1=x+bw+10, y=T+PH-32, len=(x1-x0)/1.5, amp=Math.min(8,len*0.08), gap=18, shift=len*0.12;
+        // 축 하단 생략은 물결 띠로 — 위아래 같은 물결, 아래쪽을 오른쪽으로 밀어 리본처럼(거울 대칭이면 물결로 안 읽힘)
+        const pts=(yy,ph)=>{ const a=[]; for(let xx=x0;xx<=x1+0.01;xx+=2){ const q=Math.min(xx,x1); a.push([q,yy+amp*Math.sin(2*Math.PI*(q-x0-ph)/len)]); } return a; };
+        const top=pts(y-gap/2,0), bot=pts(y+gap/2,shift), dp=a=>a.map((p,k)=>(k?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
+        add(st,'path',{d:dp(top)+' '+dp(bot.slice().reverse()).replace(/^M/,'L')+' Z','fill':'var(--bg)','stroke':'none'});
+        add(st,'path',{d:dp(top)},'s-thin'); add(st,'path',{d:dp(bot)},'s-thin'); });
       lab(st,24,T+PH+44,300,[['※ 세로축 하단 일부 생략','t3']],{anchor:'l',align:'l'}); }
     bars.forEach((b,i)=>{ const x=30+i*cw+(cw-bw)/2;
       add(st,'rect',{x,y:Y(b.y1),width:bw,height:Math.max(2,Y(b.y0)-Y(b.y1))},b.c);
