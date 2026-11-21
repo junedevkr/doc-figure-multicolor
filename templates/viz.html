@@ -299,7 +299,8 @@ const ICONS  = /*__ICONS__*/ {};
       if(i>0) add(st,'line',{x1:x,y1:top,x2:x,y2:H-top}).setAttribute('class','gr');
       const v=lab(st,x+pad,top,0,[],{anchor:'tl',align:'l'}), hv=t('div','huge',String(m.value)); hv.style.color=c; if(m.unit){ hv.append(t('small',null,m.unit)); } v.append(hv); v.dataset.fit=[tw,vh+8].join(',');
       let y=top+vh+6;
-      if(bar){ if(m.share!=null){ add(st,'rect',{x:x+pad,y,width:tw,height:12,rx:6},'fill:'+tc(tn,'tint')+';stroke:'+tc(tn,'line')+';stroke-width:1'); add(st,'rect',{x:x+pad,y,width:Math.max(6,tw*Math.min(1,m.share)),height:12,rx:6},'fill:'+c);
+      // 비율 막대의 전체 폭(바탕): 강조 칸은 칸 바탕과 같은 옅은 색이라 안 보이므로 흰 바탕으로, 둘레는 항목 색 테두리로 늘 보이게
+      if(bar){ if(m.share!=null){ add(st,'rect',{x:x+pad,y,width:tw,height:12,rx:6},'fill:'+(m.highlight?'var(--bg,#fff)':tc(tn,'tint'))+';stroke:'+c+';stroke-opacity:.6;stroke-width:1.5'); add(st,'rect',{x:x+pad,y,width:Math.max(6,tw*Math.min(1,m.share)),height:12,rx:6},'fill:'+c);
           if(GL>0) add(st,'rect',{x:x+pad,y,width:Math.max(6,tw*Math.min(1,m.share)),height:12,rx:6},'fill:'+grad(st,[[0,'#fff',GL*1.6],[1,'#fff',0]])); } y+=28; }
       lab(st,x+pad,y,tw,[[m.label,'h2'],[m.note,'s']],{anchor:'tl',align:'l'}); });
   }

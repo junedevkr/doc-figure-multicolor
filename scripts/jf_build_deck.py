@@ -14,6 +14,10 @@
 - 페이지 번호: 'PT 하단에 페이지 번호' 선택(N 키)으로 슬라이드 오른쪽 아래 번호를 보이거나 숨긴다. PDF에도 그대로 적용
 - PDF(인쇄): 화살표·버튼·배경은 숨기고 페이지마다 1920×1080 한 장
 - 16:9 비율을 유지한 채 화면 폭에 맞춰 무대를 통째로 확대·축소한다(안쪽 배치·줄바꿈은 그대로, 다시 배치하지 않음)
+- 발표 도구: 펜(P)·형광펜(H)·레이저 포인터(L), 이 페이지 잉크 지우기(E)·한 획 되돌리기(Z), 도구 끄기는 같은 키나 Esc.
+  잉크는 페이지마다 따로 남고 전체화면에서도 그대로(키로만 바꿈). 도구를 켜면 화면 클릭으로 넘기기는 멈춘다. PDF에는 잉크를 넣지 않는다
+- 발표자 노트: 버튼이나 S 키로 별도 창(팝업)을 연다 — 지금·다음 슬라이드 미리보기, spec의 "notes"(문자열 또는 줄 목록),
+  경과 시간·시계, 이전·다음 버튼, 노트 글자 크기. 덱과 노트 창 어느 쪽에서 넘겨도 같이 움직인다. 팝업이 막히면 화면 오른쪽 아래 상자로
 - 바깥 배경이 짙으면(짙은 주색 컨셉 등) 화살표·페이지 번호·버튼·글자를 밝은색으로
 """
 import argparse, html as H, json, os, sys
@@ -27,6 +31,11 @@ ICON = {
     "next": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg>',
     "full": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>',
     "exit": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg>',
+    "pen": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l1.2-4.6L16.5 4.1a2 2 0 0 1 2.8 0l.6.6a2 2 0 0 1 0 2.8L8.6 18.8 4 20z"/><path d="M14.5 6.1l3.4 3.4"/></svg>',
+    "hl": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14l-3 3v3h3l3-3"/><path d="M9 14l7.5-7.5a2.1 2.1 0 0 1 3 3L12 17"/><path d="M4 21h16" stroke-width="3"/></svg>',
+    "laser": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="3.2" fill="currentColor"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg>',
+    "erase": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 20H20"/><path d="M5.6 16.6a2 2 0 0 1 0-2.8l8.5-8.5a2 2 0 0 1 2.8 0l2.8 2.8a2 2 0 0 1 0 2.8L12 18.6 8.5 20l-2.9-3.4z"/><path d="M9.5 10l5.5 5.5"/></svg>',
+    "notes": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3.5" width="16" height="17" rx="2"/><path d="M8 8.5h8M8 12h8M8 15.5h5"/></svg>',
     "pdf": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6M6 18H4a1 1 0 0 1-1-1v-6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6a1 1 0 0 1-1 1h-2"/><path d="M6 14h12v7H6z"/></svg>',
 }
 
@@ -84,6 +93,29 @@ body.dark .sw select option, body.dark .sw select optgroup { color: #1E1E22; }
 .pill:hover { background: #F4F4F6; }
 .pill svg { width: 15px; height: 15px; }
 
+/* 발표 도구 — 펜·형광펜·레이저. 잉크는 무대 안 캔버스(1920×1080)에 그려 무대와 함께 확대·축소되고 페이지마다 따로 남는다 */
+.ink { position: absolute; left: 0; top: 0; width: var(--stage-w); height: var(--stage-h); pointer-events: none; z-index: 5; }
+#ink-hl { mix-blend-mode: multiply; }
+#show.tool-on #ink-pen { pointer-events: auto; cursor: crosshair; }
+#show.tool-laser #ink-pen { cursor: none; }
+#show.tool-on .tap { display: none !important; }
+.laser { position: absolute; width: 22px; height: 22px; margin: -11px 0 0 -11px; border-radius: 50%; z-index: 6; pointer-events: none; display: none;
+  background: radial-gradient(circle, #fff 0 18%, #FF2B2B 32%, rgba(255,43,43,.55) 55%, rgba(255,43,43,0) 72%); }
+.tools { display: flex; align-items: center; gap: 4px; }
+.tbtn { width: 30px; height: 30px; border-radius: 50%; border: 0; background: #fff; color: var(--ink); cursor: pointer; padding: 0;
+  display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,.14); flex: none; }
+.tbtn svg { width: 16px; height: 16px; }
+.tbtn:hover { background: #F4F4F6; }
+.tbtn.on { background: #1E1E22; color: #fff; }
+body.dark .tbtn { background: rgba(255,255,255,.12); color: #F2F2F5; box-shadow: inset 0 0 0 1px rgba(255,255,255,.28); }
+body.dark .tbtn:hover { background: rgba(255,255,255,.22); }
+body.dark .tbtn.on { background: #F2F2F5; color: #1E1E22; }
+.pill.on { background: #1E1E22; color: #fff; }
+body.dark .pill.on { background: #F2F2F5; color: #1E1E22; }
+/* 팝업이 막혔을 때만 쓰는 화면 안 발표자 노트 */
+#notes-in { position: fixed; right: 16px; bottom: 16px; width: min(520px, calc(100vw - 32px)); max-height: 50vh; overflow: auto; z-index: 200; display: none;
+  background: #1E1E22; color: #F2F2F5; border-radius: 12px; padding: 16px 18px; box-shadow: 0 12px 40px rgba(0,0,0,.4); font-size: 17px; line-height: 1.6; white-space: pre-wrap; }
+
 /* 전체화면 발표 — 16:9 무대를 통째로 확대·축소, 남는 곳은 검은 여백 */
 #show:fullscreen, #show.present { width: 100vw; height: 100vh; background: #000; }
 #show.present { position: fixed; left: 0; top: 0; z-index: 100; }
@@ -110,7 +142,7 @@ body.dark button:focus-visible, body.dark .opt input:focus-visible { outline-col
   .stage { position: static; width: auto; height: auto; box-shadow: none; overflow: visible; background: none; transform: none !important; }
   .sheet { position: relative; visibility: visible; break-after: page; page-break-after: always; overflow: hidden; }
   .sheet:last-child { break-after: auto; page-break-after: auto; }
-  .nav, .tap { display: none !important; }
+  .nav, .tap, .ink, .laser, #notes-in { display: none !important; }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
 </style>
@@ -118,7 +150,7 @@ body.dark button:focus-visible, body.dark .opt input:focus-visible { outline-col
 <body>
 <div class="deck">
   <div id="show">
-    <div class="stage" id="stage" aria-live="polite"></div>
+    <div class="stage" id="stage" aria-live="polite"><canvas class="ink" id="ink-hl" width="__W__" height="__H__"></canvas><canvas class="ink" id="ink-pen" width="__W__" height="__H__"></canvas><div class="laser" id="laser"></div></div>
     <div class="tap" id="tap" aria-hidden="true"></div>
   </div>
   <nav class="nav" aria-label="페이지 이동">
@@ -132,14 +164,22 @@ body.dark button:focus-visible, body.dark .opt input:focus-visible { outline-col
       __SWITCH_UI__
       <label class="opt" title="페이지를 열 때 그려지듯 나타남 (A 키)"><input type="checkbox" data-anim> 애니메이션</label>
       <label class="opt" title="슬라이드 오른쪽 아래에 페이지 번호 (N 키). PDF에도 그대로 적용"><input type="checkbox" data-pno> PT 하단에 페이지 번호</label>
+      <div class="tools" role="group" aria-label="발표 도구">
+        <button class="tbtn" data-tool="pen" type="button" title="펜 (P 키)" aria-label="펜 (P 키)" aria-pressed="false">__I_PEN__</button>
+        <button class="tbtn" data-tool="hl" type="button" title="형광펜 (H 키)" aria-label="형광펜 (H 키)" aria-pressed="false">__I_HL__</button>
+        <button class="tbtn" data-tool="laser" type="button" title="레이저 포인터 (L 키)" aria-label="레이저 포인터 (L 키)" aria-pressed="false">__I_LASER__</button>
+        <button class="tbtn" data-act="erase" type="button" title="이 페이지 잉크 지우기 (E 키, 한 획 되돌리기는 Z 키)" aria-label="이 페이지 잉크 지우기 (E 키)">__I_ERASE__</button>
+      </div>
+      <button class="pill" data-act="notes" type="button" aria-label="발표자 노트 창 열기 (S 키)">__I_NOTES__발표자 노트</button>
       <button class="pill" data-act="full" type="button" aria-label="전체화면 발표 (F 키)">__I_FULL__전체화면</button>
       <button class="pill" data-act="print" type="button" aria-label="PDF로 저장">__I_PDF__PDF</button>
     </div>
   </nav>
 </div>
+<div id="notes-in" role="dialog" aria-label="발표자 노트"></div>
 <script>
 (function(){
-  var PAGES = __PAGES__, TITLES = __TITLES__, FOOTS = __FOOTS__, PNO_DEFAULT = __PNO__, FOOT = __FOOT__;
+  var PAGES = __PAGES__, TITLES = __TITLES__, FOOTS = __FOOTS__, NOTES = __NOTES__, PNO_DEFAULT = __PNO__, FOOT = __FOOT__;
   var SW = __SWITCH__, curP = null, curF = null;
   function fill(i, p, f){
     var pg = SW.pages[i], t = SW.tpls[pg.t];
@@ -176,6 +216,106 @@ body.dark button:focus-visible, body.dark .opt input:focus-visible { outline-col
     try { localStorage.setItem('jf-deck-anim', on ? '1' : '0'); } catch (e) {}
     animate(cur);
   }
+  // ── 발표 도구: 펜·형광펜·레이저 ──────────────────────────────
+  var cvPen = document.getElementById('ink-pen'), cvHl = document.getElementById('ink-hl'), laser = document.getElementById('laser');
+  var gPen = cvPen.getContext('2d'), gHl = cvHl.getContext('2d');
+  var INK = PAGES.map(function(){ return []; }), tool = null, stroke = null;
+  var STYLE = {pen: {c: '#E5243B', w: 5, a: 1}, hl: {c: '#FFE14D', w: 30, a: 0.9}};
+  function paint(g, st){
+    var p = st.pts, S = STYLE[st.k]; if (!p.length) return;
+    g.save(); g.globalAlpha = S.a; g.strokeStyle = S.c; g.fillStyle = S.c; g.lineWidth = S.w; g.lineCap = 'round'; g.lineJoin = 'round';
+    if (p.length === 1) { g.beginPath(); g.arc(p[0][0], p[0][1], S.w / 2, 0, 7); g.fill(); g.restore(); return; }
+    g.beginPath(); g.moveTo(p[0][0], p[0][1]);
+    for (var i = 1; i < p.length - 1; i++) { var mx = (p[i][0] + p[i + 1][0]) / 2, my = (p[i][1] + p[i + 1][1]) / 2; g.quadraticCurveTo(p[i][0], p[i][1], mx, my); }
+    g.lineTo(p[p.length - 1][0], p[p.length - 1][1]); g.stroke(); g.restore();
+  }
+  function redraw(){
+    gPen.clearRect(0, 0, W, H); gHl.clearRect(0, 0, W, H);
+    (INK[cur] || []).concat(stroke ? [stroke] : []).forEach(function(st){ paint(st.k === 'hl' ? gHl : gPen, st); });
+  }
+  function at(e){ var r = cvPen.getBoundingClientRect(); return [(e.clientX - r.left) / r.width * W, (e.clientY - r.top) / r.height * H]; }
+  function setTool(t){
+    tool = (t && t !== tool) ? t : null;
+    show.classList.toggle('tool-on', !!tool); show.classList.toggle('tool-laser', tool === 'laser');
+    all('[data-tool]').forEach(function(b){ var on = b.getAttribute('data-tool') === tool; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
+    if (tool !== 'laser') laser.style.display = 'none';
+  }
+  cvPen.addEventListener('pointerdown', function(e){
+    if (!tool || tool === 'laser' || e.button !== 0) return;
+    cvPen.setPointerCapture(e.pointerId); stroke = {k: tool, pts: [at(e)]}; redraw(); e.preventDefault();
+  });
+  cvPen.addEventListener('pointermove', function(e){
+    if (tool === 'laser') { var q = at(e); laser.style.left = q[0] + 'px'; laser.style.top = q[1] + 'px'; laser.style.display = 'block'; return; }
+    if (!stroke) return; var p = at(e), l = stroke.pts[stroke.pts.length - 1];
+    if (Math.abs(p[0] - l[0]) + Math.abs(p[1] - l[1]) > 1.5) { stroke.pts.push(p); redraw(); }
+  });
+  function endStroke(){ if (stroke) { INK[cur].push(stroke); stroke = null; redraw(); } }
+  cvPen.addEventListener('pointerup', endStroke); cvPen.addEventListener('pointercancel', endStroke);
+  cvPen.addEventListener('pointerleave', function(){ if (tool === 'laser') laser.style.display = 'none'; });
+  function erase(){ INK[cur] = []; stroke = null; redraw(); }
+  function undo(){ INK[cur].pop(); redraw(); }
+
+  // ── 발표자 노트: 별도 창(팝업) — 현재·다음 슬라이드 미리보기, 노트, 경과 시간, 이동 버튼 ──────
+  var nw = null, t0 = null, notesIn = document.getElementById('notes-in');
+  function pageSrc(i){ return SW ? fill(i, curP, curF) : PAGES[i]; }
+  // 노트 창도 덱과 같은 글꼴 — 덱 문서의 @font-face·@import 규칙만 옮겨 담는다
+  var FONT_RULES = (function(){ var out = []; try { Array.prototype.forEach.call(document.styleSheets, function(ss){ Array.prototype.forEach.call(ss.cssRules || [], function(r){ if (r.type === 3 || r.type === 5) out.push(r.cssText); }); }); } catch (e) {} return out.join('\n'); })();
+  var NOTES_DOC = '<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><title>발표자 노트</title><style>' + FONT_RULES
+    + '*{box-sizing:border-box}body{margin:0;background:#16161A;color:#F2F2F5;font-family:' + getComputedStyle(document.body).fontFamily + ';height:100vh;display:grid;grid-template-rows:auto 1fr auto}'
+    + 'header{display:flex;align-items:center;gap:18px;padding:12px 18px;background:#0E0E11;font-variant-numeric:tabular-nums}'
+    + '.pg{font-size:22px;font-weight:800}.pg span{opacity:.55;font-weight:600}.tm{font-size:22px;font-weight:700;margin-left:auto}.clk{font-size:16px;opacity:.6}'
+    + 'button{font:inherit;font-size:14px;font-weight:700;height:34px;padding:0 14px;border-radius:17px;border:0;background:rgba(255,255,255,.12);color:#F2F2F5;cursor:pointer;box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)}button:hover{background:rgba(255,255,255,.22)}'
+    + 'main{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:18px;padding:16px 18px;min-height:0}'
+    + '.col{display:flex;flex-direction:column;gap:10px;min-height:0}.lab{font-size:13px;font-weight:700;opacity:.6;letter-spacing:.5px}'
+    + '.pv{position:relative;width:100%;aspect-ratio:16/9;background:#fff;border-radius:6px;overflow:hidden;flex:none}.pv iframe{position:absolute;left:0;top:0;width:' + W + 'px;height:' + H + 'px;border:0;transform-origin:0 0;pointer-events:none}'
+    + '.nx{opacity:.85}.ttl{font-size:15px;font-weight:700;opacity:.85}'
+    + '#nt{font-size:24px;line-height:1.65;white-space:pre-wrap;overflow:auto;min-height:0;padding-right:6px}#nt.empty{opacity:.45;font-size:18px}'
+    + 'footer{display:flex;gap:8px;padding:10px 18px;background:#0E0E11;align-items:center}footer .sp{flex:1}.zoom{opacity:.7;font-size:13px}'
+    + '</style></head><body><header><div class="pg"><b id="cu">1</b> <span>/ <span id="to">1</span></span></div><div class="ttl" id="tt"></div><div class="tm" id="tm">00:00</div><div class="clk" id="ck"></div></header>'
+    + '<main><div class="col"><div class="lab">지금 슬라이드</div><div class="pv" id="pv1"><iframe id="f1" scrolling="no"></iframe></div><div class="lab">다음</div><div class="pv nx" id="pv2" style="width:62%"><iframe id="f2" scrolling="no"></iframe></div><div class="ttl" id="nt2"></div></div>'
+    + '<div class="col"><div class="lab">발표자 노트</div><div id="nt"></div></div></main>'
+    + '<footer><button id="bp">◀ 이전</button><button id="bn">다음 ▶</button><span class="sp"></span><span class="zoom">노트 글자</span><button id="zm">−</button><button id="zp">+</button><button id="rs">시간 초기화</button></footer></body></html>';
+  function fitPv(d){ ['pv1', 'pv2'].forEach(function(id){ var b = d.getElementById(id), f = b && b.querySelector('iframe'); if (f) f.style.transform = 'scale(' + (b.clientWidth / W) + ')'; }); }
+  function notesSync(){
+    var txt = (NOTES[cur] || '').trim();
+    if (notesIn.style.display === 'block') notesIn.textContent = (cur + 1) + ' / ' + PAGES.length + '  ' + (TITLES[cur] || '') + '\n\n' + (txt || '(노트 없음)');
+    if (!nw || nw.closed) return;
+    var d = nw.document;
+    d.getElementById('cu').textContent = cur + 1; d.getElementById('to').textContent = PAGES.length;
+    d.getElementById('tt').textContent = TITLES[cur] || '';
+    var nt = d.getElementById('nt'); nt.textContent = txt || '이 페이지에는 노트가 없습니다. spec의 "notes"에 적으면 여기 나옵니다'; nt.classList.toggle('empty', !txt);
+    var f1 = d.getElementById('f1'), f2 = d.getElementById('f2');
+    if (f1.__i !== cur) { f1.__i = cur; f1.srcdoc = pageSrc(cur); }
+    var nx = cur + 1 < PAGES.length ? cur + 1 : -1;
+    if (f2.__i !== nx) { f2.__i = nx; f2.srcdoc = nx >= 0 ? pageSrc(nx) : '<body style="margin:0;background:#2A2A30"></body>'; }
+    d.getElementById('nt2').textContent = nx >= 0 ? TITLES[nx] || '' : '마지막 페이지';
+    fitPv(d);
+  }
+  function openNotes(){
+    if (nw && !nw.closed) { nw.focus(); return; }
+    nw = window.open('', 'jf-notes', 'width=1100,height=720');
+    if (!nw) {   // 팝업이 막히면 화면 오른쪽 아래에 노트 상자
+      var on = notesIn.style.display !== 'block'; notesIn.style.display = on ? 'block' : 'none';
+      all('[data-act="notes"]').forEach(function(b){ b.classList.toggle('on', on); }); notesSync(); return;
+    }
+    nw.document.open(); nw.document.write(NOTES_DOC); nw.document.close();
+    var d = nw.document, fs = 24; t0 = Date.now();
+    d.getElementById('bp').onclick = function(){ go(cur - 1); }; d.getElementById('bn').onclick = function(){ go(cur + 1); };
+    d.getElementById('rs').onclick = function(){ t0 = Date.now(); };
+    d.getElementById('zp').onclick = function(){ fs = Math.min(48, fs + 2); d.getElementById('nt').style.fontSize = fs + 'px'; };
+    d.getElementById('zm').onclick = function(){ fs = Math.max(14, fs - 2); d.getElementById('nt').style.fontSize = fs + 'px'; };
+    d.addEventListener('keydown', key);
+    nw.addEventListener('resize', function(){ fitPv(d); });
+    var tick = function(){ if (!nw || nw.closed) return; var s = Math.floor((Date.now() - t0) / 1000);
+      d.getElementById('tm').textContent = String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+      d.getElementById('ck').textContent = new Date().toLocaleTimeString('ko-KR', {hour: '2-digit', minute: '2-digit'}); };
+    tick(); nw.__jfT = nw.setInterval(tick, 1000);
+    all('[data-act="notes"]').forEach(function(b){ b.classList.add('on'); });
+    var watch = setInterval(function(){ if (!nw || nw.closed) { clearInterval(watch); all('[data-act="notes"]').forEach(function(b){ b.classList.remove('on'); }); } }, 800);
+    notesSync();
+  }
+  window.addEventListener('beforeunload', function(){ try { if (nw && !nw.closed) nw.close(); } catch (e) {} });
+
   function go(n, push){
     n = Math.max(0, Math.min(PAGES.length - 1, n));
     sheets.forEach(function(s, i){ s.classList.toggle('on', i === n); });
@@ -186,6 +326,7 @@ body.dark button:focus-visible, body.dark .opt input:focus-visible { outline-col
     all('[data-act="prev"]').forEach(function(b){ b.disabled = n === 0; });
     all('[data-act="next"]').forEach(function(b){ b.disabled = n === PAGES.length - 1; });
     if (push !== false) history.replaceState(null, '', '#' + (n + 1));
+    redraw(); notesSync();
   }
 
   // 페이지 번호 표시 (화면·전체화면·PDF 공통)
@@ -237,6 +378,7 @@ body.dark button:focus-visible, body.dark .opt input:focus-visible { outline-col
     if (e.clientX < window.innerWidth * 0.25) go(cur - 1); else go(cur + 1);
   });
 
+  all('[data-tool]').forEach(function(b){ b.addEventListener('click', function(){ setTool(b.getAttribute('data-tool')); }); });
   all('[data-act]').forEach(function(b){
     b.addEventListener('click', function(){
       var a = b.getAttribute('data-act');
@@ -244,6 +386,8 @@ body.dark button:focus-visible, body.dark .opt input:focus-visible { outline-col
       else if (a === 'next') go(cur + 1);
       else if (a === 'full') toggleFull();
       else if (a === 'print') window.print();
+      else if (a === 'erase') erase();
+      else if (a === 'notes') openNotes();
     });
   });
   function key(e){
@@ -255,7 +399,14 @@ body.dark button:focus-visible, body.dark .opt input:focus-visible { outline-col
     else if (k === 'Home') { go(0); e.preventDefault(); }
     else if (k === 'End') { go(PAGES.length - 1); e.preventDefault(); }
     else if (k === 'f' || k === 'F') { toggleFull(); e.preventDefault(); }
+    else if (k === 'Escape' && tool) { setTool(null); e.preventDefault(); }
     else if (k === 'Escape' && show.classList.contains('present')) { setPresent(false); e.preventDefault(); }
+    else if (k === 'p' || k === 'P') { setTool('pen'); e.preventDefault(); }
+    else if (k === 'h' || k === 'H') { setTool('hl'); e.preventDefault(); }
+    else if (k === 'l' || k === 'L') { setTool('laser'); e.preventDefault(); }
+    else if (k === 'e' || k === 'E') { erase(); e.preventDefault(); }
+    else if (k === 'z' || k === 'Z') { undo(); e.preventDefault(); }
+    else if (k === 's' || k === 'S') { openNotes(); e.preventDefault(); }
     else if (k === 'n' || k === 'N') { setPno(!document.body.classList.contains('show-pno')); e.preventDefault(); }
     else if (k === 'a' || k === 'A') { setAnim(!animOn); e.preventDefault(); }
   }
@@ -379,12 +530,14 @@ def main():
     if len(sizes) != 1:
         sys.exit("페이지 비율이 서로 다름: %s — 한 덱은 한 비율로" % sizes)
     w, h = sizes.pop()
-    pages, titles, foots = [], [], []
+    pages, titles, foots, notes = [], [], [], []
     for s in specs:
         s = dict(s, page=jf_page.mode(s) or "16:9")
         pages.append(B.build_string(s, embed=True))
         titles.append(s.get("title") or s.get("kicker") or "")
         foots.append(s.get("page_footer", ""))
+        nt = s.get("notes", "")   # 발표자 노트: 문자열 또는 줄 목록
+        notes.append("\n".join("· " + str(x) for x in nt) if isinstance(nt, list) else str(nt or ""))
     title = a.title or titles[0]
     sw_data, sw_ui = "null", ""
     if a.switcher:
@@ -397,6 +550,8 @@ def main():
                  ("__W__", str(w)), ("__H__", str(h)), ("__FONT_STACK__", jf_page.FONTS[fk]["stack"]),
                  ("__I_PREV__", ICON["prev"]), ("__I_NEXT__", ICON["next"]), ("__I_FULL__", ICON["full"]),
                  ("__I_EXIT__", ICON["exit"]), ("__I_PDF__", ICON["pdf"]),
+                 ("__I_PEN__", ICON["pen"]), ("__I_HL__", ICON["hl"]), ("__I_LASER__", ICON["laser"]), ("__I_ERASE__", ICON["erase"]), ("__I_NOTES__", ICON["notes"]),
+                 ("__NOTES__", json.dumps(notes, ensure_ascii=False).replace("</", "<\\/")),
                  ("__PNO__", "false" if a.no_number else "true"),
                  ("__DARK__", "true" if is_dark(jf_page.backdrop(B.preset_css(specs[0]), specs[0].get("preset", ""))) else "false"),
                  ("__FOOT__", json.dumps(a.footer, ensure_ascii=False).replace("</", "<\\/")),
