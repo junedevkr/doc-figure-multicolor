@@ -475,20 +475,31 @@ LOADER = r"""
     window.__JF_CONTRAST__ = n;
   }
   // 그려지는 애니메이션: 상자는 위에서 아래·왼쪽에서 오른쪽 순서로 떠오르고, 그림(SVG)은 왼쪽부터 펼쳐지며, 화살표는 선이 그어진다
-  function clearAnim(root){ root.querySelectorAll('[data-jf-anim]').forEach(function(e){ e.style.animation = ''; e.style.strokeDasharray = ''; e.style.strokeDashoffset = ''; e.removeAttribute('data-jf-anim'); }); }
+  var MK = ['marker-end', 'marker-start', 'marker-mid'];
+  function restoreMarkers(e){ var m = e.getAttribute('data-jf-mk'); if (!m) return; try { var o = JSON.parse(m); MK.forEach(function(a){ if (o[a]) e.setAttribute(a, o[a]); }); } catch (x) {} e.removeAttribute('data-jf-mk'); }
+  function clearAnim(root){ root.querySelectorAll('[data-jf-anim]').forEach(function(e){ e.style.animation = ''; e.style.strokeDasharray = ''; e.style.strokeDashoffset = ''; restoreMarkers(e); e.removeAttribute('data-jf-anim'); }); }
+  // 연결선 층: board의 svg#links, pipe-mapping의 svg.ovl, 조직도 등 '채움 없는 선'이 대부분인 겹 SVG — 통째로 펼치지 않고 선마다 그어지게
+  function isConnectorSvg(sv){
+    if (sv.id === 'links' || sv.classList.contains('ovl')) return true;
+    if (getComputedStyle(sv).position !== 'absolute') return false;
+    var n = 0, k = 0;
+    sv.querySelectorAll('path, line, polyline, polygon, rect, circle, ellipse').forEach(function(e){ if (e.closest('defs, marker')) return; n++; var cs = getComputedStyle(e); if ((cs.fill === 'none' || cs.fillOpacity === '0') && cs.stroke !== 'none') k++; });
+    return n > 0 && k / n >= 0.6;
+  }
   window.__JF_ANIM__ = function(on){
     var fig = document.getElementById('figure'); if (!fig) return;
     clearAnim(fig); if (!on) return;
     void fig.offsetWidth;
     var sel = '.hd, .band, .group, .card, .steps, .chips, .tline, .diamond, .mtx, .pill, .kv, .lb, .row > .ico';
     var els = Array.prototype.slice.call(fig.querySelectorAll(sel)).filter(function(e){ return !e.closest('svg'); });
-    var svgs = Array.prototype.slice.call(fig.querySelectorAll('svg')).filter(function(sv){ return sv.id !== 'links' && !sv.closest('.card .ic, .ico, .chip, .bl, .jn') && sv.getBoundingClientRect().width > 120; });
+    var conns = Array.prototype.slice.call(fig.querySelectorAll('svg')).filter(isConnectorSvg);
+    var svgs = Array.prototype.slice.call(fig.querySelectorAll('svg')).filter(function(sv){ return conns.indexOf(sv) < 0 && !sv.closest('.card .ic, .ico, .chip, .bl, .jn') && sv.getBoundingClientRect().width > 120; });
     // 선택자에 걸리지 않은 요소(마지막 줄·설명·출처·그림 위 라벨 등)가 처음부터 떠 있지 않게 — 덮이지 않은 가장 큰 덩어리를 찾아 함께 움직인다
-    var moved = els.concat(svgs), extra = [];
+    var moved = els.concat(svgs, conns), extra = [];
     var inside = function(c){ for (var q = 0; q < moved.length; q++) if (c !== moved[q] && c.contains(moved[q])) return true; return false; };
     (function walk(el){
       Array.prototype.forEach.call(el.children, function(c){
-        if (/^(SCRIPT|STYLE|DEFS)$/i.test(c.tagName) || c.id === 'links' || (c.classList && c.classList.contains('lklabel'))) return;
+        if (/^(SCRIPT|STYLE|DEFS)$/i.test(c.tagName) || conns.indexOf(c) >= 0 || (c.classList && c.classList.contains('lklabel'))) return;
         if (moved.indexOf(c) >= 0) return;
         if (inside(c)) { walk(c); return; }
         var r = c.getBoundingClientRect(); if (r.width < 1 || r.height < 1 || getComputedStyle(c).display === 'none') return;
@@ -505,12 +516,20 @@ LOADER = r"""
       it.e.setAttribute('data-jf-anim', '1');
       it.e.style.animation = it.k === 'up' ? ('jfUp .55s cubic-bezier(.2,.7,.2,1) ' + d + 'ms backwards') : ('jfWipe .9s cubic-bezier(.4,0,.2,1) ' + d + 'ms backwards');   // both는 끝난 뒤에도 쌓임 맥락이 남아 선·상자 층 순서를 깬다
     });
-    fig.querySelectorAll('svg#links path.lk').forEach(function(p, i){
+    // 선 긋기: 화살촉(marker)은 선이 다 그어진 뒤에 붙인다(먼저 깔려 있지 않게). 점선은 패턴이 깨지지 않게 서서히 나타나기로
+    var lines = [];
+    conns.forEach(function(sv){ sv.querySelectorAll('path, line, polyline').forEach(function(p){ if (p.closest('defs, marker')) return; var cs = getComputedStyle(p); if (cs.stroke === 'none' || !(cs.fill === 'none' || cs.fillOpacity === '0')) return; lines.push(p); }); });
+    var lstep = Math.min(60, 900 / Math.max(1, lines.length));
+    lines.forEach(function(p, i){
       var len = 0; try { len = p.getTotalLength(); } catch (e) {}
       if (!len) return;
+      var mk = {}, has = false; MK.forEach(function(a){ var v = p.getAttribute(a); if (v) { mk[a] = v; has = true; p.removeAttribute(a); } });
+      if (has) p.setAttribute('data-jf-mk', JSON.stringify(mk));
       p.setAttribute('data-jf-anim', '1');
-      p.style.strokeDasharray = len; p.style.strokeDashoffset = len;
-      p.style.animation = 'jfDraw .7s ease-out ' + (last * 0.6 + 250 + i * 60) + 'ms forwards';
+      var dashed = (getComputedStyle(p).strokeDasharray || 'none') !== 'none', d = Math.round(last * 0.6 + 250 + i * lstep);
+      if (dashed) p.style.animation = 'jfFade .5s ease ' + d + 'ms backwards';
+      else { p.style.strokeDasharray = len; p.style.strokeDashoffset = len; p.style.animation = 'jfDraw .7s ease-out ' + d + 'ms forwards'; }
+      p.addEventListener('animationend', function(){ restoreMarkers(p); if (!dashed) { p.style.animation = ''; p.style.strokeDasharray = ''; p.style.strokeDashoffset = ''; } }, {once: true});
     });
     fig.querySelectorAll('.lklabel').forEach(function(l){ l.setAttribute('data-jf-anim', '1'); l.style.animation = 'jfFade .4s ease ' + (last * 0.6 + 600) + 'ms both'; });
   };

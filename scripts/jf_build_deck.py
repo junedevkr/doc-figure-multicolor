@@ -13,11 +13,12 @@
 - 애니메이션: 페이지를 열 때 상자가 차례로 떠오르고 그림이 펼쳐지며 화살표가 그어진다. '애니메이션' 체크(A 키)로 끔. PDF에는 영향 없음
 - 페이지 번호: '페이지 번호' 체크(N 키)으로 슬라이드 오른쪽 아래 번호를 보이거나 숨긴다. PDF에도 그대로 적용
 - 그라데이션: 체크(D 키)하면 상자·도형·그래프에 위가 밝은 그라데이션(원본 doc-figure v2.4의 --gloss 토큰 방식). 화면·PDF 공통, spec "gloss": true로 켠 채 시작
-- 페이지 고르기: 가운데 번호를 누르거나 G 키 → 번호·제목 칸에서 골라 이동. 숫자를 치고 Enter로도 바로 이동(전체화면에서도)
+- 페이지 이동: 가운데 번호를 누르면 위로 열리는 드롭다운 목록(번호·제목). 전체 보기 아이콘이나 G 키 → 모든 페이지 미리보기 칸(지금 색·글꼴 그대로).
+  숫자를 치고 Enter로도 바로 이동(전체화면에서도)
 - 클릭 강조(C 키, 켤 때만): 슬라이드를 누르면 글자는 형광펜이 아래 55%를 칠하며 지나가고, 상자는 테두리가 조여 들며 강조, 그래프·도형 조각은 밝게 빛난다.
   다시 누르면 지우고 E 키로 이 페이지 강조·잉크를 모두 지움. 켜 두면 전체화면에서 화면 클릭 넘기기는 멈춘다(키로 넘김)
 - 드래그 금지: 체크하면 슬라이드 글자를 끌어 선택하지 못함
-- 단축키 표시: 보통 화면에서는 버튼마다 작은 글자(← → G A D N C P H L E S F)로 알려 준다. 전체화면에서는 막대 없이 키로만, 도구를 바꾸면 잠깐 이름을 띄움
+- 단축키 표시: 보통 화면에서는 버튼마다 작은 키캡 모양(네모 테두리) 글자(← → G A D N C P H L E S F)로 알려 준다. 둥근 버튼은 버튼 아래에 두어 서로 겹치지 않게. 전체화면에서는 막대 없이 키로만, 도구를 바꾸면 잠깐 이름을 띄움
 - PDF 버튼: 인쇄 대화상자 없이 지금 화면 그대로(고른 색·글꼴, 페이지 번호 표시 여부, 하단 글귀, 펜·형광펜 잉크) PDF 파일을
   바로 내려받는다. 페이지마다 1920×1080(1440×810pt) 한 장, 2배 해상도 그림. 라이브러리(html-to-image·jsPDF)는 누를 때 받아 오며,
   받을 수 없으면 인쇄로 대신한다. Ctrl/Cmd+P 인쇄도 그대로 쓸 수 있다(화살표·버튼·배경 숨김)
@@ -43,6 +44,7 @@ ICON = {
     "hl": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14l-3 3v3h3l3-3"/><path d="M9 14l7.5-7.5a2.1 2.1 0 0 1 3 3L12 17"/><path d="M4 21h16" stroke-width="3"/></svg>',
     "laser": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="3.2" fill="currentColor"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg>',
     "erase": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 20H20"/><path d="M5.6 16.6a2 2 0 0 1 0-2.8l8.5-8.5a2 2 0 0 1 2.8 0l2.8 2.8a2 2 0 0 1 0 2.8L12 18.6 8.5 20l-2.9-3.4z"/><path d="M9.5 10l5.5 5.5"/></svg>',
+    "grid": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg>',
     "notes": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3.5" width="16" height="17" rx="2"/><path d="M8 8.5h8M8 12h8M8 15.5h5"/></svg>',
     "pdf": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6M6 18H4a1 1 0 0 1-1-1v-6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6a1 1 0 0 1-1 1h-2"/><path d="M6 14h12v7H6z"/></svg>',
 }
@@ -122,18 +124,37 @@ body.dark .tbtn.on { background: #F2F2F5; color: #1E1E22; }
 body.dark .pill.on { background: #F2F2F5; color: #1E1E22; }
 /* 단축키 작은 표시 — 보통 화면에서만(전체화면은 막대가 없음) */
 .tbtn, .rbtn { position: relative; }
-.k { font: 600 9px/1 ui-monospace, SFMono-Regular, Menlo, monospace; opacity: .55; text-transform: uppercase; letter-spacing: 0; }
-.tbtn .k, .rbtn .k { position: absolute; right: -3px; bottom: -4px; background: var(--backdrop); border-radius: 4px; padding: 1px 3px; opacity: .8; }
-.pill .k, .opt .k { margin-left: 2px; }
-.count { cursor: pointer; border: 0; background: none; color: inherit; font: inherit; font-size: 17px; font-weight: 700; padding: 0; }
-.count .k { display: block; font-size: 9px; margin-top: 1px; }
+.k { display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; min-width: 17px; height: 17px; padding: 0 4px; flex: none;
+  border: 1px solid currentColor; border-bottom-width: 2px; border-radius: 4px; font: 700 10px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+  text-transform: uppercase; letter-spacing: 0; opacity: .6; white-space: nowrap; }
+.tbtn .k, .rbtn .k { position: absolute; top: 100%; left: 50%; transform: translateX(-50%); margin-top: 5px; pointer-events: none; }
+.pill .k, .opt .k { margin-left: 6px; }
+.nav.has-sw { row-gap: 30px !important; padding-bottom: 22px; }
+.tools { gap: 8px !important; }
+.ctl { gap: 14px !important; }
+.count { cursor: pointer; border: 0; background: none; color: inherit; font: inherit; font-size: 17px; font-weight: 700; padding: 0 4px; border-radius: 8px; }
+.count:hover { background: rgba(127,127,127,.15); }
+.count::after { content: "▾"; font-size: 11px; margin-left: 4px; opacity: .6; }
+/* 페이지 이동 — 번호를 누르면 위로 열리는 목록 */
+.pgwrap { position: relative; }
+#pgmenu { position: absolute; bottom: calc(100% + 10px); left: -8px; width: min(360px, calc(100vw - 40px)); max-height: min(60vh, 440px); overflow: auto; z-index: 30;
+  display: none; background: #fff; color: #1E1E22; border-radius: 12px; padding: 6px; box-shadow: 0 12px 36px rgba(0,0,0,.28); }
+#pgmenu.on { display: block; }
+#pgmenu button { display: flex; gap: 10px; align-items: baseline; width: 100%; text-align: left; border: 0; background: none; color: inherit; cursor: pointer;
+  font: inherit; font-size: 14px; padding: 7px 10px; border-radius: 8px; }
+#pgmenu button b { min-width: 26px; text-align: right; font-variant-numeric: tabular-nums; opacity: .6; }
+#pgmenu button:hover { background: #F0F0F3; }
+#pgmenu button.cur { background: #1E1E22; color: #fff; }
+#pgmenu button.cur b { opacity: .8; }
 /* 페이지 고르기 — 무대 위에 번호·제목 칸, 전체화면에서도 G 키 */
-#picker { position: absolute; inset: 0; z-index: 50; display: none; background: rgba(14,14,18,.86); overflow: auto; padding: 28px 32px; }
+#picker { position: absolute; inset: 0; z-index: 50; display: none; background: rgba(14,14,18,.96); overflow: auto; padding: 28px 32px; }
 #picker.on { display: block; }
-#picker .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }
+#picker .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
+#picker .th { position: relative; width: 100%; aspect-ratio: 16 / 9; background: #fff; border-radius: 6px; overflow: hidden; margin-bottom: 7px; }
+#picker .th iframe { position: absolute; left: 0; top: 0; width: var(--stage-w); height: var(--stage-h); border: 0; transform-origin: 0 0; pointer-events: none; }
 #picker button { text-align: left; border: 0; border-radius: 10px; padding: 10px 12px; background: rgba(255,255,255,.1); color: #F2F2F5; cursor: pointer;
   font: inherit; font-size: 13px; line-height: 1.35; min-height: 58px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); }
-#picker button b { display: block; font-size: 18px; margin-bottom: 2px; font-variant-numeric: tabular-nums; }
+#picker button b { font-size: 15px; margin-right: 6px; font-variant-numeric: tabular-nums; }
 #picker button:hover, #picker button.cur { background: rgba(255,255,255,.24); box-shadow: inset 0 0 0 2px #F2F2F5; }
 #picker .ph { color: #F2F2F5; font-size: 14px; font-weight: 700; margin: 0 0 12px; opacity: .85; }
 /* 전체화면에서 도구·페이지 이동을 잠깐 알려 주는 표시 */
@@ -160,6 +181,9 @@ body.dark .rbtn, body.dark .pill { background: rgba(255,255,255,.12); color: #F2
 body.dark .rbtn:hover, body.dark .pill:hover { background: rgba(255,255,255,.22); }
 body.dark .rbtn:disabled { opacity: .3; box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); }
 body.dark .count .tot { opacity: .65; }
+body.dark #pgmenu { background: #26262C; color: #F2F2F5; box-shadow: 0 12px 36px rgba(0,0,0,.5), inset 0 0 0 1px rgba(255,255,255,.12); }
+body.dark #pgmenu button:hover { background: rgba(255,255,255,.1); }
+body.dark #pgmenu button.cur { background: #F2F2F5; color: #1E1E22; }
 body.dark .opt input { accent-color: #F2F2F5; }
 body.dark button:focus-visible, body.dark .opt input:focus-visible { outline-color: #F2F2F5; }
 
@@ -181,15 +205,16 @@ body.dark button:focus-visible, body.dark .opt input:focus-visible { outline-col
   <div id="show">
     <div class="stage" id="stage" aria-live="polite"><canvas class="ink" id="ink-hl" width="__W__" height="__H__"></canvas><canvas class="ink" id="ink-pen" width="__W__" height="__H__"></canvas><div class="laser" id="laser"></div></div>
     <div class="tap" id="tap" aria-hidden="true"></div>
-    <div id="picker" role="dialog" aria-label="페이지 고르기"><p class="ph">페이지 고르기 — 번호를 눌러 이동 (숫자 입력 후 Enter도 됨, Esc 닫기)</p><div class="grid"></div></div>
+    <div id="picker" role="dialog" aria-label="페이지 고르기"><p class="ph">전체 보기 — 눌러서 이동 (숫자 입력 후 Enter도 됨, G·Esc 닫기)</p><div class="grid"></div></div>
     <div id="toast" aria-live="polite"></div>
   </div>
   <nav class="nav" aria-label="페이지 이동">
     <div class="ttl">__TITLE__</div>
     <div class="ctl">
       <button class="rbtn" data-act="prev" type="button" aria-label="이전 페이지 (← 키)">__I_PREV__<span class="k">←</span></button>
-      <button class="count" data-act="pick" type="button" aria-label="페이지 고르기 (G 키)" title="눌러서 페이지 고르기 (G 키, 숫자 입력 후 Enter)"><span data-cur>1</span> <span class="tot">/ <span data-tot>1</span></span><span class="k">G</span></button>
+      <div class="pgwrap"><button class="count" data-act="menu" type="button" aria-haspopup="listbox" aria-label="페이지 이동 목록" title="눌러서 페이지 이동 (숫자 입력 후 Enter도 됨)"><span data-cur>1</span> <span class="tot">/ <span data-tot>1</span></span></button><div id="pgmenu" role="listbox" aria-label="페이지 이동"></div></div>
       <button class="rbtn" data-act="next" type="button" aria-label="다음 페이지 (→ 키)">__I_NEXT__<span class="k">→</span></button>
+      <button class="rbtn" data-act="pick" type="button" aria-label="전체 보기 (G 키)" title="모든 페이지 미리보기 (G 키)">__I_GRID__<span class="k">G</span></button>
     </div>
     <div class="right">
       __SWITCH_UI__
@@ -361,17 +386,45 @@ body.dark button:focus-visible, body.dark .opt input:focus-visible { outline-col
 
   // ── 페이지 고르기: 번호(가운데 숫자)나 G 키로 칸 목록, 숫자 입력 후 Enter로 바로 이동 ──────
   var picker = document.getElementById('picker'), pgrid = picker.querySelector('.grid');
+  // 번호 → 드롭다운 목록
+  var pgmenu = document.getElementById('pgmenu');
+  function openMenu(on){
+    if (on === undefined) on = !pgmenu.classList.contains('on');
+    if (on) {
+      pgmenu.innerHTML = '';
+      PAGES.forEach(function(_, i){ var b = document.createElement('button'); b.type = 'button'; b.setAttribute('role', 'option'); if (i === cur) { b.className = 'cur'; b.setAttribute('aria-selected', 'true'); }
+        var nb = document.createElement('b'); nb.textContent = i + 1; b.appendChild(nb); var tt = document.createElement('span'); tt.textContent = TITLES[i] || ''; b.appendChild(tt);
+        b.addEventListener('click', function(ev){ ev.stopPropagation(); openMenu(false); go(i); }); pgmenu.appendChild(b); });
+    }
+    pgmenu.classList.toggle('on', on);
+    if (on) { var c = pgmenu.querySelector('.cur'); if (c) { c.scrollIntoView({block: 'center'}); c.focus(); } }
+  }
+  document.addEventListener('click', function(ev){ if (pgmenu.classList.contains('on') && !ev.target.closest('.pgwrap')) openMenu(false); });
+  // 전체 보기 → 미리보기 칸(보이는 칸만 그때그때 그림, 색·글꼴·그라데이션도 지금 화면 그대로)
+  var thumbKey = '', thumbIO = null;
+  function fitThumbs(){ pgrid.querySelectorAll('.th').forEach(function(th){ var f = th.querySelector('iframe'); if (f) f.style.transform = 'scale(' + (th.clientWidth / W) + ')'; }); }
   function openPicker(on){
     if (on === undefined) on = !picker.classList.contains('on');
-    if (on) {
-      pgrid.innerHTML = '';
-      PAGES.forEach(function(_, i){ var b = document.createElement('button'); b.type = 'button'; if (i === cur) b.className = 'cur';
+    var key = (SW ? curP + '|' + curF : '') + '|' + gradOn;
+    if (on && (key !== thumbKey || !pgrid.children.length)) {
+      thumbKey = key; pgrid.innerHTML = ''; if (thumbIO) thumbIO.disconnect();
+      thumbIO = new IntersectionObserver(function(es){ es.forEach(function(en){
+        if (!en.isIntersecting || en.target.querySelector('iframe')) return;
+        var i = +en.target.getAttribute('data-i'), f = document.createElement('iframe'); f.setAttribute('scrolling', 'no'); f.tabIndex = -1;
+        f.addEventListener('load', function(){ var tw = f.contentWindow, tries = 0;
+          (function g(){ if (tw.__JF_DONE__) { if (gradOn && tw.__JF_GLOSS__) tw.__JF_GLOSS__(true); } else if (tries++ < 60) setTimeout(g, 150); })(); });
+        f.srcdoc = pageSrc(i); en.target.appendChild(f); f.style.transform = 'scale(' + (en.target.clientWidth / W) + ')';
+      }); }, {root: picker, rootMargin: '200px'});
+      PAGES.forEach(function(_, i){ var b = document.createElement('button'); b.type = 'button';
+        var th = document.createElement('div'); th.className = 'th'; th.setAttribute('data-i', i); b.appendChild(th);
         var nb = document.createElement('b'); nb.textContent = i + 1; b.appendChild(nb); b.appendChild(document.createTextNode(TITLES[i] || ''));
-        b.addEventListener('click', function(){ openPicker(false); go(i); }); pgrid.appendChild(b); });
+        b.addEventListener('click', function(){ openPicker(false); go(i); }); pgrid.appendChild(b); thumbIO.observe(th); });
     }
+    pgrid.querySelectorAll('button').forEach(function(b, i){ b.classList.toggle('cur', i === cur); });
     picker.classList.toggle('on', on);
-    if (on) { var c = pgrid.querySelector('.cur'); if (c) { c.scrollIntoView({block: 'center'}); c.focus(); } }
+    if (on) { openMenu(false); fitThumbs(); var c = pgrid.querySelector('.cur'); if (c) { c.scrollIntoView({block: 'center'}); c.focus(); } }
   }
+  window.addEventListener('resize', function(){ if (picker.classList.contains('on')) fitThumbs(); });
   var numBuf = '', numT = null;
   function typeNum(d){ numBuf = (numBuf + d).slice(-4); clearTimeout(numT); numT = setTimeout(function(){ numBuf = ''; }, 1600); toastAny('→ ' + numBuf + ' 쪽 (Enter)'); }
   function toastAny(msg){ toastEl.textContent = msg; toastEl.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(function(){ toastEl.classList.remove('on'); }, 1300); }
@@ -520,6 +573,7 @@ body.dark button:focus-visible, body.dark .opt input:focus-visible { outline-col
       else if (a === 'full') toggleFull();
       else if (a === 'pdf') savePdf(b);
       else if (a === 'pick') openPicker();
+      else if (a === 'menu') openMenu();
       else if (a === 'erase') erase();
       else if (a === 'notes') openNotes();
     });
@@ -528,6 +582,7 @@ body.dark button:focus-visible, body.dark .opt input:focus-visible { outline-col
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     var t = e.target && e.target.tagName;
     var k = e.key;
+    if (pgmenu.classList.contains('on') && k === 'Escape') { openMenu(false); e.preventDefault(); return; }
     if (picker.classList.contains('on') && (k === 'Escape' || k === 'g' || k === 'G')) { openPicker(false); e.preventDefault(); return; }
     if (/^[0-9]$/.test(k)) { typeNum(k); e.preventDefault(); return; }
     if (k === 'Enter' && numBuf) { var nn = parseInt(numBuf, 10); numBuf = ''; openPicker(false); go(nn - 1); toastAny(nn + ' 쪽'); e.preventDefault(); return; }
@@ -696,7 +751,7 @@ def main():
                  ("__W__", str(w)), ("__H__", str(h)), ("__FONT_STACK__", jf_page.FONTS[fk]["stack"]),
                  ("__I_PREV__", ICON["prev"]), ("__I_NEXT__", ICON["next"]), ("__I_FULL__", ICON["full"]),
                  ("__I_EXIT__", ICON["exit"]), ("__I_PDF__", ICON["pdf"]),
-                 ("__I_PEN__", ICON["pen"]), ("__I_HL__", ICON["hl"]), ("__I_LASER__", ICON["laser"]), ("__I_ERASE__", ICON["erase"]), ("__I_NOTES__", ICON["notes"]),
+                 ("__I_GRID__", ICON["grid"]), ("__I_PEN__", ICON["pen"]), ("__I_HL__", ICON["hl"]), ("__I_LASER__", ICON["laser"]), ("__I_ERASE__", ICON["erase"]), ("__I_NOTES__", ICON["notes"]),
                  ("__NOTES__", json.dumps(notes, ensure_ascii=False).replace("</", "<\\/")),
                  ("__PNO__", "false" if a.no_number else "true"),
                  ("__DARK__", "true" if is_dark(jf_page.backdrop(B.preset_css(specs[0]), specs[0].get("preset", ""))) else "false"),
