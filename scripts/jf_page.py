@@ -10,6 +10,7 @@
 - 바깥 배경(내용 계열 주색을 섞은 회색)과 페이지 바탕(--bg)을 다른 색으로 둔다
 - 글꼴은 프리젠테이션(references/jf-font.css). 글꼴을 내려받은 뒤 도식을 그린다
 - 인쇄(PDF)하면 바깥 배경 없이 페이지만 1920×1080 한 장으로 나온다
+- 그린 뒤 글자와 실제 바탕의 대비를 재서 일반 글자 4.5, 큰 굵은 글자 3.0에 못 미치면 글자색을 자동으로 진하게(짙은 바탕이면 밝게) 맞춘다
 
 spec 필드
   "page": "16:9"(기본) | "4:3" | "none"(보고서·논문 본문 삽입용 원본 그림)
@@ -87,6 +88,12 @@ html.jf-page #figure .hd .kicker { font-size: 24px !important; color: var(--ink-
 html.jf-page #figure .hd h1 { font-size: 42px !important; line-height: 1.25 !important; letter-spacing: -0.5px; }
 html.jf-page #figure .hd .sub { font-size: 24px !important; }
 html.jf-page #figure .hd .tag { font-size: 20px !important; }
+/* 글자 값이 든 표(matrix에 문자열 값) — 점 칸용 작은 칸 대신 폭을 채우는 표로 */
+html.jf-page #figure .mtx:has(td.v) { width: 100%; border-spacing: 6px; padding: 10px; }
+html.jf-page #figure .mtx:has(td.v) th { font-size: calc(var(--B) * 0.9); color: var(--ink-soft); padding: 4px 8px; }
+html.jf-page #figure .mtx:has(td.v) th.rh { width: 20%; text-align: left; font-size: calc(var(--B) * 0.92); color: var(--ink); }
+html.jf-page #figure .mtx:has(td.v) td { width: auto; height: calc(var(--B) * 2); font-size: calc(var(--B) * 0.92); border-radius: 8px; }
+html.jf-page #figure .mtx td.v { background: var(--tt, var(--tone-main-tint)); color: var(--ink); border-color: transparent; }
 /* 세로 색 막대 대신 제목 위 짧은 가로 표식 (forms의 제목 표식도 같은 크기) */
 html.jf-page #figure::before { width: 48px !important; height: 6px !important; }
 html.jf-page #figure .hd.headline { padding-left: 0 !important; padding-top: 20px; padding-bottom: 18px; }
@@ -116,6 +123,13 @@ html.jf-page.jf-pop.jf-embed, html.jf-page.jf-pop.jf-embed body { background: va
 html.jf-pop #jf-page { box-shadow: 0 18px 50px rgba(0,0,0,.45); }
 html.jf-pop #figure .hd.headline::before { background: var(--tone-sub) !important; }
 html.jf-pop #figure::before { background: var(--tone-sub) !important; }
+
+/* ===== 짙은 바탕 컨셉(jf-deep): 주색을 바깥 배경으로, 표식은 강조색 ===== */
+html.jf-page.jf-deep, html.jf-page.jf-deep body { background: var(--tone-main) !important; }
+html.jf-page.jf-deep.jf-embed, html.jf-page.jf-deep.jf-embed body { background: var(--bg, #fff) !important; }
+html.jf-deep #jf-page { box-shadow: 0 18px 50px rgba(0,0,0,.35); }
+html.jf-deep #figure .hd.headline::before, html.jf-deep #figure::before { background: var(--tone-wait) !important; }
+html.jf-deep #figure .card .ct, html.jf-deep #figure .group > .gh { color: var(--ink) !important; }
 
 /* ===== 파스텔 출처 팔레트(jf-soft): 원본 색 면 위 글자를 짙은 색으로, 화살표는 짙은 회갈색 ===== */
 html.jf-page.jf-soft, html.jf-page.jf-soft body { background: var(--tone-main-tint) !important; }
@@ -190,6 +204,40 @@ LOADER = r"""
       refit(); window.addEventListener('resize', refit);
     }
   }
+  // 글자와 실제 바탕의 대비를 재서 모자라면 글자색을 진하게(밝은 바탕) 또는 밝게(짙은 바탕) — 알약·꼬리표·색 글씨 포함
+  function rgba(c){ var m = String(c).match(/rgba?\(([^)]+)\)/); if (!m) return null; var p = m[1].split(/[\s,\/]+/).filter(Boolean).map(Number); return [p[0], p[1], p[2], p.length > 3 ? p[3] : 1]; }
+  function over(top, base){ var a = top[3]; return [top[0]*a + base[0]*(1-a), top[1]*a + base[1]*(1-a), top[2]*a + base[2]*(1-a), 1]; }
+  function lumi(c){ var f = function(v){ v /= 255; return v <= 0.04045 ? v/12.92 : Math.pow((v+0.055)/1.055, 2.4); }; return 0.2126*f(c[0]) + 0.7152*f(c[1]) + 0.0722*f(c[2]); }
+  function ratio(a, b){ var x = lumi(a), y = lumi(b); return (Math.max(x,y)+0.05)/(Math.min(x,y)+0.05); }
+  function bgOf(el){
+    var chain = [], e = el;
+    while (e && e.nodeType === 1) { var b = rgba(getComputedStyle(e).backgroundColor); if (b && b[3] > 0) { chain.push(b); if (b[3] >= 1) break; } e = e.parentElement; }
+    var base = [255,255,255,1];
+    for (var i = chain.length - 1; i >= 0; i--) base = over(chain[i], base);
+    return base;
+  }
+  function fixContrast(root){
+    var n = 0, all = root.querySelectorAll('*');
+    for (var i = 0; i < all.length; i++) {
+      var el = all[i], own = false;
+      for (var c = el.firstChild; c; c = c.nextSibling) if (c.nodeType === 3 && c.nodeValue.trim()) { own = true; break; }
+      if (!own) continue;
+      var cs = getComputedStyle(el); if (cs.visibility === 'hidden' || cs.display === 'none') continue;
+      var isSvg = el instanceof SVGElement;
+      var fg = rgba(isSvg ? cs.fill : cs.color); if (!fg) continue;
+      var bg = bgOf(isSvg ? (el.closest('svg') || el).parentElement || el : el);
+      fg = over(fg, bg);
+      var fs = parseFloat(cs.fontSize), bold = parseInt(cs.fontWeight, 10) >= 700;
+      var need = (fs >= 24 || (fs >= 18.5 && bold)) ? 3.0 : 4.5;
+      if (ratio(fg, bg) >= need) continue;
+      var dark = lumi(bg) > 0.18, t = 0, out = fg;
+      while (ratio(out, bg) < need && t < 1) { t += 0.08; var k = dark ? 0 : 255; out = [fg[0] + (k-fg[0])*t, fg[1] + (k-fg[1])*t, fg[2] + (k-fg[2])*t, 1]; }
+      var v = 'rgb(' + out.slice(0,3).map(Math.round).join(',') + ')';
+      if (isSvg) el.style.setProperty('fill', v, 'important'); else el.style.setProperty('color', v, 'important');
+      n++;
+    }
+    window.__JF_CONTRAST__ = n;
+  }
   var done = false;
   function run(){
     if (done) return; done = true;
@@ -223,6 +271,7 @@ LOADER = r"""
       }
     }
     if (C.page && fig) place();
+    if (fig) fixContrast(fig);
     window.__JF_DONE__ = true;
   }
   var loads = ['400', '500', '600', '700', '800'].map(function(w){ return document.fonts.load(w + ' 24px "Presentation"', '가나다ABC123'); });
@@ -263,6 +312,10 @@ def backdrop(tokens_css, preset=""):
     c = concept({"preset": preset})
     if c == "pop":
         return "#17171D"
+    if c == "deep":
+        mo = re.search(r"--tone-main:\s*(#[0-9A-Fa-f]{6})", tokens_css)
+        if mo:
+            return mo.group(1)
     if c == "soft":
         mo = re.search(r"--tone-main-tint:\s*(#[0-9A-Fa-f]{6})", tokens_css)
         if mo:

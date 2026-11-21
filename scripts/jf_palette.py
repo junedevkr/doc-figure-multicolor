@@ -18,7 +18,7 @@ PAL = os.path.join(ROOT, "references", "jf-palettes.json")
 BASE = os.path.join(PRESETS, "house.css")
 ORIGINAL = ["house", "house-report", "gov-navy", "gov-navy-doc", "gov-navy-w1200", "accent-plan",
             "forest-green", "academic-serif", "modern-charcoal", "line-minimal", "teal-lab",
-            "report-classic", "report-classic-doc", "exhibit", "mono-formal"]
+            "report-classic", "report-classic-doc", "exhibit", "mono-formal", "design-report"]
 
 # ---------- 색 계산 ----------
 def h2rgb(h):
@@ -222,6 +222,12 @@ def on_tone_ink(name):
             return d.get("css") == "soft"
     return False
 
+def is_exact(name):
+    for cname, d in load().get("concepts", {}).items():
+        if name == "jf-" + cname:
+            return bool(d.get("exact"))
+    return False
+
 def check(_a):
     base = set(tokens_of("house")); bad = 0
     jf = sorted(os.path.basename(p)[:-4] for p in glob.glob(os.path.join(PRESETS, "jf-*.css")))
@@ -240,6 +246,8 @@ def check(_a):
             need = min_contrast_of(n) if fg is None else 4.5
             if fg is None and on_tone_ink(n):
                 fgv = t["ink"]; need = 4.5; r = contrast(fgv, bgv)
+            elif fg is None and is_exact(n):   # 원본 고정 색: 흰 글자·짙은 글자 중 나은 쪽(페이지가 자동으로 고름)
+                r = max(contrast("#FFFFFF", bgv), contrast(t["ink"], bgv)); need = 4.5
             if r < need:
                 print("✗ %s %s 대비 %.2f (<%.1f)" % (n, lab_, r, need)); bad += 1
     P = load(); mains = {"jf-" + f: d["colors"]["main"] for f, d in P["families"].items()}
@@ -252,8 +260,8 @@ def check(_a):
     print("\n[구별] 내 주색 ↔ 원본 프리셋 주색 ΔE(CIE76, 20 이상 권장)")
     for n, c in mains.items():
         near = min(orig.items(), key=lambda kv: de(c, kv[1]))
-        d = de(c, near[1]); flag = "✓" if d >= 20 else "✗"
-        if d < 20: bad += 1
+        d = de(c, near[1]); flag = "✓" if d >= 20 else ("·" if is_exact(n) else "✗")
+        if d < 20 and not is_exact(n): bad += 1   # 원본 색 고정 컨셉은 사용자가 고른 색이라 참고로만
         print("  %s %-12s %s  가장 가까운 원본 %-15s %s  ΔE %.1f" % (flag, n, c, near[0], near[1], d))
     print("\n[구별] 내 주색끼리 최소 ΔE")
     names = list(mains)

@@ -442,6 +442,58 @@
       },
       "min_text_contrast": 4.5,
       "palette_id": "P-02"
+    },
+    "timeless": {
+      "label": "P-01 Timeless & reliable",
+      "note": "컬러차트 P-01(#343752 · #90ACC7 · #FAD12B)을 그대로 쓴 컨셉. 원본 3색은 바꾸지 않고, 나머지 역할 색은 같은 색상의 명도·채도만 조절. 짙은 남색 바깥 배경, 노랑 표식, 색 면 위 글자는 대비에 따라 흰색·짙은 색 자동",
+      "palette_id": "P-01",
+      "exact": true,
+      "css": "deep",
+      "colors": {
+        "main": "#343752",
+        "sub": "#90ACC7",
+        "go": "#496C8D",
+        "wait": "#FAD12B",
+        "stop": "#AA8B0E",
+        "mute": "#BFC1CF"
+      },
+      "tints": {
+        "main": "#EBEBF0",
+        "sub": "#EBF0F4",
+        "go": "#EBF0F4",
+        "wait": "#FDF8E3",
+        "stop": "#FBF7E4",
+        "mute": "#EEEEF2"
+      },
+      "shape": {
+        "radius_box": 14,
+        "radius_bar": 10
+      },
+      "tokens": {
+        "ink": "#1E2033",
+        "ink-soft": "#4A4E66",
+        "navy-deep": "#343752",
+        "navy-mid": "#90ACC7",
+        "navy-marker": "#FAD12B",
+        "title-ink": "#1E2033",
+        "title-tag-color": "#FAD12B",
+        "board-link-w": "3px",
+        "board-panel": "#F5F6F9",
+        "board-chip": "#EBF0F4",
+        "board-line": "#DCE1EA",
+        "heat-1": "#EBF0F4",
+        "heat-2": "#90ACC7",
+        "heat-3": "#343752",
+        "heat-1-ink": "#1E2033",
+        "heat-2-ink": "#1E2033",
+        "heat-3-ink": "#FFFFFF",
+        "accent": "#AA8B0E",
+        "accent-soft": "#FBF7E4",
+        "strong-fill": "#343752",
+        "strong-ink": "#FFFFFF",
+        "focus-fill": "#343752",
+        "focus-ink": "#FFFFFF"
+      }
     }
   }
 }
