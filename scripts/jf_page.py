@@ -8,7 +8,7 @@
   가장 큰 본문 글자는 print_cm 16(문서 삽입 기본) 수준까지 — spec "page_min_cm"으로 조정.
   그래도 88%에 못 미치면 남는 높이를 본문 행 사이 간격으로 나눈다(최대 120px)
 - 바깥 배경(내용 계열 주색을 섞은 회색)과 페이지 바탕(--bg)을 다른 색으로 둔다
-- 글꼴은 프리젠테이션(references/jf-font.css). 글꼴을 내려받은 뒤 도식을 그린다
+- 글꼴은 spec "font": "gothic"(기본, 프리젠테이션) | "myeongjo"(명조, Noto Serif KR). 글꼴을 내려받은 뒤 도식을 그린다
 - 인쇄(PDF)하면 바깥 배경 없이 페이지만 1920×1080 한 장으로 나온다
 - 그린 뒤 글자와 실제 바탕의 대비를 재서 일반 글자 4.5, 큰 굵은 글자 3.0에 못 미치면 글자색을 자동으로 진하게(짙은 바탕이면 밝게) 맞춘다
 
@@ -67,8 +67,25 @@ def concept(spec):
     mo = re.search(r"@concept:\s*([a-z]+)", open(path, encoding="utf-8").read(2000))
     return mo.group(1) if mo else None
 
-def font_css():
-    return open(FONT_CSS, encoding="utf-8").read()
+SERIF_CSS = os.path.join(ROOT, "references", "jf-font-serif.css")
+SERIF_STACK = '"Noto Serif KR", "AppleMyungjo", "Nanum Myeongjo", "NanumMyeongjo", "Batang", serif'
+FONTS = {
+    "gothic": {"css": FONT_CSS, "family": "Presentation", "stack": FONT_STACK, "label": "고딕(프리젠테이션)"},
+    "myeongjo": {"css": SERIF_CSS, "family": "Noto Serif KR", "stack": SERIF_STACK, "label": "명조(Noto Serif KR)"},
+}
+FONT_ALIAS = {"gothic": "gothic", "고딕": "gothic", "sans": "gothic", "presentation": "gothic",
+              "myeongjo": "myeongjo", "명조": "myeongjo", "serif": "myeongjo", "mincho": "myeongjo"}
+
+def font_kind(spec):
+    """spec "font": "gothic"(기본·고딕) | "myeongjo"(명조)"""
+    return FONT_ALIAS.get(str(spec.get("font", "gothic")).strip().lower(), "gothic")
+
+def font_css(kind="gothic"):
+    f = FONTS[kind]
+    css = open(f["css"], encoding="utf-8").read()
+    if kind != "gothic":   # 프리셋의 글꼴 토큰을 명조로 덮어쓴다(@import는 맨 앞에 와야 함)
+        css += "\n:root.jf-font-%s { --font: %s; --font-title: %s; --board-font: %s; }\n" % (kind, f["stack"], f["stack"], f["stack"])
+    return css
 
 PAGE_CSS = r"""
 html.jf-page, html.jf-page body { background: color-mix(in srgb, var(--tone-main, #555) 12%, #D4D2CE) !important; }
@@ -274,7 +291,9 @@ LOADER = r"""
     if (fig) fixContrast(fig);
     window.__JF_DONE__ = true;
   }
-  var loads = ['400', '500', '600', '700', '800'].map(function(w){ return document.fonts.load(w + ' 24px "Presentation"', '가나다ABC123'); });
+  if (C.font && C.font !== 'gothic') document.documentElement.classList.add('jf-font-' + C.font);
+  var fam = C.fontFamily || 'Presentation';
+  var loads = ['400', '500', '600', '700', '800'].map(function(w){ return document.fonts.load(w + ' 24px "' + fam + '"', '가나다ABC123'); });
   Promise.all(loads).then(run, run);
   setTimeout(run, 3000);
 })();
@@ -290,7 +309,8 @@ def apply(html, spec, embed=False):
     if m:
         w, h = size(spec)
         page_css = PAGE_CSS.replace("__M__", str(MARGIN)).replace("__W__", str(w)).replace("__H__", str(h))
-    css = '<style id="jf-font">\n' + font_css() + page_css + '</style>\n'
+    fk = font_kind(spec)
+    css = '<style id="jf-font">\n' + font_css(fk) + page_css + '</style>\n'
     i = html.find("</head>")
     html = html[:i] + css + html[i:] if i >= 0 else css + html
     b = html.find("<body")
@@ -299,9 +319,10 @@ def apply(html, spec, embed=False):
     if m:
         w, h = size(spec)
         cfg = {"page": True, "W": w, "H": h, "PAD": pad(spec), "embed": bool(embed), "concept": concept(spec), "M": MARGIN,
+               "font": fk, "fontFamily": FONTS[fk]["family"],
                "minPc": float(spec.get("page_min_cm", 16)), "maxPc": 60}
     else:
-        cfg = {"page": False}
+        cfg = {"page": False, "font": fk, "fontFamily": FONTS[fk]["family"]}
     loader = LOADER.replace("__CFG__", json.dumps(cfg))
     i = body.rfind("</body>")
     body = body[:i] + loader + body[i:] if i >= 0 else body + loader

@@ -7,6 +7,7 @@
 - 아래쪽 화살표 버튼과 페이지 번호(1 / N), 키보드 ← → · PageUp/PageDown · Home/End · Space, 주소 #2 로 바로 가기
 - 전체화면 발표: 버튼이나 F 키. 화면 크기에 맞춰 16:9 무대를 통째로 확대·축소(배치는 그대로)하고 남는 곳은 검은 여백.
   전체화면에서는 화살표·체크박스·종료 버튼을 두지 않는다. 화면 클릭(왼쪽 1/4은 이전)·← →·Space로 넘기고 Esc로 나간다
+- --font gothic|myeongjo: 모든 페이지 글꼴(고딕=프리젠테이션 기본, 명조=Noto Serif KR)
 - --footer "논문 제목": 페이지마다 하단 왼쪽에 작게 이탤릭으로 (spec의 "footer"가 있으면 그 페이지는 그것)
 - 페이지 번호: 'PT 하단에 페이지 번호' 선택(N 키)으로 슬라이드 오른쪽 아래 번호를 보이거나 숨긴다. PDF에도 그대로 적용
 - PDF(인쇄): 화살표·버튼·배경은 숨기고 페이지마다 1920×1080 한 장
@@ -252,10 +253,14 @@ def main():
     ap.add_argument("--no-number", action="store_true", help="처음 열 때 페이지 번호를 숨긴 상태로")
     ap.add_argument("--footer", default="", help="페이지 하단 왼쪽에 작게 이탤릭으로 넣을 논문 제목")
     ap.add_argument("--preset", default="", help="모든 페이지의 프리셋을 이것으로 (예: jf-pop)")
+    ap.add_argument("--font", default="", help="모든 페이지 글꼴: gothic(고딕, 기본) | myeongjo(명조)")
     a = ap.parse_args()
     specs = [B.load_spec(p) for p in a.specs]
     if a.preset:
         specs = [dict(s, preset=a.preset) for s in specs]
+    if a.font:
+        specs = [dict(s, font=a.font) for s in specs]
+    fk = jf_page.font_kind(specs[0])
     sizes = {jf_page.size(dict(s, page=jf_page.mode(s) or "16:9")) for s in specs}
     if len(sizes) != 1:
         sys.exit("페이지 비율이 서로 다름: %s — 한 덱은 한 비율로" % sizes)
@@ -268,8 +273,8 @@ def main():
         foots.append(s.get("footer", ""))
     title = a.title or titles[0]
     out = SHELL
-    for k, v in (("__FONT__", jf_page.font_css()), ("__BACKDROP__", jf_page.backdrop(B.preset_css(specs[0]), specs[0].get("preset", ""))),
-                 ("__W__", str(w)), ("__H__", str(h)), ("__FONT_STACK__", jf_page.FONT_STACK),
+    for k, v in (("__FONT__", jf_page.font_css(fk)), ("__BACKDROP__", jf_page.backdrop(B.preset_css(specs[0]), specs[0].get("preset", ""))),
+                 ("__W__", str(w)), ("__H__", str(h)), ("__FONT_STACK__", jf_page.FONTS[fk]["stack"]),
                  ("__I_PREV__", ICON["prev"]), ("__I_NEXT__", ICON["next"]), ("__I_FULL__", ICON["full"]),
                  ("__I_EXIT__", ICON["exit"]), ("__I_PDF__", ICON["pdf"]),
                  ("__PNO__", "false" if a.no_number else "true"),

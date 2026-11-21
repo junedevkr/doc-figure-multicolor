@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """spec JSON → 자기완결 HTML (크롬·파이썬 패키지 없이, 표준 라이브러리만)
 
-  python3 scripts/jf_build_html.py 그림_01.json [그림_02.json ...]
+  python3 scripts/jf_build_html.py 그림_01.json [그림_02.json ...] [--font gothic|myeongjo]
 
 템플릿 마커(프리셋 CSS·spec·아이콘)를 치환하고 doc-figure-multicolor 페이지 틀(기본 16:9)과 글꼴을 입힌다.
 결과는 spec 옆에 같은 이름의 .html. 여러 장을 한 파일로 넘겨 보려면 jf_build_deck.py.
@@ -51,15 +51,21 @@ def build_string(spec, embed=False):
     html = html.replace("/*__ICONS__*/ {}", "{}", 1)
     return jf_page.apply(html, spec, embed=embed)
 
-def build(spec_path):
+def build(spec_path, font=None):
     spec = load_spec(spec_path)
+    if font:
+        spec = dict(spec, font=font)
     out = os.path.splitext(spec_path)[0] + ".html"
     open(out, "w", encoding="utf-8").write(build_string(spec))
     m = jf_page.mode(spec)
     print("✓ %s  preset=%s  page=%s" % (out, spec.get("preset"), ("%s %dx%d" % ((m,) + jf_page.size(spec))) if m else "none"))
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
+    args = sys.argv[1:]
+    font = None
+    if "--font" in args:
+        i = args.index("--font"); font = args[i + 1]; del args[i:i + 2]
+    if not args:
         sys.exit(__doc__)
-    for p in sys.argv[1:]:
-        build(p)
+    for p in args:
+        build(p, font)
