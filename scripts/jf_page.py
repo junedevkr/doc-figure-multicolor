@@ -300,8 +300,9 @@ LOADER = r"""
 </script>
 """
 
-def apply(html, spec, embed=False):
-    """글꼴은 항상, 페이지 틀은 page 모드일 때. 인라인 스크립트는 글꼴을 내려받은 뒤 실행"""
+def apply(html, spec, embed=False, placeholders=False):
+    """글꼴은 항상, 페이지 틀은 page 모드일 때. 인라인 스크립트는 글꼴을 내려받은 뒤 실행.
+    placeholders=True면 글꼴 CSS·설정 자리를 표식으로 남긴다(덱 색상·글꼴 선택 상자가 채움)"""
     if "jf-loader" in html:
         return html
     m = mode(spec)
@@ -310,7 +311,7 @@ def apply(html, spec, embed=False):
         w, h = size(spec)
         page_css = PAGE_CSS.replace("__M__", str(MARGIN)).replace("__W__", str(w)).replace("__H__", str(h))
     fk = font_kind(spec)
-    css = '<style id="jf-font">\n' + font_css(fk) + page_css + '</style>\n'
+    css = '<style id="jf-font">\n' + ("/*__JF_FONTCSS__*/" if placeholders else font_css(fk)) + page_css + '</style>\n'
     i = html.find("</head>")
     html = html[:i] + css + html[i:] if i >= 0 else css + html
     b = html.find("<body")
@@ -323,10 +324,16 @@ def apply(html, spec, embed=False):
                "minPc": float(spec.get("page_min_cm", 16)), "maxPc": 60}
     else:
         cfg = {"page": False, "font": fk, "fontFamily": FONTS[fk]["family"]}
-    loader = LOADER.replace("__CFG__", json.dumps(cfg))
+    loader = LOADER.replace("__CFG__", "__JF_CFG__" if placeholders else json.dumps(cfg))
     i = body.rfind("</body>")
     body = body[:i] + loader + body[i:] if i >= 0 else body + loader
     return head + body
+
+def base_cfg(spec, embed=True):
+    """선택 상자용 — 프리셋·글꼴과 무관한 페이지 설정"""
+    w, h = size(spec)
+    return {"page": True, "W": w, "H": h, "PAD": pad(spec), "embed": bool(embed), "M": MARGIN,
+            "minPc": float(spec.get("page_min_cm", 16)), "maxPc": 60}
 
 def backdrop(tokens_css, preset=""):
     """덱 바깥 배경 — 프리셋 주색 12% + 따뜻한 회색 (CSS color-mix와 같은 값). 쨍한 컨셉은 짙은 배경"""

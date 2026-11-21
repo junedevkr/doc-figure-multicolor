@@ -7,6 +7,7 @@
 - 아래쪽 화살표 버튼과 페이지 번호(1 / N), 키보드 ← → · PageUp/PageDown · Home/End · Space, 주소 #2 로 바로 가기
 - 전체화면 발표: 버튼이나 F 키. 화면 크기에 맞춰 16:9 무대를 통째로 확대·축소(배치는 그대로)하고 남는 곳은 검은 여백.
   전체화면에서는 화살표·체크박스·종료 버튼을 두지 않는다. 화면 클릭(왼쪽 1/4은 이전)·← →·Space로 넘기고 Esc로 나간다
+- --switcher: 아래쪽에 색상(프리셋 19종)·글꼴(고딕·명조) 선택 상자. 내용은 그대로 두고 고르는 즉시 모든 페이지를 다시 그린다
 - --font gothic|myeongjo: 모든 페이지 글꼴(고딕=프리젠테이션 기본, 명조=Noto Serif KR)
 - --footer "논문 제목": 페이지마다 하단 왼쪽에 작게 이탤릭으로 (spec의 "footer"가 있으면 그 페이지는 그것)
 - 페이지 번호: 'PT 하단에 페이지 번호' 선택(N 키)으로 슬라이드 오른쪽 아래 번호를 보이거나 숨긴다. PDF에도 그대로 적용
@@ -68,6 +69,13 @@ button:focus-visible, .opt input:focus-visible { outline: 3px solid #1E1E22; out
 .count { width: 132px; text-align: center; font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: .5px; }
 .count .tot { opacity: .55; font-weight: 600; }
 .nav .right { justify-self: end; display: flex; align-items: center; gap: 18px; }
+.sw { display: flex; align-items: center; gap: 8px; font-size: 16px; white-space: nowrap; }
+.sw select { font: inherit; font-size: 16px; font-weight: 600; height: 40px; border-radius: 20px; border: 0; padding: 0 12px; background: #fff; color: var(--ink); box-shadow: 0 2px 8px rgba(0,0,0,.14); cursor: pointer; max-width: 260px; }
+body.dark .sw select { background: rgba(255,255,255,.12); color: #F2F2F5; box-shadow: inset 0 0 0 1px rgba(255,255,255,.28); }
+body.dark .sw select option, body.dark .sw select optgroup { color: #1E1E22; }
+.nav.has-sw { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; height: auto; min-height: 76px; gap: 12px 18px; }
+.nav.has-sw .ttl { display: none; }
+.nav.has-sw .right { flex-wrap: wrap; justify-content: flex-end; gap: 12px 16px; }
 .opt { display: flex; align-items: center; gap: 10px; font-size: 18px; cursor: pointer; user-select: none; white-space: nowrap; }
 .opt input { width: 20px; height: 20px; margin: 0; accent-color: #1E1E22; cursor: pointer; }
 .pill { height: 44px; border-radius: 22px; padding: 0 18px; border: 0; background: #fff; color: var(--ink); cursor: pointer;
@@ -120,6 +128,7 @@ body.dark button:focus-visible, body.dark .opt input:focus-visible { outline-col
       <button class="rbtn" data-act="next" type="button" aria-label="다음 페이지">__I_NEXT__</button>
     </div>
     <div class="right">
+      __SWITCH_UI__
       <label class="opt" title="슬라이드 오른쪽 아래에 페이지 번호 (N 키). PDF에도 그대로 적용"><input type="checkbox" data-pno> PT 하단에 페이지 번호</label>
       <button class="pill" data-act="full" type="button" aria-label="전체화면 발표 (F 키)">__I_FULL__전체화면</button>
       <button class="pill" data-act="print" type="button" aria-label="PDF로 저장">__I_PDF__PDF</button>
@@ -129,6 +138,16 @@ body.dark button:focus-visible, body.dark .opt input:focus-visible { outline-col
 <script>
 (function(){
   var PAGES = __PAGES__, TITLES = __TITLES__, FOOTS = __FOOTS__, PNO_DEFAULT = __PNO__, FOOT = __FOOT__;
+  var SW = __SWITCH__, curP = null, curF = null;
+  function fill(t, p, f){
+    var cfg = Object.assign({}, SW.cfg, {concept: SW.concept[p] || null, font: f, fontFamily: SW.fam[f]});
+    return t.split('/*__JF_PRESET__*/').join(SW.css[p]).split('/*__JF_FONTCSS__*/').join(SW.fontcss[f]).split('__JF_CFG__').join(JSON.stringify(cfg));
+  }
+  if (SW) {
+    try { var sv = JSON.parse(localStorage.getItem('jf-deck-switch') || 'null'); if (sv && SW.css[sv.p] && SW.fontcss[sv.f]) { SW.preset = sv.p; SW.font = sv.f; } } catch (e) {}
+    curP = SW.preset; curF = SW.font;
+    PAGES = SW.tpl.map(function(t){ return fill(t, curP, curF); });
+  }
   var W = __W__, H = __H__;
   var show = document.getElementById('show'), stage = document.getElementById('stage'), sheets = [], cur = 0;
   function all(sel){ return Array.prototype.slice.call(document.querySelectorAll(sel)); }
@@ -230,6 +249,23 @@ body.dark button:focus-visible, body.dark .opt input:focus-visible { outline-col
     });
   });
   if (__DARK__) document.body.classList.add('dark');
+  // 색상·글꼴 선택 상자 — 내용은 같고 프리셋 CSS·글꼴만 바꿔 모든 페이지를 다시 그린다
+  function theme(p, f){
+    curP = p; curF = f;
+    sheets.forEach(function(sh, i){ sh.querySelector('iframe').srcdoc = fill(SW.tpl[i], p, f); });
+    document.documentElement.style.setProperty('--backdrop', SW.backdrop[p]);
+    document.body.classList.toggle('dark', !!SW.dark[p]);
+    try { localStorage.setItem('jf-deck-switch', JSON.stringify({p: p, f: f})); } catch (e) {}
+  }
+  if (SW) {
+    var selP = document.getElementById('sw-preset'), selF = document.getElementById('sw-font');
+    selP.value = curP; selF.value = curF;
+    selP.addEventListener('change', function(){ theme(selP.value, curF); });
+    selF.addEventListener('change', function(){ theme(curP, selF.value); });
+    document.documentElement.style.setProperty('--backdrop', SW.backdrop[curP]);
+    document.body.classList.toggle('dark', !!SW.dark[curP]);
+    nav.classList.add('has-sw');
+  }
   window.addEventListener('beforeprint', function(){ stage.style.transform = ''; });
   window.addEventListener('afterprint', fit);
   fit();
@@ -245,6 +281,36 @@ def is_dark(hexcolor):
     r, g, b = (int(hexcolor[i:i + 2], 16) / 255 for i in (1, 3, 5))
     return 0.2126 * r + 0.7152 * g + 0.0722 * b < 0.35
 
+def switch_data(specs, fk):
+    """선택 상자용 데이터: 프리셋 표식이 든 페이지 틀, 프리셋 CSS, 컨셉, 바깥 배경, 글꼴 CSS"""
+    import glob, re
+    pal = json.load(open(os.path.join(ROOT, "references", "jf-palettes.json"), encoding="utf-8"))
+    groups = [("컬러 컨셉", [("jf-" + k, d["label"]) for k, d in pal.get("concepts", {}).items()]),
+              ("내용 계열", [("jf-" + k, d["label"]) for k, d in pal["families"].items()]),
+              ("흑백톤", [("jf-mono-ink", "흑백 · 먹선(인쇄)"), ("jf-mono-warm", "흑백 · 바탕(화면)")]),
+              ("흑백 + 한 점 색", [("jf-mono-spot-" + k, "흑백 + " + d["label"]) for k, d in pal["families"].items()])]
+    have = {os.path.basename(p)[:-4] for p in glob.glob(os.path.join(ROOT, "presets", "jf-*.css"))}
+    css, concept, bd, dark = {}, {}, {}, {}
+    opts = []
+    for g, items in groups:
+        items = [(k, l) for k, l in items if k in have]
+        if not items:
+            continue
+        opts.append('<optgroup label="%s">' % H.escape(g) + "".join('<option value="%s">%s</option>' % (k, H.escape(l)) for k, l in items) + "</optgroup>")
+        for k, _ in items:
+            c = open(os.path.join(ROOT, "presets", k + ".css"), encoding="utf-8").read()
+            css[k] = c; concept[k] = jf_page.concept({"preset": k})
+            bd[k] = jf_page.backdrop(c, k); dark[k] = is_dark(bd[k])
+    first = specs[0].get("preset", "jf-timeless")
+    data = {"tpl": [B.build_string(dict(s, page=jf_page.mode(s) or "16:9"), embed=True, placeholders=True) for s in specs],
+            "css": css, "concept": concept, "backdrop": bd, "dark": dark,
+            "fontcss": {k: jf_page.font_css(k) for k in jf_page.FONTS}, "fam": {k: v["family"] for k, v in jf_page.FONTS.items()},
+            "cfg": jf_page.base_cfg(dict(specs[0], page=jf_page.mode(specs[0]) or "16:9")),
+            "preset": first if first in css else sorted(css)[0], "font": fk}
+    ui = ('<label class="sw">색상 <select id="sw-preset" aria-label="색상 프리셋">%s</select></label>'
+          '<label class="sw">글꼴 <select id="sw-font" aria-label="글꼴"><option value="gothic">고딕</option><option value="myeongjo">명조</option></select></label>') % "".join(opts)
+    return json.dumps(data, ensure_ascii=False).replace("</", "<\\/"), ui
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("specs", nargs="+")
@@ -254,6 +320,7 @@ def main():
     ap.add_argument("--footer", default="", help="페이지 하단 왼쪽에 작게 이탤릭으로 넣을 논문 제목")
     ap.add_argument("--preset", default="", help="모든 페이지의 프리셋을 이것으로 (예: jf-pop)")
     ap.add_argument("--font", default="", help="모든 페이지 글꼴: gothic(고딕, 기본) | myeongjo(명조)")
+    ap.add_argument("--switcher", action="store_true", help="아래쪽에 색상·글꼴 선택 상자를 넣어 프리셋을 바꿔 보게 한다")
     a = ap.parse_args()
     specs = [B.load_spec(p) for p in a.specs]
     if a.preset:
@@ -272,6 +339,9 @@ def main():
         titles.append(s.get("title") or s.get("kicker") or "")
         foots.append(s.get("footer", ""))
     title = a.title or titles[0]
+    sw_data, sw_ui = "null", ""
+    if a.switcher:
+        sw_data, sw_ui = switch_data(specs, fk)
     out = SHELL
     for k, v in (("__FONT__", jf_page.font_css(fk)), ("__BACKDROP__", jf_page.backdrop(B.preset_css(specs[0]), specs[0].get("preset", ""))),
                  ("__W__", str(w)), ("__H__", str(h)), ("__FONT_STACK__", jf_page.FONTS[fk]["stack"]),
@@ -284,6 +354,7 @@ def main():
                  ("__FOOTS__", json.dumps(foots, ensure_ascii=False).replace("</", "<\\/")),
                  ("__TITLE__", H.escape(title))):
         out = out.replace(k, v)
+    out = out.replace("__SWITCH_UI__", sw_ui).replace("__SWITCH__", sw_data)
     out = out.replace("__PAGES__", "[" + ",".join(json.dumps(p, ensure_ascii=False).replace("</", "<\\/") for p in pages) + "]")
     open(a.out, "w", encoding="utf-8").write(out)
     print("✓ %s  %d쪽  %dx%d" % (a.out, len(pages), w, h))

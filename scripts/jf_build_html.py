@@ -36,7 +36,7 @@ def load_spec(spec_path):
 def preset_css(spec):
     return open(os.path.join(ROOT, "presets", spec.get("preset", "jf-method") + ".css"), encoding="utf-8").read()
 
-def build_string(spec, embed=False):
+def build_string(spec, embed=False, placeholders=False):
     spec = jf_page.prepare_spec(spec)
     tpl = jf_page.prepare_template(open(os.path.join(ROOT, "templates", spec["template"] + ".html"), encoding="utf-8").read())
     allicons = json.load(open(os.path.join(ROOT, "templates", "icons", "tabler-outline.json"), encoding="utf-8"))
@@ -45,11 +45,11 @@ def build_string(spec, embed=False):
     if miss:
         sys.exit("없는 아이콘: %s" % ", ".join(sorted(miss)))
     data = json.dumps(spec, ensure_ascii=False).replace("</", "<\\/")
-    html = tpl.replace("/*__STYLE_TOKENS__*/", preset_css(spec), 1)
+    html = tpl.replace("/*__STYLE_TOKENS__*/", "/*__JF_PRESET__*/" if placeholders else preset_css(spec), 1)
     html = html.replace("/*__FIGURE_DATA__*/ null", data, 1).replace("/*__FIGURE_DATA__*/", data, 1)
     html = html.replace("/*__ICON_SET__*/ {}", json.dumps({k: allicons[k] for k in used}, ensure_ascii=False), 1)
     html = html.replace("/*__ICONS__*/ {}", "{}", 1)
-    return jf_page.apply(html, spec, embed=embed)
+    return jf_page.apply(html, spec, embed=embed, placeholders=placeholders)
 
 def build(spec_path, font=None):
     spec = load_spec(spec_path)

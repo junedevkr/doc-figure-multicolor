@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>doc-figure-multicolor 샘플</title>
+<style>
+/* doc-figure-multicolor 기본 글꼴 — 프리젠테이션(Freesentation), 눈누 배포 웹폰트 */
+@font-face { font-family: 'Presentation'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2404@1.0/Freesentation-1Thin.woff2') format('woff2'); font-weight: 100; font-display: swap; }
+@font-face { font-family: 'Presentation'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2404@1.0/Freesentation-2ExtraLight.woff2') format('woff2'); font-weight: 200; font-display: swap; }
+@font-face { font-family: 'Presentation'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2404@1.0/Freesentation-3Light.woff2') format('woff2'); font-weight: 300; font-display: swap; }
+@font-face { font-family: 'Presentation'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2404@1.0/Freesentation-4Regular.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+@font-face { font-family: 'Presentation'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2404@1.0/Freesentation-5Medium.woff2') format('woff2'); font-weight: 500; font-display: swap; }
+@font-face { font-family: 'Presentation'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2404@1.0/Freesentation-6SemiBold.woff2') format('woff2'); font-weight: 600; font-display: swap; }
+@font-face { font-family: 'Presentation'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2404@1.0/Freesentation-7Bold.woff2') format('woff2'); font-weight: 700; font-display: swap; }
+@font-face { font-family: 'Presentation'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2404@1.0/Freesentation-8ExtraBold.woff2') format('woff2'); font-weight: 800; font-display: swap; }
+@font-face { font-family: 'Presentation'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2404@1.0/Freesentation-9Black.woff2') format('woff2'); font-weight: 900; font-display: swap; }
+@font-face { font-family: 'PresentationVariable'; src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/2611030111@font-variable-1369/variable-1369/FreesentationVF.woff2') format('woff2'); font-weight: 100 800; font-display: swap; }
+/* 가변: font-family: 'PresentationVariable'; font-variation-settings: "wght" 100; */
+
+:root{--bg:#EEEDE9;--ink:#1E1E22;--soft:#5D5E66;--card:#fff}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#17171C;--ink:#EDEDF0;--soft:#A3A4AE;--card:#23232A}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Presentation","Pretendard","Apple SD Gothic Neo",sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1440px;margin:0 auto;padding:48px 32px 80px}
+h1{font-size:40px;margin:0 0 8px;font-weight:800}
+.lead{font-size:18px;color:var(--soft);line-height:1.6;margin:0 0 28px}
+.lead code{font-size:15px}
+.feature{display:flex;gap:20px;align-items:center;background:var(--card);border-radius:18px;padding:16px;margin-bottom:24px;color:inherit;text-decoration:none}
+.feature img{width:46%;border-radius:10px;display:block}
+.feature span{font-size:18px;line-height:1.6;color:var(--soft)}
+.feature b{display:block;font-size:26px;color:var(--ink);margin-bottom:6px}
+@media (max-width:760px){.feature{flex-direction:column}.feature img{width:100%}}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:24px}
+.card{background:var(--card);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:12px}
+.head{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.head h2{font-size:22px;margin:0;font-weight:800}
+.tag{font-size:14px;color:var(--soft);white-space:nowrap}
+.cover img{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:10px;display:block;box-shadow:0 0 0 1px rgba(0,0,0,.08)}
+.thumbs{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.thumbs img{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:4px;display:block;box-shadow:0 0 0 1px rgba(0,0,0,.08)}
+.meta{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.meta code{font-size:13px;color:var(--soft)}
+.btn{font-size:15px;font-weight:700;color:var(--card);background:var(--ink);text-decoration:none;padding:8px 14px;border-radius:999px}
+</style></head><body><div class="wrap">
+<h1>doc-figure-multicolor 샘플</h1>
+<p class="lead">더미 데이터로 만든 7쪽 샘플을 컬러 컨셉·글꼴별로 모았습니다(실제 논문·연구 결과 아님). 카드를 누르면 16:9 덱이 열리고, 작은 그림을 누르면 페이지 이미지가 열립니다.<br>
+같은 설계 파일(<code>examples/jf-demo/*.json</code>)에 프리셋과 글꼴만 바꿔 <code>jf_build_deck.py</code>로 만들었습니다.</p>
+<a class="feature" href="switcher.html"><img src="images/concepts.png" alt="컨셉별 첫 쪽"><span><b>색상·글꼴 바꿔 보기</b>같은 7쪽을 아래 선택 상자로 프리셋 19종·고딕/명조로 바꿔 가며 봅니다 →</span></a>
+<div class="grid">
+<section class="card">
+  <div class="head"><h2>P-01 Timeless &amp; reliable</h2><span class="tag">고딕(프리젠테이션)</span></div>
+  <a class="cover" href="p01-timeless.html"><img src="images/p01-timeless/p1.png" alt="P-01 Timeless &amp; reliable 첫 쪽"></a>
+  <div class="thumbs"><a href="images/p01-timeless/p1.png" target="_blank"><img src="images/p01-timeless/p1.png" alt="P-01 Timeless &amp; reliable 1쪽" loading="lazy"></a><a href="images/p01-timeless/p2.png" target="_blank"><img src="images/p01-timeless/p2.png" alt="P-01 Timeless &amp; reliable 2쪽" loading="lazy"></a><a href="images/p01-timeless/p3.png" target="_blank"><img src="images/p01-timeless/p3.png" alt="P-01 Timeless &amp; reliable 3쪽" loading="lazy"></a><a href="images/p01-timeless/p4.png" target="_blank"><img src="images/p01-timeless/p4.png" alt="P-01 Timeless &amp; reliable 4쪽" loading="lazy"></a><a href="images/p01-timeless/p5.png" target="_blank"><img src="images/p01-timeless/p5.png" alt="P-01 Timeless &amp; reliable 5쪽" loading="lazy"></a><a href="images/p01-timeless/p6.png" target="_blank"><img src="images/p01-timeless/p6.png" alt="P-01 Timeless &amp; reliable 6쪽" loading="lazy"></a><a href="images/p01-timeless/p7.png" target="_blank"><img src="images/p01-timeless/p7.png" alt="P-01 Timeless &amp; reliable 7쪽" loading="lazy"></a></div>
+  <div class="meta"><code>--preset jf-timeless</code><a class="btn" href="p01-timeless.html">덱 열기 (← → · F 전체화면)</a></div>
+</section>
+<section class="card">
+  <div class="head"><h2>P-01 Timeless &amp; reliable</h2><span class="tag">명조(Noto Serif KR)</span></div>
+  <a class="cover" href="p01-timeless-serif.html"><img src="images/p01-timeless-serif/p1.png" alt="P-01 Timeless &amp; reliable 첫 쪽"></a>
+  <div class="thumbs"><a href="images/p01-timeless-serif/p1.png" target="_blank"><img src="images/p01-timeless-serif/p1.png" alt="P-01 Timeless &amp; reliable 1쪽" loading="lazy"></a><a href="images/p01-timeless-serif/p2.png" target="_blank"><img src="images/p01-timeless-serif/p2.png" alt="P-01 Timeless &amp; reliable 2쪽" loading="lazy"></a><a href="images/p01-timeless-serif/p3.png" target="_blank"><img src="images/p01-timeless-serif/p3.png" alt="P-01 Timeless &amp; reliable 3쪽" loading="lazy"></a><a href="images/p01-timeless-serif/p4.png" target="_blank"><img src="images/p01-timeless-serif/p4.png" alt="P-01 Timeless &amp; reliable 4쪽" loading="lazy"></a><a href="images/p01-timeless-serif/p5.png" target="_blank"><img src="images/p01-timeless-serif/p5.png" alt="P-01 Timeless &amp; reliable 5쪽" loading="lazy"></a><a href="images/p01-timeless-serif/p6.png" target="_blank"><img src="images/p01-timeless-serif/p6.png" alt="P-01 Timeless &amp; reliable 6쪽" loading="lazy"></a><a href="images/p01-timeless-serif/p7.png" target="_blank"><img src="images/p01-timeless-serif/p7.png" alt="P-01 Timeless &amp; reliable 7쪽" loading="lazy"></a></div>
+  <div class="meta"><code>--preset jf-timeless --font myeongjo</code><a class="btn" href="p01-timeless-serif.html">덱 열기 (← → · F 전체화면)</a></div>
+</section>
+<section class="card">
+  <div class="head"><h2>P-02 Serene &amp; warm</h2><span class="tag">고딕(프리젠테이션)</span></div>
+  <a class="cover" href="p02-serene.html"><img src="images/p02-serene/p1.png" alt="P-02 Serene &amp; warm 첫 쪽"></a>
+  <div class="thumbs"><a href="images/p02-serene/p1.png" target="_blank"><img src="images/p02-serene/p1.png" alt="P-02 Serene &amp; warm 1쪽" loading="lazy"></a><a href="images/p02-serene/p2.png" target="_blank"><img src="images/p02-serene/p2.png" alt="P-02 Serene &amp; warm 2쪽" loading="lazy"></a><a href="images/p02-serene/p3.png" target="_blank"><img src="images/p02-serene/p3.png" alt="P-02 Serene &amp; warm 3쪽" loading="lazy"></a><a href="images/p02-serene/p4.png" target="_blank"><img src="images/p02-serene/p4.png" alt="P-02 Serene &amp; warm 4쪽" loading="lazy"></a><a href="images/p02-serene/p5.png" target="_blank"><img src="images/p02-serene/p5.png" alt="P-02 Serene &amp; warm 5쪽" loading="lazy"></a><a href="images/p02-serene/p6.png" target="_blank"><img src="images/p02-serene/p6.png" alt="P-02 Serene &amp; warm 6쪽" loading="lazy"></a><a href="images/p02-serene/p7.png" target="_blank"><img src="images/p02-serene/p7.png" alt="P-02 Serene &amp; warm 7쪽" loading="lazy"></a></div>
+  <div class="meta"><code>--preset jf-serene</code><a class="btn" href="p02-serene.html">덱 열기 (← → · F 전체화면)</a></div>
+</section>
+<section class="card">
+  <div class="head"><h2>쨍한 컨셉</h2><span class="tag">고딕(프리젠테이션)</span></div>
+  <a class="cover" href="pop.html"><img src="images/pop/p1.png" alt="쨍한 컨셉 첫 쪽"></a>
+  <div class="thumbs"><a href="images/pop/p1.png" target="_blank"><img src="images/pop/p1.png" alt="쨍한 컨셉 1쪽" loading="lazy"></a><a href="images/pop/p2.png" target="_blank"><img src="images/pop/p2.png" alt="쨍한 컨셉 2쪽" loading="lazy"></a><a href="images/pop/p3.png" target="_blank"><img src="images/pop/p3.png" alt="쨍한 컨셉 3쪽" loading="lazy"></a><a href="images/pop/p4.png" target="_blank"><img src="images/pop/p4.png" alt="쨍한 컨셉 4쪽" loading="lazy"></a><a href="images/pop/p5.png" target="_blank"><img src="images/pop/p5.png" alt="쨍한 컨셉 5쪽" loading="lazy"></a><a href="images/pop/p6.png" target="_blank"><img src="images/pop/p6.png" alt="쨍한 컨셉 6쪽" loading="lazy"></a><a href="images/pop/p7.png" target="_blank"><img src="images/pop/p7.png" alt="쨍한 컨셉 7쪽" loading="lazy"></a></div>
+  <div class="meta"><code>--preset jf-pop</code><a class="btn" href="pop.html">덱 열기 (← → · F 전체화면)</a></div>
+</section>
+<section class="card">
+  <div class="head"><h2>내용 계열 · 기술·혁신</h2><span class="tag">고딕(프리젠테이션)</span></div>
+  <a class="cover" href="family-tech.html"><img src="images/family-tech/p1.png" alt="내용 계열 · 기술·혁신 첫 쪽"></a>
+  <div class="thumbs"><a href="images/family-tech/p1.png" target="_blank"><img src="images/family-tech/p1.png" alt="내용 계열 · 기술·혁신 1쪽" loading="lazy"></a><a href="images/family-tech/p2.png" target="_blank"><img src="images/family-tech/p2.png" alt="내용 계열 · 기술·혁신 2쪽" loading="lazy"></a><a href="images/family-tech/p3.png" target="_blank"><img src="images/family-tech/p3.png" alt="내용 계열 · 기술·혁신 3쪽" loading="lazy"></a><a href="images/family-tech/p4.png" target="_blank"><img src="images/family-tech/p4.png" alt="내용 계열 · 기술·혁신 4쪽" loading="lazy"></a><a href="images/family-tech/p5.png" target="_blank"><img src="images/family-tech/p5.png" alt="내용 계열 · 기술·혁신 5쪽" loading="lazy"></a><a href="images/family-tech/p6.png" target="_blank"><img src="images/family-tech/p6.png" alt="내용 계열 · 기술·혁신 6쪽" loading="lazy"></a><a href="images/family-tech/p7.png" target="_blank"><img src="images/family-tech/p7.png" alt="내용 계열 · 기술·혁신 7쪽" loading="lazy"></a></div>
+  <div class="meta"><code>--preset jf-tech</code><a class="btn" href="family-tech.html">덱 열기 (← → · F 전체화면)</a></div>
+</section>
+<section class="card">
+  <div class="head"><h2>흑백톤 · 화면용</h2><span class="tag">명조(Noto Serif KR)</span></div>
+  <a class="cover" href="mono-warm-serif.html"><img src="images/mono-warm-serif/p1.png" alt="흑백톤 · 화면용 첫 쪽"></a>
+  <div class="thumbs"><a href="images/mono-warm-serif/p1.png" target="_blank"><img src="images/mono-warm-serif/p1.png" alt="흑백톤 · 화면용 1쪽" loading="lazy"></a><a href="images/mono-warm-serif/p2.png" target="_blank"><img src="images/mono-warm-serif/p2.png" alt="흑백톤 · 화면용 2쪽" loading="lazy"></a><a href="images/mono-warm-serif/p3.png" target="_blank"><img src="images/mono-warm-serif/p3.png" alt="흑백톤 · 화면용 3쪽" loading="lazy"></a><a href="images/mono-warm-serif/p4.png" target="_blank"><img src="images/mono-warm-serif/p4.png" alt="흑백톤 · 화면용 4쪽" loading="lazy"></a><a href="images/mono-warm-serif/p5.png" target="_blank"><img src="images/mono-warm-serif/p5.png" alt="흑백톤 · 화면용 5쪽" loading="lazy"></a><a href="images/mono-warm-serif/p6.png" target="_blank"><img src="images/mono-warm-serif/p6.png" alt="흑백톤 · 화면용 6쪽" loading="lazy"></a><a href="images/mono-warm-serif/p7.png" target="_blank"><img src="images/mono-warm-serif/p7.png" alt="흑백톤 · 화면용 7쪽" loading="lazy"></a></div>
+  <div class="meta"><code>--preset jf-mono-warm --font myeongjo</code><a class="btn" href="mono-warm-serif.html">덱 열기 (← → · F 전체화면)</a></div>
+</section>
+</div></div></body></html>

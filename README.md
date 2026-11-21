@@ -10,7 +10,27 @@
 - **16:9 발표 덱**: 여러 장을 HTML 하나로, 화살표·페이지 번호·전체화면·PDF
 - **글자 대비 자동 보정**, 글자 값 표 전폭 표시
 - **시작 질문**: 스킬을 부르면 글꼴(고딕·명조)과 발표 색상 컨셉을 먼저 묻는다
+- **색상·글꼴 선택 상자**: 덱 아래에서 프리셋·글꼴을 골라 즉시 바꿔 보기(`--switcher`)
 - 원본 doc-figure v2.4(데이터 그래프·디자인 보고서풍 구조도)까지 병합, 원본 갱신은 주기적으로 병합
+
+## 샘플
+
+더미 데이터 7쪽을 컬러 컨셉·글꼴별로 만든 샘플(실제 논문 아님). [샘플 페이지](samples/index.html)와 각 덱 HTML·페이지 이미지는 `samples/`에 있다.
+
+**[samples/switcher.html](samples/switcher.html)** — 같은 7쪽을 아래 선택 상자로 색상(프리셋 19종)·글꼴(고딕·명조)을 바꿔 가며 본다. 내용은 그대로이고 프리셋 CSS만 갈아 끼워 모든 페이지를 다시 그린다(`jf_build_deck.py --switcher`).
+
+![컨셉별 첫 쪽](samples/images/concepts.png)
+
+| 컨셉 | 글꼴 | 7쪽 모아보기 | 덱 |
+|---|---|---|---|
+| P-01 Timeless & reliable | 고딕 | [보기](samples/images/p01-timeless-sheet.png) | [p01-timeless.html](samples/p01-timeless.html) |
+| P-01 Timeless & reliable | 명조 | [보기](samples/images/p01-timeless-serif-sheet.png) | [p01-timeless-serif.html](samples/p01-timeless-serif.html) |
+| P-02 Serene & warm | 고딕 | [보기](samples/images/p02-serene-sheet.png) | [p02-serene.html](samples/p02-serene.html) |
+| 쨍한 컨셉 | 고딕 | [보기](samples/images/pop-sheet.png) | [pop.html](samples/pop.html) |
+| 내용 계열 · 기술·혁신 | 고딕 | [보기](samples/images/family-tech-sheet.png) | [family-tech.html](samples/family-tech.html) |
+| 흑백톤 · 화면용 | 명조 | [보기](samples/images/mono-warm-serif-sheet.png) | [mono-warm-serif.html](samples/mono-warm-serif.html) |
+
+![P-01 Timeless 7쪽](samples/images/p01-timeless-sheet.png)
 
 ## 개요
 
@@ -22,7 +42,7 @@
 |---|---|
 | 색 | 논문 내용 계열 팔레트 7가지(`jf-policy` `jf-tech` `jf-method` `jf-risk` `jf-social` `jf-economy` `jf-green`), 흑백톤(`jf-mono-ink` `jf-mono-warm` `jf-mono-spot-<계열>`), 컬러 컨셉(`jf-pop` 쨍한 컨셉, `jf-serene` P-02 파스텔, `jf-timeless` P-01 남색·노랑) |
 | 색 고르기 | `jf_palette.py pick`이 제목·초록 키워드로 계열을 판별. 새 컨셉은 컬러차트(공개 프레젠테이션 팔레트 28개)에서 골라 만든다 |
-| 제목 | 논문의 장·절 번호 + 짧은 제목(`3 구제역 사태의 전개과정`). 원본의 결론형 문장 제목은 쓰지 않음 |
+| 제목 | 논문의 장·절 번호 + 짧은 제목(`2 이론적 배경 > 분석틀`). 원본의 결론형 문장 제목은 쓰지 않음 |
 | 페이지 | 16:9(1920×1080 기준), 비율을 유지한 채 화면 폭에 맞춤. 여백 64px·내용 폭 1792px 고정, 제목 42px 고정, 바깥 배경과 페이지 색 분리, 높이 88~100%를 채우도록 자동 조정 |
 | 글꼴 | 고딕 = 프리젠테이션(Freesentation) 웹폰트(기본), 명조 = Noto Serif KR. `--font gothic|myeongjo`. 글꼴을 내려받은 뒤 도식을 그림 |
 | 덱 | 여러 장을 HTML 하나로. 화살표·페이지 번호·키보드 이동, 전체화면 발표(조작 막대 없음, 클릭·키보드로 넘김), 하단 페이지 번호·논문 제목, PDF는 페이지마다 1920×1080 한 장 |
@@ -70,6 +90,7 @@ python3 scripts/jf_palette.py build && python3 scripts/jf_palette.py check
 | `scripts/jf_page.py` | 16:9 페이지 틀·글꼴·자동 맞춤 |
 | `scripts/jf_build_html.py` · `jf_build_deck.py` | 한 장·덱 빌드 |
 | `scripts/jf_color_chart.py` | 컬러차트 |
+| `samples/` | 더미 데이터 샘플 페이지(index.html)·컨셉별 덱·페이지 이미지 |
 | `examples/jf-demo/` | 더미 데이터 도식 7장(연구 질문·분석틀·자료와 절차·집단별 변화·판단 경로·2×2·단계별 제언) |
 | `원본출처.md` | 포크 시점과 변경 기록 |
 
