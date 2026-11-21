@@ -204,6 +204,18 @@ html.jf-soft #figure .tline .tl-bar .knot { border-color: var(--ink-soft) !impor
 @keyframes jfDraw { to { stroke-dashoffset: 0; } }
 @keyframes jfFade { from { opacity: 0; } to { opacity: 1; } }
 html.jf-hit #figure, html.jf-hit #figure * { pointer-events: auto !important; }
+/* 그라데이션(원본 doc-figure v2.4의 --gloss 토큰): viz 그래프는 이 값으로 자기 그라데이션을 그리고, 다른 상자·도형은 applyGloss가 같은 결의 빛을 얹는다 */
+html.jf-grad #figure { --gloss: 0.22; }
+/* 클릭 강조(사용자가 켤 때만): 글자는 형광펜이 아래 55%를 칠하며 지나가고, 상자는 테두리가 조여 들며 강조, 그림 조각은 밝게 빛난다 */
+.jf-mark { background-image: linear-gradient(transparent 42%, rgba(255,212,0,.62) 42%, rgba(255,212,0,.62) 96%, transparent 96%);
+  background-repeat: no-repeat; background-size: 0% 100%; -webkit-box-decoration-break: clone; box-decoration-break: clone; border-radius: 2px; }
+@keyframes jfMark { to { background-size: 100% 100%; } }
+@keyframes jfBox { 0% { outline-offset: 24px; outline-color: rgba(255,176,0,0); } 65% { outline-offset: 2px; outline-color: #FFB000; } 100% { outline-offset: 6px; outline-color: #FFB000; } }
+@keyframes jfGlow { 0% { filter: brightness(1) drop-shadow(0 0 0 rgba(255,186,0,0)); } 45% { filter: brightness(1.35) drop-shadow(0 0 18px rgba(255,186,0,.95)); }
+  100% { filter: brightness(1.14) drop-shadow(0 0 9px rgba(255,186,0,.8)); } }
+html.jf-fx #figure { cursor: pointer; }
+/* 드래그 금지(사용자가 켤 때만): 글자 선택·끌기를 막는다 */
+html.jf-nosel, html.jf-nosel * { -webkit-user-select: none !important; user-select: none !important; -webkit-user-drag: none !important; }
 html.jf-center #figure > .hd { transform: translate(var(--jf-hdx, 0px), var(--jf-hdy, 0px)); }
 @page { size: __W__px __H__px; margin: 0; }
 @media print {
@@ -471,7 +483,20 @@ LOADER = r"""
     var sel = '.hd, .band, .group, .card, .steps, .chips, .tline, .diamond, .mtx, .pill, .kv, .lb, .row > .ico';
     var els = Array.prototype.slice.call(fig.querySelectorAll(sel)).filter(function(e){ return !e.closest('svg'); });
     var svgs = Array.prototype.slice.call(fig.querySelectorAll('svg')).filter(function(sv){ return sv.id !== 'links' && !sv.closest('.card .ic, .ico, .chip, .bl, .jn') && sv.getBoundingClientRect().width > 120; });
-    var items = els.map(function(e){ var r = e.getBoundingClientRect(); return {e: e, t: Math.round(r.top / 60), l: r.left, k: 'up'}; })
+    // 선택자에 걸리지 않은 요소(마지막 줄·설명·출처·그림 위 라벨 등)가 처음부터 떠 있지 않게 — 덮이지 않은 가장 큰 덩어리를 찾아 함께 움직인다
+    var moved = els.concat(svgs), extra = [];
+    var inside = function(c){ for (var q = 0; q < moved.length; q++) if (c !== moved[q] && c.contains(moved[q])) return true; return false; };
+    (function walk(el){
+      Array.prototype.forEach.call(el.children, function(c){
+        if (/^(SCRIPT|STYLE|DEFS)$/i.test(c.tagName) || c.id === 'links' || (c.classList && c.classList.contains('lklabel'))) return;
+        if (moved.indexOf(c) >= 0) return;
+        if (inside(c)) { walk(c); return; }
+        var r = c.getBoundingClientRect(); if (r.width < 1 || r.height < 1 || getComputedStyle(c).display === 'none') return;
+        if (c instanceof SVGElement && !(c instanceof SVGSVGElement)) return;   // SVG 안 조각은 그림째 펼쳐진다
+        extra.push(c);
+      });
+    })(fig);
+    var items = els.concat(extra).map(function(e){ var r = e.getBoundingClientRect(); return {e: e, t: Math.round(r.top / 60), l: r.left, k: 'up'}; })
       .concat(svgs.map(function(e){ var r = e.getBoundingClientRect(); return {e: e, t: Math.round(r.top / 60), l: r.left, k: 'wipe'}; }));
     items.sort(function(a, b){ return a.t - b.t || a.l - b.l; });
     var step = Math.min(90, 1500 / Math.max(1, items.length)), last = 0;
@@ -505,7 +530,76 @@ LOADER = r"""
     if (C.page && fig) settleScale();
     if (C.page && fig) place();
     if (fig) fixContrast(fig);
+    applyGloss();   // 대비 보정 뒤에 — 겹 도형이 바탕 색 판정을 가리지 않게
   }
+  // 그라데이션: 색 칠한 상자(HTML)에는 위쪽이 밝고 아래가 살짝 어두운 빛을, SVG 도형에는 같은 빛의 겹 도형을 얹는다(viz는 --gloss로 스스로 그림)
+  var GLOSS_CSS = 'linear-gradient(180deg, rgba(255,255,255,.30) 0%, rgba(255,255,255,0) 55%, rgba(0,0,0,.08) 100%)';
+  function applyGloss(){
+    if (!C.gloss || !fig) return;
+    var isViz = typeof FIGURE !== 'undefined' && FIGURE && FIGURE.template === 'viz';
+    fig.querySelectorAll('*').forEach(function(e){
+      if (e instanceof SVGElement || e.closest('.hd')) return;
+      var cs = getComputedStyle(e), b = rgba(cs.backgroundColor); if (!b || b[3] < 0.5 || lumi(b) > 0.9) return;
+      if (e.offsetWidth < 24 || e.offsetHeight < 14 || cs.backgroundImage !== 'none') return;
+      e.style.backgroundImage = GLOSS_CSS;
+    });
+    fig.querySelectorAll('svg').forEach(function(sv){
+      if (sv.id === 'links' || (isViz && sv.closest('.vz-stage'))) return;
+      var shapes = Array.prototype.slice.call(sv.querySelectorAll('rect, path, polygon, circle, ellipse')).filter(function(sh){
+        if (sh.closest('defs, marker, clipPath, mask, pattern')) return false;
+        var f = rgba(getComputedStyle(sh).fill); if (!f || f[3] < 0.5 || lumi(f) > 0.9) return false;
+        var bb = sh.getBBox(); return bb.width >= 20 && bb.height >= 12;
+      });
+      if (!shapes.length) return;
+      var NS = 'http://www.w3.org/2000/svg', id = 'jfGloss' + Math.random().toString(36).slice(2, 7);
+      var defs = sv.querySelector('defs') || sv.insertBefore(document.createElementNS(NS, 'defs'), sv.firstChild);
+      var lg = document.createElementNS(NS, 'linearGradient'); lg.setAttribute('id', id); lg.setAttribute('x1', 0); lg.setAttribute('y1', 0); lg.setAttribute('x2', 0); lg.setAttribute('y2', 1);
+      [[0, '#fff', .30], [.55, '#fff', 0], [1, '#000', .08]].forEach(function(st){ var o = document.createElementNS(NS, 'stop'); o.setAttribute('offset', st[0]); o.setAttribute('stop-color', st[1]); o.setAttribute('stop-opacity', st[2]); lg.appendChild(o); });
+      defs.appendChild(lg);
+      shapes.forEach(function(sh){ var g = sh.cloneNode(false); g.removeAttribute('id'); g.removeAttribute('class'); g.removeAttribute('marker-end'); g.removeAttribute('marker-start');
+        g.setAttribute('style', 'fill:url(#' + id + ');stroke:none;pointer-events:none'); g.setAttribute('data-jf-gloss', '1'); sh.parentNode.insertBefore(g, sh.nextSibling); });
+    });
+  }
+  window.__JF_GLOSS__ = function(on, done){
+    C.gloss = !!on; document.documentElement.classList.toggle('jf-grad', C.gloss);
+    window.__JF_DONE__ = false; render(); window.__JF_DONE__ = true; window.__JF_GLOSS_ON__ = C.gloss;
+    if (done) done(window);
+  };
+  // 클릭 강조 — 글자를 누르면 형광펜, 상자를 누르면 테두리, 그림 조각을 누르면 빛나기. 다시 누르면 지움
+  var fxOn = false, BOXES = '.card, .band, .pill, .group, .diamond, .chip, .st, .kv, .node, .rnote, .lane span, .mtx td, .mtx, .lb, .tline, .steps, .bl, .hd';
+  function textAt(x, y){
+    var r = document.caretRangeFromPoint ? document.caretRangeFromPoint(x, y) : null, n = r && r.startContainer;
+    if (!n || n.nodeType !== 3 || !n.nodeValue.trim()) return null;
+    var rg = document.createRange(); rg.selectNodeContents(n);
+    var hit = Array.prototype.some.call(rg.getClientRects(), function(q){ return x >= q.left - 2 && x <= q.right + 2 && y >= q.top - 2 && y <= q.bottom + 2; });
+    return hit ? n : null;
+  }
+  function markText(n){
+    var sp = document.createElement('span'); sp.className = 'jf-mark'; n.parentNode.insertBefore(sp, n); sp.appendChild(n);
+    sp.style.animation = 'jfMark .55s cubic-bezier(.3,.7,.3,1) forwards';
+  }
+  function fxClick(e){
+    if (!fxOn || !fig || !fig.contains(e.target)) return;
+    var t = e.target, mk = t.closest && t.closest('.jf-mark');
+    if (mk) { while (mk.firstChild) mk.parentNode.insertBefore(mk.firstChild, mk); mk.remove(); return; }
+    if (t instanceof SVGElement && !(t instanceof SVGSVGElement) && !t.closest('#links')) {   // 그림 조각
+      if (t.getAttribute('data-jf-fx')) { t.removeAttribute('data-jf-fx'); t.style.animation = ''; t.style.filter = ''; return; }
+      t.setAttribute('data-jf-fx', 'glow'); t.style.animation = 'jfGlow .9s ease-out forwards'; return;
+    }
+    var n = textAt(e.clientX, e.clientY);
+    if (n && !(n.parentNode instanceof SVGElement)) { markText(n); return; }
+    var b = t.closest(BOXES) || (t !== fig ? t : null); if (!b || b === fig) return;   // 상자
+    if (b.getAttribute('data-jf-fx')) { b.removeAttribute('data-jf-fx'); b.style.outline = ''; b.style.outlineOffset = ''; b.style.animation = ''; return; }
+    b.setAttribute('data-jf-fx', 'box'); b.style.outline = '4px solid #FFB000'; b.style.outlineOffset = '6px'; b.style.animation = 'jfBox .7s ease-out';
+  }
+  document.addEventListener('click', fxClick);
+  window.__JF_FX__ = function(on){ fxOn = !!on; document.documentElement.classList.toggle('jf-fx', fxOn); };
+  window.__JF_FX_CLEAR__ = function(){
+    if (!fig) return;
+    fig.querySelectorAll('.jf-mark').forEach(function(mk){ while (mk.firstChild) mk.parentNode.insertBefore(mk.firstChild, mk); mk.remove(); });
+    fig.querySelectorAll('[data-jf-fx]').forEach(function(x){ x.removeAttribute('data-jf-fx'); x.style.animation = ''; x.style.filter = ''; x.style.outline = ''; x.style.outlineOffset = ''; });
+  };
+  window.__JF_NOSELECT__ = function(on){ document.documentElement.classList.toggle('jf-nosel', !!on); };
   window.__JF_RETHEME__ = function(o){
     if (o.css != null) swapBlock('/*JF-PRESET-BEGIN*/', '/*JF-PRESET-END*/', o.css);
     if (o.fontcss != null) swapBlock('/*JF-FONT-BEGIN*/', '/*JF-FONT-END*/', o.fontcss);
@@ -530,11 +624,13 @@ LOADER = r"""
     if (C.page && fig) settleScale();
     if (C.page && fig) place();
     if (fig) fixContrast(fig);
+    applyGloss(); window.__JF_GLOSS_ON__ = !!C.gloss;
     window.__JF_DONE__ = true;
     if (C.animate) window.__JF_ANIM__(true);
     try { if (window.parent && window.parent !== window && window.parent.__JF_FRAME_READY__) window.parent.__JF_FRAME_READY__(window); } catch (e) {}
   }
   if (C.font && C.font !== 'presentation') document.documentElement.classList.add('jf-font-' + C.font);
+  if (C.gloss) document.documentElement.classList.add('jf-grad');
   var fam = C.fontFamily || 'Presentation';
   var loads = ['400', '500', '600', '700', '800'].map(function(w){ return document.fonts.load(w + ' 24px "' + fam + '"', '가나다ABC123'); });
   Promise.all(loads).then(run, run);
@@ -564,7 +660,8 @@ def apply(html, spec, embed=False, placeholders=False):
         w, h = size(spec)
         cfg = {"page": True, "W": w, "H": h, "PAD": pad(spec), "embed": bool(embed), "concept": concept(spec), "M": MARGIN, **elem_cfg(),
                "font": fk, "fontFamily": FONTS[fk]["family"],
-               "minPc": float(spec.get("page_min_cm", 16)), "maxPc": 60, "animate": bool(spec.get("animate", False)) and not embed}
+               "minPc": float(spec.get("page_min_cm", 16)), "maxPc": 60, "animate": bool(spec.get("animate", False)) and not embed,
+               "gloss": bool(spec.get("gloss", False))}
     else:
         cfg = {"page": False, "font": fk, "fontFamily": FONTS[fk]["family"]}
     loader = LOADER.replace("__CFG__", "__JF_CFG__" if placeholders else json.dumps(cfg))
