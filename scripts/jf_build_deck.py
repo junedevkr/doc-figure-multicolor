@@ -18,7 +18,8 @@
 - 클릭 강조(C 키, 켤 때만): 슬라이드를 누르면 글자는 형광펜이 아래 55%를 칠하며 지나가고, 상자는 테두리가 조여 들며 강조, 그래프·도형 조각은 밝게 빛난다.
   다시 누르면 지우고 E 키로 이 페이지 강조·잉크를 모두 지움. 켜 두면 전체화면에서 화면 클릭 넘기기는 멈춘다(키로 넘김)
 - 드래그 금지: 체크하면 슬라이드 글자를 끌어 선택하지 못함
-- 단축키 표시: 보통 화면에서는 버튼마다 작은 키캡 모양(네모 테두리) 글자(← → G A D N C P H L E S F)로 알려 준다. 둥근 버튼은 버튼 아래에 두어 서로 겹치지 않게. 전체화면에서는 막대 없이 키로만, 도구를 바꾸면 잠깐 이름을 띄움
+- 조작 막대: 왼쪽 페이지 이동(이전·번호 목록·다음·전체 보기) · 가운데 발표 도구(펜·형광펜·레이저·클릭 강조·지우기) · 오른쪽 '보기' 메뉴(색상·글꼴·애니메이션·그라데이션·페이지 번호·드래그 금지)·발표자 노트·전체화면·PDF
+- 단축키 표시: 버튼 오른쪽 위에 겹친 키캡 배지(G P H L C E S F, 보기 메뉴 안 A D N). 좌우 이동 버튼에는 표시하지 않음. 한글 입력 상태에서도 같은 자리 키로 동작(물리 키로 판별) 전체화면에서는 막대 없이 키로만, 도구를 바꾸면 잠깐 이름을 띄움
 - PDF 버튼: 인쇄 대화상자 없이 지금 화면 그대로(고른 색·글꼴, 페이지 번호 표시 여부, 하단 글귀, 펜·형광펜 잉크) PDF 파일을
   바로 내려받는다. 페이지마다 1920×1080(1440×810pt) 한 장, 2배 해상도 그림. 라이브러리(html-to-image·jsPDF)는 누를 때 받아 오며,
   받을 수 없으면 인쇄로 대신한다. Ctrl/Cmd+P 인쇄도 그대로 쓸 수 있다(화살표·버튼·배경 숨김)
@@ -44,6 +45,8 @@ ICON = {
     "hl": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14l-3 3v3h3l3-3"/><path d="M9 14l7.5-7.5a2.1 2.1 0 0 1 3 3L12 17"/><path d="M4 21h16" stroke-width="3"/></svg>',
     "laser": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="3.2" fill="currentColor"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg>',
     "erase": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 20H20"/><path d="M5.6 16.6a2 2 0 0 1 0-2.8l8.5-8.5a2 2 0 0 1 2.8 0l2.8 2.8a2 2 0 0 1 0 2.8L12 18.6 8.5 20l-2.9-3.4z"/><path d="M9.5 10l5.5 5.5"/></svg>',
+    "view": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>',
+    "fx": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M9 9l11 4-5 2-2 5-4-11z"/><path d="M5 3.5l1 2.5M2.5 7l2.5 1M10 2.5l-.5 2.6"/></svg>',
     "grid": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg>',
     "notes": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3.5" width="16" height="17" rx="2"/><path d="M8 8.5h8M8 12h8M8 15.5h5"/></svg>',
     "pdf": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6M6 18H4a1 1 0 0 1-1-1v-6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6a1 1 0 0 1-1 1h-2"/><path d="M6 14h12v7H6z"/></svg>',
@@ -77,7 +80,7 @@ body.show-pno .sheet .pno { display: block; }
   color: #6B6B70; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; }
 .tap { position: absolute; inset: 0; display: none; cursor: pointer; }
 
-.nav { width: var(--stage-w); height: 52px; margin: 14px auto 0; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; }
+.nav { width: var(--stage-w); min-height: 52px; margin: 16px auto 0; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 18px; }
 .nav .ttl { font-size: 15px; font-weight: 600; opacity: .72; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 24px; }
 .ctl { display: flex; align-items: center; gap: 12px; }
 .rbtn { width: 36px; height: 36px; border-radius: 50%; border: 0; background: #fff; color: var(--ink); cursor: pointer;
@@ -88,14 +91,24 @@ button:focus-visible, .opt input:focus-visible { outline: 3px solid #1E1E22; out
 .rbtn svg { width: 18px; height: 18px; }
 .count { width: 76px; text-align: center; font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: .5px; }
 .count .tot { opacity: .55; font-weight: 600; }
-.nav .right { justify-self: end; display: flex; align-items: center; gap: 10px; }
+.nav .right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: flex-end; }
 .sw { display: flex; align-items: center; gap: 6px; font-size: 13px; white-space: nowrap; }
-.sw select { font: inherit; font-size: 13px; font-weight: 600; height: 30px; border-radius: 15px; border: 0; padding: 0 8px; background: #fff; color: var(--ink); box-shadow: 0 2px 8px rgba(0,0,0,.14); cursor: pointer; max-width: 260px; }
-body.dark .sw select { background: rgba(255,255,255,.12); color: #F2F2F5; box-shadow: inset 0 0 0 1px rgba(255,255,255,.28); }
-body.dark .sw select option, body.dark .sw select optgroup { color: #1E1E22; }
-.nav.has-sw { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; height: auto; min-height: 52px; gap: 8px 12px; }
-.nav.has-sw .ttl { display: none; }
-.nav.has-sw .right { flex-wrap: wrap; justify-content: flex-end; gap: 8px 10px; }
+.sw select { font: inherit; font-size: 13px; font-weight: 600; height: 30px; border-radius: 8px; border: 1px solid #D6D6DC; padding: 0 8px; background: #fff; color: #1E1E22; cursor: pointer; flex: 1; min-width: 0; }
+/* 보기 메뉴 — 색상·글꼴·표시 선택을 한곳에 */
+.menuwrap { position: relative; }
+#setmenu { position: absolute; bottom: calc(100% + 10px); right: 0; width: min(330px, calc(100vw - 40px)); z-index: 30; display: none;
+  background: #fff; color: #1E1E22; border-radius: 12px; padding: 10px 12px; box-shadow: 0 12px 36px rgba(0,0,0,.28); }
+#setmenu.on { display: block; }
+.mrow { display: flex; align-items: center; gap: 10px; padding: 6px 2px; font-size: 13px; }
+.mrow .ml { flex: none; min-width: 34px; }
+.mrow.opt .ml { flex: 1; }
+.msep { height: 1px; background: #E4E4EA; margin: 6px 0; }
+#setmenu .opt input { accent-color: #1E1E22; }
+body.dark #setmenu { background: #26262C; color: #F2F2F5; box-shadow: 0 12px 36px rgba(0,0,0,.5), inset 0 0 0 1px rgba(255,255,255,.12); }
+body.dark #setmenu .sw select { background: #33333A; color: #F2F2F5; border-color: rgba(255,255,255,.2); }
+body.dark #setmenu .sw select option, body.dark #setmenu .sw select optgroup { color: #1E1E22; background: #fff; }
+body.dark #setmenu .msep { background: rgba(255,255,255,.14); }
+body.dark #setmenu .opt input { accent-color: #F2F2F5; }
 .opt { display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; user-select: none; white-space: nowrap; }
 .opt input { width: 15px; height: 15px; margin: 0; accent-color: #1E1E22; cursor: pointer; }
 .pill { height: 30px; border-radius: 15px; padding: 0 12px; border: 0; background: #fff; color: var(--ink); cursor: pointer;
@@ -123,14 +136,15 @@ body.dark .tbtn.on { background: #F2F2F5; color: #1E1E22; }
 .pill.on { background: #1E1E22; color: #fff; }
 body.dark .pill.on { background: #F2F2F5; color: #1E1E22; }
 /* 단축키 작은 표시 — 보통 화면에서만(전체화면은 막대가 없음) */
-.tbtn, .rbtn { position: relative; }
-.k { display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; min-width: 17px; height: 17px; padding: 0 4px; flex: none;
+.tbtn, .rbtn, .pill { position: relative; }
+.k { display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; min-width: 17px; height: 17px; padding: 0 4px; flex: none; line-height: 1;
   border: 1px solid currentColor; border-bottom-width: 2px; border-radius: 4px; font: 700 10px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
   text-transform: uppercase; letter-spacing: 0; opacity: .6; white-space: nowrap; }
-.tbtn .k, .rbtn .k { position: absolute; top: 100%; left: 50%; transform: translateX(-50%); margin-top: 5px; pointer-events: none; }
-.pill .k, .opt .k { margin-left: 6px; }
-.nav.has-sw { row-gap: 30px !important; padding-bottom: 22px; }
-.tools { gap: 8px !important; }
+/* 단축키 배지: 버튼 오른쪽 위에 겹쳐 — 버튼 사이 간격 안에 들어가 옆 버튼과 겹치지 않음 */
+.hk .k { position: absolute; top: -7px; right: -7px; min-width: 15px; height: 15px; padding: 0 3px; font-size: 9px; opacity: 1;
+  background: var(--backdrop); color: var(--ink); border-color: currentColor; pointer-events: none; z-index: 1; }
+.k.inl { margin-left: auto; opacity: .7; }
+.tools { gap: 12px !important; }
 .ctl { gap: 14px !important; }
 .count { cursor: pointer; border: 0; background: none; color: inherit; font: inherit; font-size: 17px; font-weight: 700; padding: 0 4px; border-radius: 8px; }
 .count:hover { background: rgba(127,127,127,.15); }
@@ -208,29 +222,32 @@ body.dark button:focus-visible, body.dark .opt input:focus-visible { outline-col
     <div id="picker" role="dialog" aria-label="페이지 고르기"><p class="ph">전체 보기 — 눌러서 이동 (숫자 입력 후 Enter도 됨, G·Esc 닫기)</p><div class="grid"></div></div>
     <div id="toast" aria-live="polite"></div>
   </div>
-  <nav class="nav" aria-label="페이지 이동">
-    <div class="ttl">__TITLE__</div>
-    <div class="ctl">
-      <button class="rbtn" data-act="prev" type="button" aria-label="이전 페이지 (← 키)">__I_PREV__<span class="k">←</span></button>
+  <nav class="nav" aria-label="발표 조작">
+    <div class="ctl" role="group" aria-label="페이지 이동">
+      <button class="rbtn" data-act="prev" type="button" aria-label="이전 페이지">__I_PREV__</button>
       <div class="pgwrap"><button class="count" data-act="menu" type="button" aria-haspopup="listbox" aria-label="페이지 이동 목록" title="눌러서 페이지 이동 (숫자 입력 후 Enter도 됨)"><span data-cur>1</span> <span class="tot">/ <span data-tot>1</span></span></button><div id="pgmenu" role="listbox" aria-label="페이지 이동"></div></div>
-      <button class="rbtn" data-act="next" type="button" aria-label="다음 페이지 (→ 키)">__I_NEXT__<span class="k">→</span></button>
-      <button class="rbtn" data-act="pick" type="button" aria-label="전체 보기 (G 키)" title="모든 페이지 미리보기 (G 키)">__I_GRID__<span class="k">G</span></button>
+      <button class="rbtn" data-act="next" type="button" aria-label="다음 페이지">__I_NEXT__</button>
+      <button class="rbtn hk" data-act="pick" type="button" aria-label="전체 보기 (G 키)" title="모든 페이지 미리보기 (G 키)">__I_GRID__<span class="k">G</span></button>
+    </div>
+    <div class="tools" role="group" aria-label="발표 도구">
+      <button class="tbtn hk" data-tool="pen" type="button" title="펜 (P 키)" aria-label="펜 (P 키)" aria-pressed="false">__I_PEN__<span class="k">P</span></button>
+      <button class="tbtn hk" data-tool="hl" type="button" title="형광펜 (H 키)" aria-label="형광펜 (H 키)" aria-pressed="false">__I_HL__<span class="k">H</span></button>
+      <button class="tbtn hk" data-tool="laser" type="button" title="레이저 포인터 (L 키)" aria-label="레이저 포인터 (L 키)" aria-pressed="false">__I_LASER__<span class="k">L</span></button>
+      <button class="tbtn hk" data-act="fx" type="button" title="클릭 강조: 글자는 형광펜, 상자는 테두리, 화살표는 다시 그리며 강조, 그림 조각은 빛나기. 다시 누르면 지움 (C 키)" aria-label="클릭 강조 (C 키)" aria-pressed="false">__I_FX__<span class="k">C</span></button>
+      <button class="tbtn hk" data-act="erase" type="button" title="이 페이지 잉크·강조 지우기 (E 키, 한 획 되돌리기는 Z 키)" aria-label="이 페이지 잉크·강조 지우기 (E 키)">__I_ERASE__<span class="k">E</span></button>
     </div>
     <div class="right">
-      __SWITCH_UI__
-      <label class="opt" title="페이지를 열 때 그려지듯 나타남 (A 키)"><input type="checkbox" data-anim> 애니메이션<span class="k">A</span></label>
-      <label class="opt" title="상자·도형·그래프에 위가 밝은 그라데이션 (D 키). PDF에도 그대로 적용"><input type="checkbox" data-grad> 그라데이션<span class="k">D</span></label>
-      <label class="opt" title="슬라이드 오른쪽 아래에 페이지 번호 (N 키). PDF에도 그대로 적용"><input type="checkbox" data-pno> 페이지 번호<span class="k">N</span></label>
-      <label class="opt" title="슬라이드를 누르면 강조: 글자는 형광펜, 상자는 테두리, 그림 조각은 빛나기. 다시 누르면 지움, E 키로 모두 지움 (C 키)"><input type="checkbox" data-fx> 클릭 강조<span class="k">C</span></label>
-      <label class="opt" title="슬라이드 글자를 끌어 선택하지 못하게"><input type="checkbox" data-nosel> 드래그 금지</label>
-      <div class="tools" role="group" aria-label="발표 도구">
-        <button class="tbtn" data-tool="pen" type="button" title="펜 (P 키)" aria-label="펜 (P 키)" aria-pressed="false">__I_PEN__<span class="k">P</span></button>
-        <button class="tbtn" data-tool="hl" type="button" title="형광펜 (H 키)" aria-label="형광펜 (H 키)" aria-pressed="false">__I_HL__<span class="k">H</span></button>
-        <button class="tbtn" data-tool="laser" type="button" title="레이저 포인터 (L 키)" aria-label="레이저 포인터 (L 키)" aria-pressed="false">__I_LASER__<span class="k">L</span></button>
-        <button class="tbtn" data-act="erase" type="button" title="이 페이지 잉크 지우기 (E 키, 한 획 되돌리기는 Z 키)" aria-label="이 페이지 잉크 지우기 (E 키)">__I_ERASE__<span class="k">E</span></button>
+      <div class="menuwrap"><button class="pill" data-act="settings" type="button" aria-haspopup="dialog" aria-label="보기 설정: 색상·글꼴·애니메이션·그라데이션·페이지 번호·드래그 금지">__I_VIEW__보기 ▾</button>
+        <div id="setmenu" role="dialog" aria-label="보기 설정">
+          __SWITCH_UI__
+          <label class="mrow opt" title="페이지를 열 때 그려지듯 나타남"><input type="checkbox" data-anim><span class="ml">애니메이션</span><span class="k inl">A</span></label>
+          <label class="mrow opt" title="상자·도형·그래프에 위가 밝은 그라데이션. PDF에도 그대로"><input type="checkbox" data-grad><span class="ml">그라데이션</span><span class="k inl">D</span></label>
+          <label class="mrow opt" title="슬라이드 오른쪽 아래에 페이지 번호. PDF에도 그대로"><input type="checkbox" data-pno><span class="ml">페이지 번호</span><span class="k inl">N</span></label>
+          <label class="mrow opt" title="슬라이드 글자를 끌어 선택하지 못하게"><input type="checkbox" data-nosel><span class="ml">드래그 금지</span></label>
+        </div>
       </div>
-      <button class="pill" data-act="notes" type="button" aria-label="발표자 노트 창 열기 (S 키)">__I_NOTES__발표자 노트<span class="k">S</span></button>
-      <button class="pill" data-act="full" type="button" aria-label="전체화면 발표 (F 키)">__I_FULL__전체화면<span class="k">F</span></button>
+      <button class="pill hk" data-act="notes" type="button" aria-label="발표자 노트 창 열기 (S 키)">__I_NOTES__발표자 노트<span class="k">S</span></button>
+      <button class="pill hk" data-act="full" type="button" aria-label="전체화면 발표 (F 키)">__I_FULL__전체화면<span class="k">F</span></button>
       <button class="pill" data-act="pdf" type="button" aria-label="화면 그대로 PDF 파일로 바로 저장" title="지금 화면 그대로(색·글꼴·페이지 번호·잉크) PDF 파일을 바로 내려받음">__I_PDF__<span data-pdf-label>PDF</span></button>
     </div>
   </nav>
@@ -400,6 +417,9 @@ body.dark button:focus-visible, body.dark .opt input:focus-visible { outline-col
     if (on) { var c = pgmenu.querySelector('.cur'); if (c) { c.scrollIntoView({block: 'center'}); c.focus(); } }
   }
   document.addEventListener('click', function(ev){ if (pgmenu.classList.contains('on') && !ev.target.closest('.pgwrap')) openMenu(false); });
+  var setmenu = document.getElementById('setmenu');
+  function openSettings(on){ if (on === undefined) on = !setmenu.classList.contains('on'); setmenu.classList.toggle('on', on); if (on) openMenu(false); }
+  document.addEventListener('click', function(ev){ if (setmenu.classList.contains('on') && !ev.target.closest('.menuwrap')) openSettings(false); });
   // 전체 보기 → 미리보기 칸(보이는 칸만 그때그때 그림, 색·글꼴·그라데이션도 지금 화면 그대로)
   var thumbKey = '', thumbIO = null;
   function fitThumbs(){ pgrid.querySelectorAll('.th').forEach(function(th){ var f = th.querySelector('iframe'); if (f) f.style.transform = 'scale(' + (th.clientWidth / W) + ')'; }); }
@@ -430,10 +450,10 @@ body.dark button:focus-visible, body.dark .opt input:focus-visible { outline-col
   function toastAny(msg){ toastEl.textContent = msg; toastEl.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(function(){ toastEl.classList.remove('on'); }, 1300); }
 
   // ── 클릭 강조·드래그 금지: 페이지(iframe) 안에서 처리. 켜 두면 새로 그려진 페이지에도 바로 적용 ──────
-  var fxBox = document.querySelector('[data-fx]'), noselBox = document.querySelector('[data-nosel]'), fxOn = false, noselOn = false;
+  var fxBtns = all('[data-act="fx"]'), noselBox = document.querySelector('[data-nosel]'), fxOn = false, noselOn = false;
   try { fxOn = localStorage.getItem('jf-deck-fx') === '1'; noselOn = localStorage.getItem('jf-deck-nosel') === '1'; } catch (e) {}
   function frameOpts(w){ if (!w) return; try { if (w.__JF_FX__) w.__JF_FX__(fxOn); if (w.__JF_NOSELECT__) w.__JF_NOSELECT__(noselOn); } catch (e) {} }
-  function setFx(on){ fxOn = on; if (fxBox) fxBox.checked = on; show.classList.toggle('fx-on', on);
+  function setFx(on){ fxOn = on; fxBtns.forEach(function(b){ b.classList.toggle('on', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); }); show.classList.toggle('fx-on', on);
     try { localStorage.setItem('jf-deck-fx', on ? '1' : '0'); } catch (e) {} sheets.forEach(function(_, i){ frameOpts(frameWin(i)); }); toast(on ? '클릭 강조 켬 (다시 누르면 지움, E 모두 지움)' : '클릭 강조 끔'); }
   function setNosel(on){ noselOn = on; if (noselBox) noselBox.checked = on; document.body.classList.toggle('nosel', on);
     try { localStorage.setItem('jf-deck-nosel', on ? '1' : '0'); } catch (e) {} sheets.forEach(function(_, i){ frameOpts(frameWin(i)); }); }
@@ -574,6 +594,8 @@ body.dark button:focus-visible, body.dark .opt input:focus-visible { outline-col
       else if (a === 'pdf') savePdf(b);
       else if (a === 'pick') openPicker();
       else if (a === 'menu') openMenu();
+      else if (a === 'settings') openSettings();
+      else if (a === 'fx') setFx(!fxOn);
       else if (a === 'erase') erase();
       else if (a === 'notes') openNotes();
     });
@@ -581,30 +603,35 @@ body.dark button:focus-visible, body.dark .opt input:focus-visible { outline-col
   function key(e){
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     var t = e.target && e.target.tagName;
-    var k = e.key;
+    var k = e.key, c = e.code || '';
+    // 한글 입력 상태에서도 같은 자리의 키로 동작하도록 물리 키(KeyP·Digit3)로 읽는다
+    var L = c.indexOf('Key') === 0 ? c.slice(3).toLowerCase() : (/^[a-zA-Z]$/.test(k) ? k.toLowerCase() : '');
+    var D = c.indexOf('Digit') === 0 ? c.slice(5) : (/^Numpad[0-9]$/.test(c) ? c.slice(6) : (/^[0-9]$/.test(k) ? k : ''));
+    if (t === 'SELECT' || (t === 'INPUT' && e.target.type !== 'checkbox')) return;
+    if (setmenu.classList.contains('on') && k === 'Escape') { openSettings(false); e.preventDefault(); return; }
     if (pgmenu.classList.contains('on') && k === 'Escape') { openMenu(false); e.preventDefault(); return; }
-    if (picker.classList.contains('on') && (k === 'Escape' || k === 'g' || k === 'G')) { openPicker(false); e.preventDefault(); return; }
-    if (/^[0-9]$/.test(k)) { typeNum(k); e.preventDefault(); return; }
+    if (picker.classList.contains('on') && (k === 'Escape' || L === 'g')) { openPicker(false); e.preventDefault(); return; }
+    if (D) { typeNum(D); e.preventDefault(); return; }
     if (k === 'Enter' && numBuf) { var nn = parseInt(numBuf, 10); numBuf = ''; openPicker(false); go(nn - 1); toastAny(nn + ' 쪽'); e.preventDefault(); return; }
     if (picker.classList.contains('on')) return;
     if (k === 'ArrowRight' || k === 'PageDown' || (k === ' ' && !e.shiftKey && t !== 'BUTTON' && t !== 'INPUT')) { go(cur + 1); e.preventDefault(); }
     else if (k === 'ArrowLeft' || k === 'PageUp' || (k === ' ' && e.shiftKey)) { go(cur - 1); e.preventDefault(); }
     else if (k === 'Home') { go(0); e.preventDefault(); }
     else if (k === 'End') { go(PAGES.length - 1); e.preventDefault(); }
-    else if (k === 'f' || k === 'F') { toggleFull(); e.preventDefault(); }
+    else if (L === 'f') { toggleFull(); e.preventDefault(); }
     else if (k === 'Escape' && tool) { setTool(null); e.preventDefault(); }
     else if (k === 'Escape' && show.classList.contains('present')) { setPresent(false); e.preventDefault(); }
-    else if (k === 'p' || k === 'P') { setTool('pen'); e.preventDefault(); }
-    else if (k === 'h' || k === 'H') { setTool('hl'); e.preventDefault(); }
-    else if (k === 'l' || k === 'L') { setTool('laser'); e.preventDefault(); }
-    else if (k === 'e' || k === 'E') { erase(); e.preventDefault(); }
-    else if (k === 'z' || k === 'Z') { undo(); e.preventDefault(); }
-    else if (k === 's' || k === 'S') { openNotes(); e.preventDefault(); }
-    else if (k === 'g' || k === 'G') { openPicker(true); e.preventDefault(); }
-    else if (k === 'd' || k === 'D') { setGrad(!gradOn); e.preventDefault(); }
-    else if (k === 'c' || k === 'C') { setFx(!fxOn); e.preventDefault(); }
-    else if (k === 'n' || k === 'N') { setPno(!document.body.classList.contains('show-pno')); e.preventDefault(); }
-    else if (k === 'a' || k === 'A') { setAnim(!animOn); e.preventDefault(); }
+    else if (L === 'p') { setTool('pen'); e.preventDefault(); }
+    else if (L === 'h') { setTool('hl'); e.preventDefault(); }
+    else if (L === 'l') { setTool('laser'); e.preventDefault(); }
+    else if (L === 'e') { erase(); e.preventDefault(); }
+    else if (L === 'z') { undo(); e.preventDefault(); }
+    else if (L === 's') { openNotes(); e.preventDefault(); }
+    else if (L === 'g') { openPicker(true); e.preventDefault(); }
+    else if (L === 'd') { setGrad(!gradOn); e.preventDefault(); }
+    else if (L === 'c') { setFx(!fxOn); e.preventDefault(); }
+    else if (L === 'n') { setPno(!document.body.classList.contains('show-pno')); e.preventDefault(); }
+    else if (L === 'a') { setAnim(!animOn); e.preventDefault(); }
   }
   document.addEventListener('keydown', key);
   sheets.forEach(function(sh){
@@ -647,7 +674,7 @@ body.dark button:focus-visible, body.dark .opt input:focus-visible { outline-col
   fit();
   if (animBox) { animBox.checked = animOn; animBox.addEventListener('change', function(){ setAnim(animBox.checked); }); }
   if (gradBox) { gradBox.checked = gradOn; gradBox.addEventListener('change', function(){ setGrad(gradBox.checked); }); }
-  if (fxBox) { fxBox.checked = fxOn; show.classList.toggle('fx-on', fxOn); fxBox.addEventListener('change', function(){ setFx(fxBox.checked); }); }
+  fxBtns.forEach(function(b){ b.classList.toggle('on', fxOn); b.setAttribute('aria-pressed', fxOn ? 'true' : 'false'); }); show.classList.toggle('fx-on', fxOn);
   if (noselBox) { noselBox.checked = noselOn; noselBox.addEventListener('change', function(){ setNosel(noselBox.checked); }); }
   var h = parseInt((location.hash || '').slice(1), 10);
   go(isNaN(h) ? 0 : h - 1, false);
@@ -704,8 +731,8 @@ def switch_data(specs, fk):
             "fontcss": {k: jf_page.font_css(k) for k in jf_page.FONTS}, "fam": {k: v["family"] for k, v in jf_page.FONTS.items()},
             "cfg": jf_page.base_cfg(dict(specs[0], page=jf_page.mode(specs[0]) or "16:9")),
             "preset": first if first in css else sorted(css)[0], "font": fk}
-    ui = ('<label class="sw">색상 <select id="sw-preset" aria-label="색상 프리셋">%s</select></label>'
-          '<label class="sw">글꼴 <select id="sw-font" aria-label="글꼴">%s</select></label>') % ("".join(opts), font_opts())
+    ui = ('<label class="mrow sw"><span class="ml">색상</span><select id="sw-preset" aria-label="색상 프리셋">%s</select></label>'
+          '<label class="mrow sw"><span class="ml">글꼴</span><select id="sw-font" aria-label="글꼴">%s</select></label><div class="msep"></div>') % ("".join(opts), font_opts())
     return json.dumps(data, ensure_ascii=False).replace("</", "<\\/"), ui
 
 def main():
@@ -751,7 +778,7 @@ def main():
                  ("__W__", str(w)), ("__H__", str(h)), ("__FONT_STACK__", jf_page.FONTS[fk]["stack"]),
                  ("__I_PREV__", ICON["prev"]), ("__I_NEXT__", ICON["next"]), ("__I_FULL__", ICON["full"]),
                  ("__I_EXIT__", ICON["exit"]), ("__I_PDF__", ICON["pdf"]),
-                 ("__I_GRID__", ICON["grid"]), ("__I_PEN__", ICON["pen"]), ("__I_HL__", ICON["hl"]), ("__I_LASER__", ICON["laser"]), ("__I_ERASE__", ICON["erase"]), ("__I_NOTES__", ICON["notes"]),
+                 ("__I_GRID__", ICON["grid"]), ("__I_VIEW__", ICON["view"]), ("__I_FX__", ICON["fx"]), ("__I_PEN__", ICON["pen"]), ("__I_HL__", ICON["hl"]), ("__I_LASER__", ICON["laser"]), ("__I_ERASE__", ICON["erase"]), ("__I_NOTES__", ICON["notes"]),
                  ("__NOTES__", json.dumps(notes, ensure_ascii=False).replace("</", "<\\/")),
                  ("__PNO__", "false" if a.no_number else "true"),
                  ("__DARK__", "true" if is_dark(jf_page.backdrop(B.preset_css(specs[0]), specs[0].get("preset", ""))) else "false"),

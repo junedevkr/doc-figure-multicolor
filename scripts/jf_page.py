@@ -597,10 +597,41 @@ LOADER = r"""
     var sp = document.createElement('span'); sp.className = 'jf-mark'; n.parentNode.insertBefore(sp, n); sp.appendChild(n);
     sp.style.animation = 'jfMark .55s cubic-bezier(.3,.7,.3,1) forwards';
   }
+  // 화살표·연결선: 선은 가늘고 상자 뒤 층이라 직접 눌리지 않으므로, 누른 자리에서 16px 안쪽을 지나는 선을 찾는다
+  function lineAt(x, y){
+    var best = null;
+    fig.querySelectorAll('svg').forEach(function(sv){
+      if (best || !isConnectorSvg(sv)) return;
+      var m = sv.getScreenCTM(); if (!m) return;
+      var pt = sv.createSVGPoint(); pt.x = x; pt.y = y; var q = pt.matrixTransform(m.inverse());
+      sv.querySelectorAll('path, line, polyline').forEach(function(p){
+        if (best || p.closest('defs, marker') || p.getAttribute('data-jf-gloss')) return;
+        if (getComputedStyle(p).stroke === 'none') return;
+        var sw = p.style.strokeWidth; p.style.strokeWidth = '16px';
+        var hit = false; try { hit = p.isPointInStroke(q); } catch (er) {}
+        p.style.strokeWidth = sw; if (hit) best = p;
+      });
+    });
+    return best;
+  }
+  // 화살표 강조: 굵고 빛나게 바꾼 뒤 처음부터 다시 그음(화살촉은 다 그은 뒤). 다시 누르면 원래대로
+  function fxLine(p){
+    if (p.getAttribute('data-jf-fx')) { p.removeAttribute('data-jf-fx'); p.style.filter = ''; p.style.strokeWidth = ''; p.style.animation = ''; p.style.strokeDasharray = ''; p.style.strokeDashoffset = ''; restoreMarkers(p); return; }
+    var len = 0; try { len = p.getTotalLength(); } catch (er) {}
+    var cs = getComputedStyle(p), dashed = (cs.strokeDasharray || 'none') !== 'none', w0 = parseFloat(cs.strokeWidth) || 2;
+    p.setAttribute('data-jf-fx', 'line');
+    p.style.strokeWidth = (w0 * 1.7).toFixed(1) + 'px'; p.style.filter = 'drop-shadow(0 0 5px rgba(255,186,0,.95))';
+    var mk = {}, has = false; MK.forEach(function(a){ var v = p.getAttribute(a); if (v) { mk[a] = v; has = true; p.removeAttribute(a); } });
+    if (has) p.setAttribute('data-jf-mk', JSON.stringify(mk));
+    if (!dashed && len) { p.style.animation = ''; p.style.strokeDasharray = len; p.style.strokeDashoffset = len; void p.getBoundingClientRect(); p.style.animation = 'jfDraw .8s ease-out forwards'; }
+    else { p.style.animation = ''; void p.getBoundingClientRect(); p.style.animation = 'jfFade .5s ease backwards'; }
+    p.addEventListener('animationend', function(){ restoreMarkers(p); if (!dashed) { p.style.animation = ''; p.style.strokeDasharray = ''; p.style.strokeDashoffset = ''; } }, {once: true});
+  }
   function fxClick(e){
     if (!fxOn || !fig || !fig.contains(e.target)) return;
     var t = e.target, mk = t.closest && t.closest('.jf-mark');
     if (mk) { while (mk.firstChild) mk.parentNode.insertBefore(mk.firstChild, mk); mk.remove(); return; }
+    if (!t.closest(BOXES) || t.closest('svg')) { var ln = lineAt(e.clientX, e.clientY); if (ln) { fxLine(ln); return; } }
     if (t instanceof SVGElement && !(t instanceof SVGSVGElement) && !t.closest('#links')) {   // 그림 조각
       if (t.getAttribute('data-jf-fx')) { t.removeAttribute('data-jf-fx'); t.style.animation = ''; t.style.filter = ''; return; }
       t.setAttribute('data-jf-fx', 'glow'); t.style.animation = 'jfGlow .9s ease-out forwards'; return;
@@ -616,7 +647,8 @@ LOADER = r"""
   window.__JF_FX_CLEAR__ = function(){
     if (!fig) return;
     fig.querySelectorAll('.jf-mark').forEach(function(mk){ while (mk.firstChild) mk.parentNode.insertBefore(mk.firstChild, mk); mk.remove(); });
-    fig.querySelectorAll('[data-jf-fx]').forEach(function(x){ x.removeAttribute('data-jf-fx'); x.style.animation = ''; x.style.filter = ''; x.style.outline = ''; x.style.outlineOffset = ''; });
+    fig.querySelectorAll('[data-jf-fx]').forEach(function(x){ x.removeAttribute('data-jf-fx'); x.style.animation = ''; x.style.filter = ''; x.style.outline = ''; x.style.outlineOffset = '';
+      if (x instanceof SVGElement) { x.style.strokeWidth = ''; x.style.strokeDasharray = ''; x.style.strokeDashoffset = ''; restoreMarkers(x); } });
   };
   window.__JF_NOSELECT__ = function(on){ document.documentElement.classList.toggle('jf-nosel', !!on); };
   window.__JF_RETHEME__ = function(o){
