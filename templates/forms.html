@@ -303,10 +303,11 @@ const ICONS  = /*__ICONS__*/ {};
     const fl=cut? Math.max(0, lo-(hi-lo)*1.2) : 0, mx=fl+(hi-fl)*1.12, Y=v=>T+PH-((v-fl)/(mx-fl))*PH;
     bars.forEach(b=>{ if(b.y0===0) b.y0=fl; });
     add(st,'line',{x1:20,y1:T+PH,x2:W-20,y2:T+PH},'s-axis');
-    if(cut){ [0,bars.length-1].forEach(i=>{ const x=30+i*cw+(cw-bw)/2, x0=x-10, x1=x+bw+10, y=T+PH-32, len=(x1-x0)/1.5, amp=Math.min(8,len*0.08), gap=18, shift=len*0.12;
-        // 축 하단 생략은 물결 띠로 — 위아래 같은 물결, 아래쪽을 오른쪽으로 밀어 리본처럼(거울 대칭이면 물결로 안 읽힘)
-        const pts=(yy,ph)=>{ const a=[]; for(let xx=x0;xx<=x1+0.01;xx+=2){ const q=Math.min(xx,x1); a.push([q,yy+amp*Math.sin(2*Math.PI*(q-x0-ph)/len)]); } return a; };
-        const top=pts(y-gap/2,0), bot=pts(y+gap/2,shift), dp=a=>a.map((p,k)=>(k?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
+    if(cut){ [0,bars.length-1].forEach(i=>{ const x=30+i*cw+(cw-bw)/2, x0=x-10, x1=x+bw+10, y=T+PH-32, len=(x1-x0)/1.5, amp=Math.min(8,len*0.08), th=12;
+        // 축 하단 생략은 물결 띠로 — 아래 가장자리는 위 물결의 평행선(법선 방향 같은 거리)이라 띠 굵기가 어디서나 같게 보임
+        const f=q=>y-th/2+amp*Math.sin(2*Math.PI*(q-x0)/len), df=q=>amp*2*Math.PI/len*Math.cos(2*Math.PI*(q-x0)/len);
+        const top=[], bot=[]; for(let xx=x0;xx<=x1+0.01;xx+=1.5){ const q=Math.min(xx,x1), s=Math.hypot(1,df(q)); top.push([q,f(q)]); bot.push([q-df(q)*th/s,f(q)+th/s]); }
+        const dp=a=>a.map((p,k)=>(k?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
         add(st,'path',{d:dp(top)+' '+dp(bot.slice().reverse()).replace(/^M/,'L')+' Z','fill':'var(--bg)','stroke':'none'});
         add(st,'path',{d:dp(top)},'s-thin'); add(st,'path',{d:dp(bot)},'s-thin'); });
       lab(st,24,T+PH+44,300,[['※ 세로축 하단 일부 생략','t3']],{anchor:'l',align:'l'}); }

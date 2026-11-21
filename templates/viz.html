@@ -636,11 +636,12 @@ const ICONS  = /*__ICONS__*/ {};
   function card(st,x,y,w,h,tn,o){ o=o||{}; const r=SOLID?(o.r==null?10:o.r):0;
     add(st,'rect',{x,y,width:w,height:h,rx:r},o.solid?('fill:'+tc(tn)):('fill:'+(o.white?'var(--card-fill)':tc(tn,'tint'))+';stroke:'+tc(tn,o.strong?'':'line')+';stroke-width:'+(o.strong?3:2)));
     if(o.solid) gloss(st,'rect',{x,y,width:w,height:h,rx:r}); }
-  // 축 생략 물결 띠 — 위아래 가장자리를 같은 물결로 그리되 아래쪽을 오른쪽으로 밀어(위상 차) 리본처럼 굽이치게.
-  //   위아래가 거울 대칭이면 띠가 부풀었다 오므라들 뿐 물결로 읽히지 않는다
-  function waveBreak(st,x0,x1,y,o){ o=o||{}; const w=x1-x0, len=o.len||w/1.5, amp=o.amp||Math.min(8,len*0.08), gap=o.gap||18, shift=o.shift==null?len*0.12:o.shift;   // 띠 두께는 gap±2·amp·sin(π·shift/len) — 12~24px로 굵기가 바뀌며 굽이침
-    const pts=(yy,ph)=>{ const a=[]; for(let x=x0;x<=x1+0.01;x+=2) a.push([Math.min(x,x1),yy+amp*Math.sin(2*Math.PI*(Math.min(x,x1)-x0-ph)/len)]); return a; };
-    const top=pts(y-gap/2,0), bot=pts(y+gap/2,shift), dp=a=>a.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
+  // 축 생략 물결 띠 — 아래 가장자리를 위 물결의 평행선(법선 방향으로 같은 거리)으로 그려 띠 굵기가 어디서나 같게 보이게.
+  //   위아래를 거울 대칭으로 두면 부풀었다 오므라들고, 같은 물결을 세로로만 내리면 비탈에서 가늘어 보인다
+  function waveBreak(st,x0,x1,y,o){ o=o||{}; const w=x1-x0, len=o.len||w/1.5, amp=o.amp||Math.min(8,len*0.08), th=o.gap||12;
+    const f=x=>y-th/2+amp*Math.sin(2*Math.PI*(x-x0)/len), df=x=>amp*2*Math.PI/len*Math.cos(2*Math.PI*(x-x0)/len);
+    const top=[], bot=[]; for(let x=x0;x<=x1+0.01;x+=1.5){ const q=Math.min(x,x1), s=Math.hypot(1,df(q)); top.push([q,f(q)]); bot.push([q-df(q)*th/s,f(q)+th/s]); }
+    const dp=a=>a.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
     add(st,'path',{d:dp(top)+' '+dp(bot.slice().reverse()).replace(/^M/,'L')+' Z'},'fill:var(--bg,#fff);stroke:none');
     add(st,'path',{d:dp(top)},'fill:none;stroke:var(--ink-soft);stroke-width:1.6;stroke-linejoin:round');
     add(st,'path',{d:dp(bot)},'fill:none;stroke:var(--ink-soft);stroke-width:1.6;stroke-linejoin:round'); }
