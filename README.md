@@ -1,4 +1,17 @@
-# june-figure
+# doc-figure-multicolor
+
+[doc-figure](https://github.com/parkjui92/doc-figure)를 포크해 **멀티 컬러차트와 색 체계, 16:9 발표 덱**을 더한 업데이트판. 스킬 이름은 `june-figure`.
+
+## 이번 업데이트
+
+- **멀티 컬러차트**: 공개 프레젠테이션 팔레트 28개(P-01~P-28)를 같은 미니 슬라이드에 입혀 비교하고 번호로 골라 컨셉으로 만든다
+- **컬러 컨셉**: `jf-timeless`(P-01 남색·하늘색·노랑), `jf-serene`(P-02 파스텔), `jf-pop`(쨍한 컨셉)
+- **내용 계열 색 7가지 + 흑백톤**: 논문 제목·초록으로 계열을 판별
+- **16:9 발표 덱**: 여러 장을 HTML 하나로, 화살표·페이지 번호·전체화면·PDF
+- **글자 대비 자동 보정**, 글자 값 표 전폭 표시
+- 원본 doc-figure v2.4(데이터 그래프·디자인 보고서풍 구조도)까지 병합, 원본 갱신은 주기적으로 병합
+
+## 개요
 
 논문발표 PT·도식용 Claude Code 스킬. [parkjui92/doc-figure](https://github.com/parkjui92/doc-figure)(MIT)를 포크해 색 체계·페이지 틀·발표용 덱을 더했다. 도식 문법·레시피·`--verify` 점검과 원본 v2.4의 데이터 그래프(viz)·디자인 보고서풍 구조도는 원본을 그대로 쓴다. 원본 갱신은 주기적으로 병합한다. 원본 설명은 [README.doc-figure.md](README.doc-figure.md).
 
@@ -19,7 +32,7 @@
 ## 설치
 
 ```bash
-git clone https://github.com/junedevkr/june-figure ~/.claude/skills/june-figure
+git clone https://github.com/junedevkr/doc-figure-multicolor ~/.claude/skills/june-figure
 ```
 
 ## 쓰는 법
