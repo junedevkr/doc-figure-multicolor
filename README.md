@@ -1,6 +1,6 @@
 # doc-figure-multicolor
 
-[doc-figure](https://github.com/parkjui92/doc-figure)를 포크해 **멀티 컬러차트와 색 체계, 16:9 발표 덱**을 더한 업데이트판. 스킬 이름은 `june-figure`.
+[doc-figure](https://github.com/parkjui92/doc-figure)를 포크해 **멀티 컬러차트와 색 체계, 16:9 발표 덱**을 더한 업데이트판. 스킬 이름과 설치 폴더도 `doc-figure-multicolor`.
 
 ## 이번 업데이트
 
@@ -32,7 +32,7 @@
 ## 설치
 
 ```bash
-git clone https://github.com/junedevkr/doc-figure-multicolor ~/.claude/skills/june-figure
+git clone https://github.com/junedevkr/doc-figure-multicolor ~/.claude/skills/doc-figure-multicolor
 ```
 
 ## 쓰는 법
@@ -60,7 +60,7 @@ python3 scripts/jf_palette.py build && python3 scripts/jf_palette.py check
 
 | 경로 | 내용 |
 |---|---|
-| `SKILL.md` | 스킬 본문. 앞부분 'june-figure 규칙' 1~5절이 원본과 다른 규칙 |
+| `SKILL.md` | 스킬 본문. 앞부분 'doc-figure-multicolor 규칙' 1~5절이 원본과 다른 규칙 |
 | `references/jf-color-system.md` | 색 체계·컨셉·tone 뜻 |
 | `references/jf-palettes.json` | 계열 팔레트·컨셉 원본 값 |
 | `references/jf-source-palettes.json` | 컬러차트용 팔레트 28개(P-01~P-28) |

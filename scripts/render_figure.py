@@ -31,7 +31,7 @@ DOM에 배치하므로 글자 깨짐이 구조적으로 불가능하다.
 """
 import argparse, json, os, subprocess, sys, tempfile
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-import jf_page  # june-figure 페이지 틀
+import jf_page  # doc-figure-multicolor 페이지 틀
 
 ROOT      = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TEMPLATES = os.path.join(ROOT, "templates")
@@ -208,7 +208,7 @@ def build_html(template_html, spec, tokens_css, icons_dir=None):
       /*__FIGURE_DATA__*/    → spec JSON
       /*__ICONS__*/          → 아이콘 data URI 맵 (없으면 {})
     """
-    spec = jf_page.prepare_spec(spec)   # june-figure 페이지 틀(기본 16:9)
+    spec = jf_page.prepare_spec(spec)   # doc-figure-multicolor 페이지 틀(기본 16:9)
     template_html = jf_page.prepare_template(template_html)
     html = template_html.replace("/*__STYLE_TOKENS__*/", tokens_css)
     icons = json.dumps(inline_icons(icons_dir, preset_color(tokens_css)), ensure_ascii=False)
@@ -487,7 +487,7 @@ def main():
     width = max(CANVAS_W, int(spec.get("width") or CANVAS_W))
     page = jf_page.mode(spec)
     try:
-        if page:   # june-figure: 16:9 등 고정 페이지 — 창을 페이지+바깥 여백에 맞추고 여백을 자르지 않는다
+        if page:   # doc-figure-multicolor: 16:9 등 고정 페이지 — 창을 페이지+바깥 여백에 맞추고 여백을 자르지 않는다
             pw, ph = jf_page.window(spec)
             screenshot(html_path, out, ph, a.scale, pw)
             size = (pw, ph)

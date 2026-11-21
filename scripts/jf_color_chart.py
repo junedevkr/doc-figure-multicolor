@@ -67,7 +67,7 @@ def card(p):
 
 PAGE = r"""<!DOCTYPE html>
 <html lang="ko"><head><meta charset="utf-8">
-<title>june-figure 컬러차트</title>
+<title>doc-figure-multicolor 컬러차트</title>
 <style>
 __FONT__
 * { box-sizing: border-box; }
@@ -110,7 +110,7 @@ h1 { font-size: 40px; margin: 0 0 8px; font-weight: 800; }
 </style></head>
 <body>
 <div class="wrap">
-  <h1>june-figure 컬러차트</h1>
+  <h1>doc-figure-multicolor 컬러차트</h1>
   <p class="lead">공개된 프레젠테이션 팔레트 __N__개를 색상 코드 그대로 같은 미니 슬라이드에 입혀 비교합니다. 미리보기의 색 배치(제목·머리띠·띠)는 비교용 규칙이고, 고른 팔레트로 프리셋을 만들 때 다시 맞춥니다.</p>
   <div class="grid" id="grid">__CARDS__</div>
 </div>

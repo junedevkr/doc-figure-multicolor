@@ -3,7 +3,7 @@
 
   python3 scripts/jf_build_html.py 그림_01.json [그림_02.json ...]
 
-템플릿 마커(프리셋 CSS·spec·아이콘)를 치환하고 june-figure 페이지 틀(기본 16:9)과 글꼴을 입힌다.
+템플릿 마커(프리셋 CSS·spec·아이콘)를 치환하고 doc-figure-multicolor 페이지 틀(기본 16:9)과 글꼴을 입힌다.
 결과는 spec 옆에 같은 이름의 .html. 여러 장을 한 파일로 넘겨 보려면 jf_build_deck.py.
 """
 import json, os, sys

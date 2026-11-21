@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""june-figure 색 체계 도구 (표준 라이브러리만)
+"""doc-figure-multicolor 색 체계 도구 (표준 라이브러리만)
 
   python3 scripts/jf_palette.py build               # references/jf-palettes.json → presets/jf-*.css
   python3 scripts/jf_palette.py check               # 대비(WCAG)·구별(ΔE) 검사
@@ -96,7 +96,7 @@ def color_tokens(c, shape, min_contrast=4.5, tint_sat=0.7):
 JF_FONT = '"Presentation", "PresentationVariable", "Pretendard", "Apple SD Gothic Neo", "NanumSquare", "NanumGothic", "Malgun Gothic", sans-serif'
 
 def identity_tokens(shape):
-    """june-figure 공통 생김새 — 원본 프리셋과 갈리는 지점"""
+    """doc-figure-multicolor 공통 생김새 — 원본 프리셋과 갈리는 지점"""
     rb, rbar = shape.get("radius_box", 8), shape.get("radius_bar", 6)
     return {
         "radius-box": "%dpx" % rb, "radius-bar": "%dpx" % rbar, "radius-badge": "30%",
@@ -154,7 +154,7 @@ def write_preset(name, tokens, header):
         if not pat.search(body):
             sys.exit("토큰 없음: --%s" % k)
         body = pat.sub(lambda mo: mo.group(1) + v + mo.group(3), body, count=1)
-    head = "/* =========================================================================\n   june-figure 프리셋 — %s\n%s\n\n   * 프리셋 규율: 토큰 '값'만 바꾸고 '이름'은 더하거나 빼지 않는다.\n   * @image-style: %s\n   ========================================================================= */\n" % (
+    head = "/* =========================================================================\n   doc-figure-multicolor 프리셋 — %s\n%s\n\n   * 프리셋 규율: 토큰 '값'만 바꾸고 '이름'은 더하거나 빼지 않는다.\n   * @image-style: %s\n   ========================================================================= */\n" % (
         name, "\n".join("   " + x for x in header["lines"]), header["image"])
     with open(os.path.join(PRESETS, name + ".css"), "w", encoding="utf-8") as f:
         f.write(head + body)
@@ -346,7 +346,7 @@ def preview(a):
             t["tone-sub-tint"], t["ink"], t["tone-sub-line"], t["radius-box"], t["ink-soft"],
             focus, t["radius-box"], chips))
     doc = '''<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>june-figure 팔레트</title><style>%s
+<title>doc-figure-multicolor 팔레트</title><style>%s
 :root{--page:#F3F2EF;--ink:#1C1B1A}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--page:#1E1E1E;--ink:#EDEDED}}
 :root[data-theme="dark"]{--page:#1E1E1E;--ink:#EDEDED}
@@ -358,7 +358,7 @@ h1{font-size:22px;margin:0 0 4px}.sub{margin:0 0 20px;opacity:.75;font-size:14px
 .flow{display:flex;align-items:center;gap:6px;margin-bottom:12px}.box{flex:1;text-align:center;padding:9px 4px;font-weight:700;font-size:13px}
 .tones{display:grid;grid-template-columns:1fr 1fr;gap:6px}.tone{display:flex;align-items:center;gap:6px;padding:5px 6px;border-radius:4px;font-size:12px}
 .tone b{width:14px;height:14px;border-radius:3px;flex:none}.tone span{flex:1}.tone code{font-size:10px}
-</style></head><body><h1>june-figure 팔레트</h1><p class="sub">내용 계열 7가지 · 흑백 2가지 · 흑백+한 점 7가지. 색 칩은 도식 안에서 맡는 뜻</p><div class="grid">%s</div></body></html>''' % (open(os.path.join(ROOT, "references", "jf-font.css"), encoding="utf-8").read(), "\n".join(cards))
+</style></head><body><h1>doc-figure-multicolor 팔레트</h1><p class="sub">내용 계열 7가지 · 흑백 2가지 · 흑백+한 점 7가지. 색 칩은 도식 안에서 맡는 뜻</p><div class="grid">%s</div></body></html>''' % (open(os.path.join(ROOT, "references", "jf-font.css"), encoding="utf-8").read(), "\n".join(cards))
     with open(a.out, "w", encoding="utf-8") as f:
         f.write(doc)
     print("미리보기: %s (%d벌)" % (a.out, len(order)))
