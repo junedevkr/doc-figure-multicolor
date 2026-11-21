@@ -10,6 +10,7 @@
 - --switcher: 아래쪽에 색상(컬러차트 28종·내용 계열·흑백)·글꼴(고딕·명조) 선택 상자. 내용은 그대로 두고 고르는 즉시 모든 페이지를 다시 그린다
 - --font <글꼴 키>|gothic|myeongjo: 모든 페이지 글꼴(references/jf-fonts.json, 기본 고딕=프리젠테이션, 기본 명조=Noto Serif KR)
 - --footer "논문 제목": 페이지마다 하단 왼쪽에 작게 이탤릭으로 (spec의 "footer"가 있으면 그 페이지는 그것)
+- 애니메이션: 페이지를 열 때 상자가 차례로 떠오르고 그림이 펼쳐지며 화살표가 그어진다. '애니메이션' 체크(A 키)로 끔. PDF에는 영향 없음
 - 페이지 번호: 'PT 하단에 페이지 번호' 선택(N 키)으로 슬라이드 오른쪽 아래 번호를 보이거나 숨긴다. PDF에도 그대로 적용
 - PDF(인쇄): 화살표·버튼·배경은 숨기고 페이지마다 1920×1080 한 장
 - 16:9 비율을 유지한 채 화면 폭에 맞춰 무대를 통째로 확대·축소한다(안쪽 배치·줄바꿈은 그대로, 다시 배치하지 않음)
@@ -129,6 +130,7 @@ body.dark button:focus-visible, body.dark .opt input:focus-visible { outline-col
     </div>
     <div class="right">
       __SWITCH_UI__
+      <label class="opt" title="페이지를 열 때 그려지듯 나타남 (A 키)"><input type="checkbox" data-anim> 애니메이션</label>
       <label class="opt" title="슬라이드 오른쪽 아래에 페이지 번호 (N 키). PDF에도 그대로 적용"><input type="checkbox" data-pno> PT 하단에 페이지 번호</label>
       <button class="pill" data-act="full" type="button" aria-label="전체화면 발표 (F 키)">__I_FULL__전체화면</button>
       <button class="pill" data-act="print" type="button" aria-label="PDF로 저장">__I_PDF__PDF</button>
@@ -139,14 +141,16 @@ body.dark button:focus-visible, body.dark .opt input:focus-visible { outline-col
 (function(){
   var PAGES = __PAGES__, TITLES = __TITLES__, FOOTS = __FOOTS__, PNO_DEFAULT = __PNO__, FOOT = __FOOT__;
   var SW = __SWITCH__, curP = null, curF = null;
-  function fill(t, p, f){
+  function fill(i, p, f){
+    var pg = SW.pages[i], t = SW.tpls[pg.t];
     var cfg = Object.assign({}, SW.cfg, {concept: SW.concept[p] || null, font: f, fontFamily: SW.fam[f]});
-    return t.split('/*__JF_PRESET__*/').join(SW.css[p]).split('/*__JF_FONTCSS__*/').join(SW.fontcss[f]).split('__JF_CFG__').join(JSON.stringify(cfg));
+    return t.split('/*__JF_PRESET__*/').join(SW.css[p]).split('/*__JF_FONTCSS__*/').join(SW.fontcss[f]).split('__JF_CFG__').join(JSON.stringify(cfg))
+            .split('/*__JF_DATA__*/').join(pg.d).split('/*__JF_ICONS__*/').join(pg.i);
   }
   if (SW) {
     try { var sv = JSON.parse(localStorage.getItem('jf-deck-switch') || 'null'); if (sv && SW.css[sv.p] && SW.fontcss[sv.f]) { SW.preset = sv.p; SW.font = sv.f; } } catch (e) {}
     curP = SW.preset; curF = SW.font;
-    PAGES = SW.tpl.map(function(t){ return fill(t, curP, curF); });
+    PAGES = SW.pages.map(function(_, i){ return fill(i, curP, curF); });
   }
   var W = __W__, H = __H__;
   var show = document.getElementById('show'), stage = document.getElementById('stage'), sheets = [], cur = 0;
@@ -161,10 +165,23 @@ body.dark button:focus-visible, body.dark .opt input:focus-visible { outline-col
   });
   all('[data-tot]').forEach(function(e){ e.textContent = PAGES.length; });
 
+  // 그려지는 애니메이션 — 페이지를 열 때마다 다시 그림, 체크를 풀면 끔
+  var animBox = document.querySelector('[data-anim]'), animOn = true;
+  try { var sa = localStorage.getItem('jf-deck-anim'); if (sa !== null) animOn = sa === '1'; } catch (e) {}
+  function frameWin(i){ var f = sheets[i] && sheets[i].querySelector('iframe'); return f && f.contentWindow; }
+  function animate(i){ var w = frameWin(i); if (w && w.__JF_DONE__ && w.__JF_ANIM__) w.__JF_ANIM__(animOn); }
+  window.__JF_FRAME_READY__ = function(w){ if (frameWin(cur) === w) animate(cur); };
+  function setAnim(on){
+    animOn = on; if (animBox) animBox.checked = on;
+    try { localStorage.setItem('jf-deck-anim', on ? '1' : '0'); } catch (e) {}
+    animate(cur);
+  }
   function go(n, push){
     n = Math.max(0, Math.min(PAGES.length - 1, n));
     sheets.forEach(function(s, i){ s.classList.toggle('on', i === n); });
+    var changed = cur !== n;
     cur = n;
+    if (changed || push === false) animate(n);
     all('[data-cur]').forEach(function(e){ e.textContent = n + 1; });
     all('[data-act="prev"]').forEach(function(b){ b.disabled = n === 0; });
     all('[data-act="next"]').forEach(function(b){ b.disabled = n === PAGES.length - 1; });
@@ -240,6 +257,7 @@ body.dark button:focus-visible, body.dark .opt input:focus-visible { outline-col
     else if (k === 'f' || k === 'F') { toggleFull(); e.preventDefault(); }
     else if (k === 'Escape' && show.classList.contains('present')) { setPresent(false); e.preventDefault(); }
     else if (k === 'n' || k === 'N') { setPno(!document.body.classList.contains('show-pno')); e.preventDefault(); }
+    else if (k === 'a' || k === 'A') { setAnim(!animOn); e.preventDefault(); }
   }
   document.addEventListener('keydown', key);
   sheets.forEach(function(sh){
@@ -252,7 +270,16 @@ body.dark button:focus-visible, body.dark .opt input:focus-visible { outline-col
   // 색상·글꼴 선택 상자 — 내용은 같고 프리셋 CSS·글꼴만 바꿔 모든 페이지를 다시 그린다
   function theme(p, f){
     curP = p; curF = f;
-    sheets.forEach(function(sh, i){ sh.querySelector('iframe').srcdoc = fill(SW.tpl[i], p, f); });
+    // 같은 내용 그대로 — 각 페이지에서 CSS(프리셋·글꼴)만 갈아 끼워 다시 그린다. 그 기능이 없을 때만 다시 불러옴
+    sheets.forEach(function(sh, i){
+      var w = sh.querySelector('iframe').contentWindow;
+      if (w && w.__JF_RETHEME__) {
+        w.__JF_RETHEME__({css: SW.css[p], fontcss: SW.fontcss[f], concept: SW.concept[p] || null, font: f, fam: SW.fam[f],
+                          done: function(win){ if (i === cur && animOn && win.__JF_ANIM__) win.__JF_ANIM__(true); }});
+      } else {
+        sh.querySelector('iframe').srcdoc = fill(i, p, f);
+      }
+    });
     document.documentElement.style.setProperty('--backdrop', SW.backdrop[p]);
     document.body.classList.toggle('dark', !!SW.dark[p]);
     try { localStorage.setItem('jf-deck-switch', JSON.stringify({p: p, f: f})); } catch (e) {}
@@ -269,6 +296,7 @@ body.dark button:focus-visible, body.dark .opt input:focus-visible { outline-col
   window.addEventListener('beforeprint', function(){ stage.style.transform = ''; });
   window.addEventListener('afterprint', fit);
   fit();
+  if (animBox) { animBox.checked = animOn; animBox.addEventListener('change', function(){ setAnim(animBox.checked); }); }
   var h = parseInt((location.hash || '').slice(1), 10);
   go(isNaN(h) ? 0 : h - 1, false);
 })();
@@ -313,7 +341,13 @@ def switch_data(specs, fk):
             css[k] = c; concept[k] = jf_page.concept({"preset": k})
             bd[k] = jf_page.backdrop(c, k); dark[k] = is_dark(bd[k])
     first = specs[0].get("preset", "jf-timeless")
-    data = {"tpl": [B.build_string(dict(s, page=jf_page.mode(s) or "16:9"), embed=True, placeholders=True) for s in specs],
+    tpls, pages = [], []
+    for sp in specs:
+        t, dd, ic = B.build_parts(dict(sp, page=jf_page.mode(sp) or "16:9"))
+        if t not in tpls:
+            tpls.append(t)
+        pages.append({"t": tpls.index(t), "d": dd, "i": ic})
+    data = {"tpls": tpls, "pages": pages,
             "css": css, "concept": concept, "backdrop": bd, "dark": dark,
             "fontcss": {k: jf_page.font_css(k) for k in jf_page.FONTS}, "fam": {k: v["family"] for k, v in jf_page.FONTS.items()},
             "cfg": jf_page.base_cfg(dict(specs[0], page=jf_page.mode(specs[0]) or "16:9")),
@@ -366,7 +400,7 @@ def main():
                  ("__TITLE__", H.escape(title))):
         out = out.replace(k, v)
     out = out.replace("__SWITCH_UI__", sw_ui).replace("__SWITCH__", sw_data)
-    out = out.replace("__PAGES__", "[" + ",".join(json.dumps(p, ensure_ascii=False).replace("</", "<\\/") for p in pages) + "]")
+    out = out.replace("__PAGES__", "[]" if a.switcher else "[" + ",".join(json.dumps(p, ensure_ascii=False).replace("</", "<\\/") for p in pages) + "]")
     open(a.out, "w", encoding="utf-8").write(out)
     print("✓ %s  %d쪽  %dx%d" % (a.out, len(pages), w, h))
 

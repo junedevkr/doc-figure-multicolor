@@ -29,9 +29,17 @@ def load_spec(spec_path):
     spec = json.load(open(spec_path, encoding="utf-8"))
     if not spec.get("template"):
         sys.exit("spec에 template 필드가 필요합니다: %s" % spec_path)
-    if spec["template"] in FORMS:   # 도식 형태 25종은 forms 템플릿 하나가 그린다
-        spec = dict(spec, form=spec["template"], template="forms")
-    return spec
+    return resolve(spec)
+
+def resolve(spec):
+    """render_figure.resolve_form과 같은 규칙 — 도식 형태·그래프·템플릿 11종을 viz/forms 템플릿으로"""
+    try:
+        import render_figure
+        return render_figure.resolve_form(spec)
+    except Exception:
+        if spec.get("template") in FORMS:
+            return dict(spec, form=spec["template"], template="forms")
+        return spec
 
 def preset_css(spec):
     return open(os.path.join(ROOT, "presets", spec.get("preset", "jf-method") + ".css"), encoding="utf-8").read()
@@ -47,9 +55,23 @@ def build_string(spec, embed=False, placeholders=False):
     data = json.dumps(spec, ensure_ascii=False).replace("</", "<\\/")
     html = tpl.replace("/*__STYLE_TOKENS__*/", "/*__JF_PRESET__*/" if placeholders else preset_css(spec), 1)
     html = html.replace("/*__FIGURE_DATA__*/ null", data, 1).replace("/*__FIGURE_DATA__*/", data, 1)
-    html = html.replace("/*__ICON_SET__*/ {}", json.dumps({k: allicons[k] for k in used}, ensure_ascii=False), 1)
+    html = html.replace("/*__ICON_SET__*/ {}", json.dumps(allicons, ensure_ascii=False), 1)   # 템플릿이 스스로 쓰는 아이콘까지
     html = html.replace("/*__ICONS__*/ {}", "{}", 1)
     return jf_page.apply(html, spec, embed=embed, placeholders=placeholders)
+
+def build_parts(spec, embed=True):
+    """선택 상자 덱용: (템플릿 틀, 그림 데이터, 아이콘) — 틀은 같은 템플릿끼리 같아서 한 번만 담는다"""
+    spec = jf_page.prepare_spec(spec)
+    tpl = jf_page.prepare_template(open(os.path.join(ROOT, "templates", spec["template"] + ".html"), encoding="utf-8").read())
+    allicons = json.load(open(os.path.join(ROOT, "templates", "icons", "tabler-outline.json"), encoding="utf-8"))
+    used = set(); walk(spec, used)
+    data = json.dumps(spec, ensure_ascii=False).replace("</", "<\\/")
+    icons = json.dumps(allicons, ensure_ascii=False)   # 템플릿이 스스로 쓰는 아이콘(circle-check 등)까지 — 틀에 한 번만 담김
+    html = tpl.replace("/*__STYLE_TOKENS__*/", "/*JF-PRESET-BEGIN*//*__JF_PRESET__*//*JF-PRESET-END*/", 1)
+    html = html.replace("/*__FIGURE_DATA__*/ null", "/*__JF_DATA__*/", 1).replace("/*__FIGURE_DATA__*/", "/*__JF_DATA__*/", 1)
+    html = html.replace("/*__ICON_SET__*/ {}", icons, 1)   # 아이콘 전체는 틀에 한 번만
+    html = html.replace("/*__ICONS__*/ {}", "{}", 1)
+    return jf_page.apply(html, spec, embed=embed, placeholders=True), data, ""
 
 def build(spec_path, font=None):
     spec = load_spec(spec_path)

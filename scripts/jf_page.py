@@ -53,8 +53,7 @@ def prepare_template(tpl):
 def prepare_spec(spec):
     """페이지 모드에서 board 폭을 페이지 안쪽 폭에 맞춘다(화살표를 그리기 전에 정해야 한다)"""
     if mode(spec) and spec.get("template") == "board":
-        if not spec.get("width"):
-            spec = dict(spec, width=PAGE_W - 2 * pad(spec))
+        spec = dict(spec, width=PAGE_W - 2 * pad(spec))   # 페이지마다 내용 폭을 같게 — spec의 width는 페이지 모드에서 쓰지 않음
         if not spec.get("print_cm"):
             spec = dict(spec, print_cm=PAGE_PRINT_CM)
     return spec
@@ -189,8 +188,14 @@ html.jf-soft #figure svg#links .lk { stroke: var(--ink-soft) !important; }
 html.jf-soft #figure svg#links marker path, html.jf-soft #figure svg#links marker polygon { fill: var(--ink-soft) !important; }
 html.jf-soft #figure .tline .tl-bar .knot { border-color: var(--ink-soft) !important; }
 
+/* ===== 그려지는 애니메이션(덱에서 페이지를 열 때) ===== */
+@keyframes jfUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+@keyframes jfWipe { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes jfDraw { to { stroke-dashoffset: 0; } }
+@keyframes jfFade { from { opacity: 0; } to { opacity: 1; } }
 @page { size: __W__px __H__px; margin: 0; }
 @media print {
+  [data-jf-anim] { animation: none !important; opacity: 1 !important; clip-path: none !important; stroke-dashoffset: 0 !important; }
   html.jf-page, html.jf-page body { background: var(--bg, #fff) !important; }
   html.jf-page body { padding: 0; }
   #jf-page { box-shadow: none; transform: none !important; }
@@ -210,11 +215,41 @@ LOADER = r"""
   var fig = document.getElementById('figure');
   var snap = fig ? fig.innerHTML : '', style0 = fig ? (fig.getAttribute('style') || '') : '';
   function exec(){ texts.forEach(function(t){ var s = document.createElement('script'); s.text = t; document.body.appendChild(s); }); }
+  function fitBoard(){
+      // 페이지 높이의 88~100%를 채우도록 본문 배치 기준(print_cm)을 조정 — 넘치면 줄이고, 비면 키운다(폭은 그대로)
+      var avail = C.H - 2 * C.PAD - (C.footRoom || 0), pc = FIGURE.print_cm || 16, n = 0, best = null;
+      function fits(h){ return h <= avail; }
+      while (n < 8) {
+        var h = fig.offsetHeight;
+        if (fits(h) && (!best || h > best.h)) best = {pc: pc, h: h};
+        if (fits(h) && h >= avail * 0.88) break;
+        var target = avail * 0.95, next = pc * Math.pow(h / target, 0.9);
+        next = Math.max(C.minPc || 13, Math.min(C.maxPc || 60, next));
+        if (Math.abs(next - pc) < 0.05) break;
+        pc = next; window.__JF_OVERRIDE__ = {print_cm: +pc.toFixed(2)};
+        fig.innerHTML = snap; fig.setAttribute('style', style0); exec(); n++;
+      }
+      if (!fits(fig.offsetHeight) && best && best.pc !== pc) {
+        pc = best.pc; window.__JF_OVERRIDE__ = {print_cm: +pc.toFixed(2)};
+        fig.innerHTML = snap; fig.setAttribute('style', style0); exec();
+      }
+      // 글자를 최대로 키워도 82%에 못 미치면 남는 높이를 본문 행 사이 간격으로 고르게 나눈다
+      var nb = (FIGURE.body || []).length, h2 = fig.offsetHeight;
+      if (fits(h2) && h2 < avail * 0.88 && nb > 1) {
+        var g0 = FIGURE.gap || 18, g = Math.min(120, g0 + (avail * 0.94 - h2) / (nb - 1));
+        window.__JF_OVERRIDE__ = {print_cm: +pc.toFixed(2), gap: Math.round(g)};
+        fig.innerHTML = snap; fig.setAttribute('style', style0); exec();
+        if (!fits(fig.offsetHeight)) { window.__JF_OVERRIDE__ = {print_cm: +pc.toFixed(2)}; fig.innerHTML = snap; fig.setAttribute('style', style0); exec(); }
+      }
+  }
   function place(){
     var W = C.W, H = C.H, P = C.PAD, inner = W - 2 * P;
-    var page = document.createElement('div'); page.id = 'jf-page';
-    page.style.width = W + 'px'; page.style.height = H + 'px';
-    fig.parentNode.insertBefore(page, fig); page.appendChild(fig);
+    var page = document.getElementById('jf-page'), fresh = !page;
+    if (fresh) {
+      page = document.createElement('div'); page.id = 'jf-page';
+      page.style.width = W + 'px'; page.style.height = H + 'px';
+      fig.parentNode.insertBefore(page, fig); page.appendChild(fig);
+    }
     var fw = fig.offsetWidth, fh = fig.offsetHeight;
     var s = Math.min(inner / fw, (H - 2 * P) / fh, 1.3);
     // 축소·확대 배율이 1이 아니면 제목 글자를 거꾸로 보정해 화면에서는 늘 42px·24px로 보이게
@@ -225,11 +260,19 @@ LOADER = r"""
       s = Math.min(inner / fw, (H - 2 * P) / fh, 1.3);
     }
     fig.style.transform = 'scale(' + s.toFixed(4) + ')';
-    fig.style.left = Math.round(P + (inner - fw * s) / 2) + 'px';
+    fig.style.left = P + 'px';   // 왼쪽 위 여백에 붙인다 — 페이지마다 제목 위치·왼쪽 여백이 같게
     fig.style.top = P + 'px';
+    // 템플릿마다 안쪽 여백이 달라도 제목 글자의 왼쪽 위가 모든 페이지에서 같은 자리(TX, TY)에 오도록 그림 전체를 옮긴다
+    var h1 = fig.querySelector('.hd h1');
+    if (h1) {
+      var pr = page.getBoundingClientRect(), hr = h1.getBoundingClientRect(), k = pr.width / W || 1;
+      var TX = C.TX || 104, TY = C.TY || 114;
+      var dx = TX - (hr.left - pr.left) / k, dy = TY - (hr.top - pr.top) / k;
+      if (Math.abs(dx) < 80 && Math.abs(dy) < 80) { fig.style.left = (P + dx).toFixed(1) + 'px'; fig.style.top = (P + dy).toFixed(1) + 'px'; }
+    }
     window.__JF_PAGE__ = {width: W, height: H, pad: P, scale: +s.toFixed(4), fig: [fw, fh], print_cm: (window.__JF_OVERRIDE__ || {}).print_cm || (typeof FIGURE !== 'undefined' && FIGURE && FIGURE.print_cm) || null};
     // 단독 HTML: 16:9를 유지한 채 화면 폭에 맞춰 페이지를 통째로 확대·축소(덱 안에서는 덱이 맡음)
-    if (!C.embed) {
+    if (!C.embed && fresh) {
       var wrap = document.createElement('div'); wrap.id = 'jf-fit';
       page.parentNode.insertBefore(wrap, page); wrap.appendChild(page);
       var refit = function(){
@@ -274,41 +317,73 @@ LOADER = r"""
     }
     window.__JF_CONTRAST__ = n;
   }
+  // 그려지는 애니메이션: 상자는 위에서 아래·왼쪽에서 오른쪽 순서로 떠오르고, 그림(SVG)은 왼쪽부터 펼쳐지며, 화살표는 선이 그어진다
+  function clearAnim(root){ root.querySelectorAll('[data-jf-anim]').forEach(function(e){ e.style.animation = ''; e.style.strokeDasharray = ''; e.style.strokeDashoffset = ''; e.removeAttribute('data-jf-anim'); }); }
+  window.__JF_ANIM__ = function(on){
+    var fig = document.getElementById('figure'); if (!fig) return;
+    clearAnim(fig); if (!on) return;
+    void fig.offsetWidth;
+    var sel = '.hd, .band, .group, .card, .steps, .chips, .tline, .diamond, .mtx, .pill, .kv, .lb, .row > .ico';
+    var els = Array.prototype.slice.call(fig.querySelectorAll(sel)).filter(function(e){ return !e.closest('svg'); });
+    var svgs = Array.prototype.slice.call(fig.querySelectorAll('svg')).filter(function(sv){ return sv.id !== 'links' && !sv.closest('.card .ic, .ico, .chip, .bl, .jn') && sv.getBoundingClientRect().width > 120; });
+    var items = els.map(function(e){ var r = e.getBoundingClientRect(); return {e: e, t: Math.round(r.top / 60), l: r.left, k: 'up'}; })
+      .concat(svgs.map(function(e){ var r = e.getBoundingClientRect(); return {e: e, t: Math.round(r.top / 60), l: r.left, k: 'wipe'}; }));
+    items.sort(function(a, b){ return a.t - b.t || a.l - b.l; });
+    var step = Math.min(90, 1500 / Math.max(1, items.length)), last = 0;
+    items.forEach(function(it, i){
+      var d = Math.round(i * step); last = d;
+      it.e.setAttribute('data-jf-anim', '1');
+      it.e.style.animation = it.k === 'up' ? ('jfUp .55s cubic-bezier(.2,.7,.2,1) ' + d + 'ms both') : ('jfWipe .9s cubic-bezier(.4,0,.2,1) ' + d + 'ms both');
+    });
+    fig.querySelectorAll('svg#links path.lk').forEach(function(p, i){
+      var len = 0; try { len = p.getTotalLength(); } catch (e) {}
+      if (!len) return;
+      p.setAttribute('data-jf-anim', '1');
+      p.style.strokeDasharray = len; p.style.strokeDashoffset = len;
+      p.style.animation = 'jfDraw .7s ease-out ' + (last * 0.6 + 250 + i * 60) + 'ms forwards';
+    });
+    fig.querySelectorAll('.lklabel').forEach(function(l){ l.setAttribute('data-jf-anim', '1'); l.style.animation = 'jfFade .4s ease ' + (last * 0.6 + 600) + 'ms both'; });
+  };
+  // 같은 내용에서 색·글꼴만 바꾸기 — 페이지를 다시 불러오지 않고 CSS를 갈아 끼운 뒤 그 자리에서 다시 그린다
+  function swapBlock(begin, end, text){
+    var st = Array.prototype.slice.call(document.querySelectorAll('style')).filter(function(x){ return x.textContent.indexOf(begin) >= 0; })[0];
+    if (!st) return;
+    var t = st.textContent, a = t.indexOf(begin), b = t.indexOf(end);
+    if (a >= 0 && b > a) st.textContent = t.slice(0, a + begin.length) + text + t.slice(b);
+  }
+  function render(){
+    if (fig) { fig.innerHTML = snap; fig.setAttribute('style', style0); }
+    window.__JF_OVERRIDE__ = null;
+    exec();
+    if (C.page && fig && typeof FIGURE !== 'undefined' && FIGURE && FIGURE.template === 'board') fitBoard();
+    if (C.page && fig) place();
+    if (fig) fixContrast(fig);
+  }
+  window.__JF_RETHEME__ = function(o){
+    if (o.css != null) swapBlock('/*JF-PRESET-BEGIN*/', '/*JF-PRESET-END*/', o.css);
+    if (o.fontcss != null) swapBlock('/*JF-FONT-BEGIN*/', '/*JF-FONT-END*/', o.fontcss);
+    var cl = document.documentElement.classList;
+    ['jf-flat', 'jf-pop', 'jf-soft', 'jf-deep'].forEach(function(k){ cl.remove(k); });
+    Array.prototype.slice.call(cl).forEach(function(k){ if (k.indexOf('jf-font-') === 0) cl.remove(k); });
+    C.concept = o.concept || null; C.font = o.font || C.font; C.fontFamily = o.fam || C.fontFamily;
+    if (C.concept) { cl.add('jf-flat'); cl.add('jf-' + C.concept); }
+    if (C.font && C.font !== 'presentation') cl.add('jf-font-' + C.font);
+    window.__JF_DONE__ = false;
+    var go = function(){ render(); window.__JF_DONE__ = true; if (o.done) o.done(window); };
+    var fl = ['400', '700', '800'].map(function(w){ return document.fonts.load(w + ' 24px "' + C.fontFamily + '"', '가나다ABC123'); });
+    Promise.all(fl).then(go, go);
+  };
   var done = false;
   function run(){
     if (done) return; done = true;
     if (C.page) { document.documentElement.classList.add('jf-page'); if (C.embed) document.documentElement.classList.add('jf-embed'); if (C.concept) { document.documentElement.classList.add('jf-flat'); document.documentElement.classList.add('jf-' + C.concept); } }
     exec();
-    if (C.page && fig && typeof FIGURE !== 'undefined' && FIGURE && FIGURE.template === 'board') {
-      // 페이지 높이의 88~100%를 채우도록 본문 배치 기준(print_cm)을 조정 — 넘치면 줄이고, 비면 키운다(폭은 그대로)
-      var avail = C.H - 2 * C.PAD - (C.footRoom || 0), pc = FIGURE.print_cm || 16, n = 0, best = null;
-      function fits(h){ return h <= avail; }
-      while (n < 8) {
-        var h = fig.offsetHeight;
-        if (fits(h) && (!best || h > best.h)) best = {pc: pc, h: h};
-        if (fits(h) && h >= avail * 0.88) break;
-        var target = avail * 0.95, next = pc * Math.pow(h / target, 0.9);
-        next = Math.max(C.minPc || 13, Math.min(C.maxPc || 60, next));
-        if (Math.abs(next - pc) < 0.05) break;
-        pc = next; window.__JF_OVERRIDE__ = {print_cm: +pc.toFixed(2)};
-        fig.innerHTML = snap; fig.setAttribute('style', style0); exec(); n++;
-      }
-      if (!fits(fig.offsetHeight) && best && best.pc !== pc) {
-        pc = best.pc; window.__JF_OVERRIDE__ = {print_cm: +pc.toFixed(2)};
-        fig.innerHTML = snap; fig.setAttribute('style', style0); exec();
-      }
-      // 글자를 최대로 키워도 82%에 못 미치면 남는 높이를 본문 행 사이 간격으로 고르게 나눈다
-      var nb = (FIGURE.body || []).length, h2 = fig.offsetHeight;
-      if (fits(h2) && h2 < avail * 0.88 && nb > 1) {
-        var g0 = FIGURE.gap || 18, g = Math.min(120, g0 + (avail * 0.94 - h2) / (nb - 1));
-        window.__JF_OVERRIDE__ = {print_cm: +pc.toFixed(2), gap: Math.round(g)};
-        fig.innerHTML = snap; fig.setAttribute('style', style0); exec();
-        if (!fits(fig.offsetHeight)) { window.__JF_OVERRIDE__ = {print_cm: +pc.toFixed(2)}; fig.innerHTML = snap; fig.setAttribute('style', style0); exec(); }
-      }
-    }
+    if (C.page && fig && typeof FIGURE !== 'undefined' && FIGURE && FIGURE.template === 'board') fitBoard();
     if (C.page && fig) place();
     if (fig) fixContrast(fig);
     window.__JF_DONE__ = true;
+    if (C.animate) window.__JF_ANIM__(true);
+    try { if (window.parent && window.parent !== window && window.parent.__JF_FRAME_READY__) window.parent.__JF_FRAME_READY__(window); } catch (e) {}
   }
   if (C.font && C.font !== 'presentation') document.documentElement.classList.add('jf-font-' + C.font);
   var fam = C.fontFamily || 'Presentation';
@@ -330,7 +405,7 @@ def apply(html, spec, embed=False, placeholders=False):
         w, h = size(spec)
         page_css = PAGE_CSS.replace("__M__", str(MARGIN)).replace("__W__", str(w)).replace("__H__", str(h))
     fk = font_kind(spec)
-    css = '<style id="jf-font">\n' + ("/*__JF_FONTCSS__*/" if placeholders else font_css(fk)) + page_css + '</style>\n'
+    css = '<style id="jf-font">\n' + ("/*JF-FONT-BEGIN*//*__JF_FONTCSS__*//*JF-FONT-END*/" if placeholders else font_css(fk)) + page_css + '</style>\n'
     i = html.find("</head>")
     html = html[:i] + css + html[i:] if i >= 0 else css + html
     b = html.find("<body")
@@ -340,7 +415,7 @@ def apply(html, spec, embed=False, placeholders=False):
         w, h = size(spec)
         cfg = {"page": True, "W": w, "H": h, "PAD": pad(spec), "embed": bool(embed), "concept": concept(spec), "M": MARGIN,
                "font": fk, "fontFamily": FONTS[fk]["family"],
-               "minPc": float(spec.get("page_min_cm", 16)), "maxPc": 60}
+               "minPc": float(spec.get("page_min_cm", 16)), "maxPc": 60, "animate": bool(spec.get("animate", False)) and not embed}
     else:
         cfg = {"page": False, "font": fk, "fontFamily": FONTS[fk]["family"]}
     loader = LOADER.replace("__CFG__", "__JF_CFG__" if placeholders else json.dumps(cfg))
@@ -352,7 +427,7 @@ def base_cfg(spec, embed=True):
     """선택 상자용 — 프리셋·글꼴과 무관한 페이지 설정"""
     w, h = size(spec)
     return {"page": True, "W": w, "H": h, "PAD": pad(spec), "embed": bool(embed), "M": MARGIN,
-            "minPc": float(spec.get("page_min_cm", 16)), "maxPc": 60}
+            "minPc": float(spec.get("page_min_cm", 16)), "maxPc": 60, "animate": False}
 
 def backdrop(tokens_css, preset=""):
     """덱 바깥 배경 — 프리셋 주색 12% + 따뜻한 회색 (CSS color-mix와 같은 값). 쨍한 컨셉은 짙은 배경"""

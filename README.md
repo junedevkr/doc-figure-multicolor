@@ -10,28 +10,27 @@
 - **16:9 발표 덱**: 여러 장을 HTML 하나로, 화살표·페이지 번호·전체화면·PDF
 - **글자 대비 자동 보정**, 글자 값 표 전폭 표시
 - **시작 질문**: 스킬을 부르면 글꼴(고딕·명조)과 발표 색상 컨셉을 먼저 묻는다
-- **색상·글꼴 선택 상자**: 덱 아래에서 컬러차트 28색·흑백·웹폰트 12종을 골라 즉시 바꿔 보기(`--switcher`)
+- **색상·글꼴 선택 상자**: 덱 아래에서 컬러차트 28색·흑백·웹폰트 12종을 고르면 같은 내용에 CSS만 갈아 끼워 다시 그림(`--switcher`)
+- **그려지는 애니메이션**: 페이지를 열 때 상자가 차례로 떠오르고 그림이 펼쳐지며 화살표가 그어짐, 체크로 끔(PDF에는 영향 없음)
+- **페이지 배치 고정**: 모든 페이지에서 왼쪽·위 여백과 제목 위치·크기가 같음
 - **흑백 2종**: 흑백(`jf-mono-ink`)·그레이스케일(`jf-mono-gray`)
 - 원본 doc-figure v2.4(데이터 그래프·디자인 보고서풍 구조도)까지 병합, 원본 갱신은 주기적으로 병합
 
 ## 샘플
 
-더미 데이터 7쪽을 컬러 컨셉·글꼴별로 만든 샘플(실제 논문 아님). [샘플 페이지](samples/index.html)와 각 덱 HTML·페이지 이미지는 `samples/`에 있다.
+샘플 데이터로 만든 61쪽 — 도식 54종(조립 도식 11·템플릿 11·도식 형태 14·그래프·구조도 18) + 논문 PT 더미 7쪽(실제 결과 아님).
 
-**[samples/switcher.html](samples/switcher.html)** — 같은 7쪽을 아래 선택 상자로 색상(컬러차트 P-01~P-28 순서, 내용 계열 7, 흑백·그레이스케일)과 글꼴(눈누 웹폰트 고딕 6·명조 6)을 바꿔 가며 본다. 내용은 그대로이고 프리셋 CSS·글꼴만 갈아 끼워 모든 페이지를 다시 그린다(`jf_build_deck.py --switcher`).
+- **[samples/switcher.html](samples/switcher.html)** — 61쪽 덱. 아래 선택 상자로 색상(컬러차트 P-01~P-28 순서, 내용 계열 7, 흑백·그레이스케일)과 글꼴(눈누 웹폰트 고딕 6·명조 6)을 바꾸면 같은 내용에 CSS만 갈아 끼워 다시 그린다. 페이지를 열 때 그려지는 애니메이션(체크·A 키로 끔)
+- **[samples/index.html](samples/index.html)** — 61쪽 이미지 갤러리, 페이지 이미지는 `samples/images/pages/`
+- 샘플 설계 파일은 `samples/gallery-specs/`(원본 예시를 샘플 데이터로 정리: 제목은 번호 + 형태 이름)
 
-![컨셉별 첫 쪽](samples/images/concepts.png)
-
-| 컨셉 | 글꼴 | 7쪽 모아보기 | 덱 |
-|---|---|---|---|
-| P-01 Timeless & reliable | 프리젠테이션 | [보기](samples/images/p01-timeless-sheet.png) | [p01-timeless.html](samples/p01-timeless.html) |
-| P-01 Timeless & reliable | Noto Serif KR | [보기](samples/images/p01-timeless-serif-sheet.png) | [p01-timeless-serif.html](samples/p01-timeless-serif.html) |
-| P-02 Serene & warm | 프리텐다드 | [보기](samples/images/p02-serene-sheet.png) | [p02-serene.html](samples/p02-serene.html) |
-| 쨍한 컨셉 | G마켓 산스 | [보기](samples/images/pop-sheet.png) | [pop.html](samples/pop.html) |
-| 내용 계열 · 기술·혁신 | SUIT | [보기](samples/images/family-tech-sheet.png) | [family-tech.html](samples/family-tech.html) |
-| 그레이스케일 | 마루부리 | [보기](samples/images/mono-gray-serif-sheet.png) | [mono-gray-serif.html](samples/mono-gray-serif.html) |
-
-![P-01 Timeless 7쪽](samples/images/p01-timeless-sheet.png)
+| 묶음 | 모아보기 |
+|---|---|
+| 1 조립 도식 (11) | ![](samples/images/sheet-s1-board.png) |
+| 2 템플릿 (11) | ![](samples/images/sheet-s2-templates.png) |
+| 3 도식 형태 (14) | ![](samples/images/sheet-s3-forms.png) |
+| 4 그래프·구조도 (18) | ![](samples/images/sheet-s4-viz.png) |
+| 5 논문 PT 더미 (7) | ![](samples/images/sheet-s5-paper.png) |
 
 ## 개요
 
@@ -91,7 +90,7 @@ python3 scripts/jf_palette.py build && python3 scripts/jf_palette.py check
 | `scripts/jf_page.py` | 16:9 페이지 틀·글꼴·자동 맞춤 |
 | `scripts/jf_build_html.py` · `jf_build_deck.py` | 한 장·덱 빌드 |
 | `scripts/jf_color_chart.py` | 컬러차트 |
-| `samples/` | 더미 데이터 샘플 페이지(index.html)·컨셉별 덱·페이지 이미지 |
+| `samples/` | 샘플 61쪽 덱(switcher.html)·이미지 갤러리(index.html)·페이지 이미지·샘플 설계 파일 |
 | `examples/jf-demo/` | 더미 데이터 도식 7장(연구 질문·분석틀·자료와 절차·집단별 변화·판단 경로·2×2·단계별 제언) |
 | `원본출처.md` | 포크 시점과 변경 기록 |
 
