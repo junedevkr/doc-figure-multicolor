@@ -218,16 +218,38 @@ LOADER = r"""
   olds.forEach(function(s){ s.remove(); });
   var fig = document.getElementById('figure');
   var snap = fig ? fig.innerHTML : '', style0 = fig ? (fig.getAttribute('style') || '') : '';
-  function exec(){ texts.forEach(function(t){ var s = document.createElement('script'); s.text = t; document.body.appendChild(s); }); }
+  function exec(){ texts.forEach(function(t){ var s = document.createElement('script'); s.text = t; document.body.appendChild(s); }); try { hugNotes(); } catch (e) {} }
+  // 그림판(stage) 왼쪽 끝에 붙던 단위·출처·범례·설명을 실제 그림의 왼쪽(오른쪽 맞춤이면 오른쪽) 끝에 맞춘다
+  // — 그림이 그림판 가운데에 좁게 그려지면(기울기 등) 메모만 왼쪽에 떨어져 본문 둘레가 넓어지고 그림이 가운데에 오지 않는다
+  function hugNotes(){
+    if (!C.page || !fig || isBoard()) return;
+    var st = fig.querySelector('.vz-stage, .fm-stage'); if (!st) return;
+    var sr = st.getBoundingClientRect(), u = sr.width / st.offsetWidth || 1, b = paintBox(st);
+    if (!b) return;
+    var offL = (b.L - sr.left) / u, offR = (sr.right - b.R) / u, w = (b.R - b.L) / u;
+    if (offL < 24 && offR < 24) return;
+    Array.prototype.slice.call(fig.children).forEach(function(e){
+      if (!/\b(unit|src|caption|lg|concl)\b/.test(e.className || '')) return;
+      var al = getComputedStyle(e).textAlign;
+      e.style.maxWidth = w.toFixed(1) + 'px'; e.style.boxSizing = 'border-box';
+      if (al === 'right' || al === 'end') { e.style.marginLeft = 'auto'; e.style.marginRight = offR.toFixed(1) + 'px'; }
+      else if (al === 'center') { e.style.marginLeft = offL.toFixed(1) + 'px'; }
+      else e.style.marginLeft = offL.toFixed(1) + 'px';
+    });
+  }
   // 페이지 배율(s)을 그리기 전에 정한다 — 제목 크기 보정(42px ÷ s)을 그린 뒤에 바꾸면 템플릿이 이미 그은 선·표 줄과 어긋나므로,
   // 배율이 바뀌면 처음부터 다시 그린다
   function isBoard(){ return typeof FIGURE !== 'undefined' && FIGURE && FIGURE.template === 'board'; }
   // 본문 상자 — 제목(.hd)을 뺀 나머지에서 실제로 칠해진 것(글자·색 칠한 상자·테두리·그림 도형)만 모아 그 둘레를 잰다(그림 좌표 단위)
   function contentBox(){
-    var fr = fig.getBoundingClientRect(), u = fr.width / fig.offsetWidth || 1, hd = fig.querySelector('.hd');
+    var fr = fig.getBoundingClientRect(), u = fr.width / fig.offsetWidth || 1, b = paintBox(fig, fig.querySelector('.hd'));
+    if (!b) return null;
+    return {l: (b.L - fr.left) / u, t: (b.T - fr.top) / u, w: (b.R - b.L) / u, h: (b.B - b.T) / u};
+  }
+  function paintBox(scope, hd){
     var L = 1e9, T = 1e9, R = -1e9, B = -1e9;
     function add(r){ if (!r || (r.width < 0.5 && r.height < 0.5)) return;   /* 가로·세로 직선은 한쪽 두께가 0이어도 센다 */ L = Math.min(L, r.left); T = Math.min(T, r.top); R = Math.max(R, r.right); B = Math.max(B, r.bottom); }
-    var all = fig.querySelectorAll('*'), rg = document.createRange();
+    var all = scope.querySelectorAll('*'), rg = document.createRange();
     for (var i = 0; i < all.length; i++) {
       var e = all[i];
       if (hd && (e === hd || hd.contains(e))) continue;
@@ -243,7 +265,7 @@ LOADER = r"""
       if ((bg && bg[3] > 0.02) || cs.backgroundImage !== 'none' || parseFloat(cs.borderTopWidth) + parseFloat(cs.borderLeftWidth) + parseFloat(cs.borderBottomWidth) + parseFloat(cs.borderRightWidth) > 0 || /^(IMG|CANVAS|VIDEO)$/.test(e.tagName)) add(e.getBoundingClientRect());
     }
     if (L > R) return null;
-    return {l: (L - fr.left) / u, t: (T - fr.top) / u, w: (R - L) / u, h: (B - T) / u};
+    return {L: L, T: T, R: R, B: B};
   }
   // 제목 묶음(h1 윗변 ~ .hd 아랫변)의 높이(그림 좌표 단위)
   function headFig(){

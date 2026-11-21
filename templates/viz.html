@@ -636,6 +636,13 @@ const ICONS  = /*__ICONS__*/ {};
   function card(st,x,y,w,h,tn,o){ o=o||{}; const r=SOLID?(o.r==null?10:o.r):0;
     add(st,'rect',{x,y,width:w,height:h,rx:r},o.solid?('fill:'+tc(tn)):('fill:'+(o.white?'var(--card-fill)':tc(tn,'tint'))+';stroke:'+tc(tn,o.strong?'':'line')+';stroke-width:'+(o.strong?3:2)));
     if(o.solid) gloss(st,'rect',{x,y,width:w,height:h,rx:r}); }
+  // 축 생략 물결 띠 — 배경색 띠의 위아래 가장자리를 물결로, 가는 물결선 두 줄로 테두리
+  function waveBreak(st,x0,x1,y,o){ o=o||{}; const amp=o.amp||4.5, len=o.len||18, gap=o.gap||9, n=Math.max(2,Math.round((x1-x0)/len)), step=(x1-x0)/n;
+    const wv=(yy,dir)=>{ let d=''; for(let k=0;k<n;k++){ const xa=dir>0?x0+k*step:x1-k*step, xm=xa+dir*step/2, xe=xa+dir*step; d+=' Q '+xm.toFixed(1)+' '+(yy+((k%2)?amp:-amp)*dir).toFixed(1)+' '+xe.toFixed(1)+' '+yy.toFixed(1); } return d; };
+    const yt=y-gap/2, yb=y+gap/2;
+    add(st,'path',{d:'M '+x0+' '+yt+wv(yt,1)+' L '+x1+' '+yb+wv(yb,-1)+' Z'},'fill:var(--bg,#fff);stroke:none');
+    add(st,'path',{d:'M '+x0+' '+yt+wv(yt,1)},'fill:none;stroke:var(--ink-soft);stroke-width:1.6');
+    add(st,'path',{d:'M '+x1+' '+yb+wv(yb,-1)},'fill:none;stroke:var(--ink-soft);stroke-width:1.6'); }
   function dots(st,x1,y1,x2,y2,tn){ add(st,'path',{d:`M${x1} ${y1} L${x2} ${y2}`},'stroke:'+tc(tn||'mute','line')+';stroke-width:2.5;stroke-dasharray:2 7;stroke-linecap:round;fill:none'); }
   function bulletParts(items,cls){ return [].concat(items||[]).map(x=>[x,(cls||'b')+' bul']); }
 
@@ -759,7 +766,7 @@ const ICONS  = /*__ICONS__*/ {};
     add(st,'path',{d:`M0 ${y0} L${W} ${y0}`},'stroke:var(--ink-soft);stroke-width:2;fill:none');
     seq.forEach((q,i)=>{ const xc=slot*(i+0.5), a=Math.min(sy(q.v0),sy(q.v1)), b=Math.max(sy(q.v0),sy(q.v1)), tn=q.kind==='tot'?'main':(q.kind==='up'?'go':'stop');
       add(st,'rect',{x:xc-bw/2,y:a,width:bw,height:Math.max(3,b-a),rx:SOLID?5:0},'fill:'+tc(tn)); gloss(st,'rect',{x:xc-bw/2,y:a,width:bw,height:Math.max(3,b-a),rx:5},1.2);
-      if(q.kind==='tot'&&cut>0){ const by=y0-26; add(st,'path',{d:`M${xc-bw/2-6} ${by+8} L${xc+bw/2+6} ${by-8} L${xc+bw/2+6} ${by+2} L${xc-bw/2-6} ${by+18} Z`},'fill:#fff'); }
+      if(q.kind==='tot'&&cut>0) waveBreak(st,xc-bw/2-8,xc+bw/2+8,y0-28);   // 축 하단 생략은 물결(≈) 띠로
       if(i<n-1) dots(st,xc+bw/2,sy(q.v1),xc+slot-bw/2,sy(q.v1),'mute');
       const txt=q.kind==='tot'?fmt(q.v1,dec):((q.dv>0?'+':'−')+fmt(Math.abs(q.dv),dec)); lab(st,xc,a-8,0,[[txt,q.kind==='tot'?'v':'v',q.kind==='tot'?null:tc(tn)]],{anchor:'b'});
       lab(st,xc,y0+12,slot-12,[[q.label,q.kind==='tot'?'bb':'b']],{anchor:'t'}); });
