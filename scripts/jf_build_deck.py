@@ -11,7 +11,7 @@
 - --font <글꼴 키>|gothic|myeongjo: 모든 페이지 글꼴(references/jf-fonts.json, 기본 고딕=프리젠테이션, 기본 명조=Noto Serif KR)
 - --footer "논문 제목": 페이지마다 하단 왼쪽에 작게 이탤릭으로 (spec의 "page_footer"가 있으면 그 페이지는 그것, 문자열 "footer"도 같은 뜻)
 - 애니메이션: 페이지를 열 때 상자가 차례로 떠오르고 그림이 펼쳐지며 화살표가 그어진다. '애니메이션' 체크(A 키)로 끔. PDF에는 영향 없음
-- 페이지 번호: 'PT 하단에 페이지 번호' 선택(N 키)으로 슬라이드 오른쪽 아래 번호를 보이거나 숨긴다. PDF에도 그대로 적용
+- 페이지 번호: '페이지 번호' 체크(N 키)으로 슬라이드 오른쪽 아래 번호를 보이거나 숨긴다. PDF에도 그대로 적용
 - 그라데이션: 체크(D 키)하면 상자·도형·그래프에 위가 밝은 그라데이션(원본 doc-figure v2.4의 --gloss 토큰 방식). 화면·PDF 공통, spec "gloss": true로 켠 채 시작
 - 페이지 고르기: 가운데 번호를 누르거나 G 키 → 번호·제목 칸에서 골라 이동. 숫자를 치고 Enter로도 바로 이동(전체화면에서도)
 - 클릭 강조(C 키, 켤 때만): 슬라이드를 누르면 글자는 형광펜이 아래 55%를 칠하며 지나가고, 상자는 테두리가 조여 들며 강조, 그래프·도형 조각은 밝게 빛난다.
@@ -195,7 +195,7 @@ body.dark button:focus-visible, body.dark .opt input:focus-visible { outline-col
       __SWITCH_UI__
       <label class="opt" title="페이지를 열 때 그려지듯 나타남 (A 키)"><input type="checkbox" data-anim> 애니메이션<span class="k">A</span></label>
       <label class="opt" title="상자·도형·그래프에 위가 밝은 그라데이션 (D 키). PDF에도 그대로 적용"><input type="checkbox" data-grad> 그라데이션<span class="k">D</span></label>
-      <label class="opt" title="슬라이드 오른쪽 아래에 페이지 번호 (N 키). PDF에도 그대로 적용"><input type="checkbox" data-pno> PT 하단에 페이지 번호<span class="k">N</span></label>
+      <label class="opt" title="슬라이드 오른쪽 아래에 페이지 번호 (N 키). PDF에도 그대로 적용"><input type="checkbox" data-pno> 페이지 번호<span class="k">N</span></label>
       <label class="opt" title="슬라이드를 누르면 강조: 글자는 형광펜, 상자는 테두리, 그림 조각은 빛나기. 다시 누르면 지움, E 키로 모두 지움 (C 키)"><input type="checkbox" data-fx> 클릭 강조<span class="k">C</span></label>
       <label class="opt" title="슬라이드 글자를 끌어 선택하지 못하게"><input type="checkbox" data-nosel> 드래그 금지</label>
       <div class="tools" role="group" aria-label="발표 도구">
