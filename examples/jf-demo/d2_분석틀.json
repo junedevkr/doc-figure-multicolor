@@ -1,0 +1,98 @@
+{
+  "template": "board",
+  "preset": "jf-pop",
+  "header": "headline",
+  "title": "2 이론적 배경 > 분석틀",
+  "tag": "더미 데이터 · 실제 결과 아님",
+  "footer": "더미 데이터 예시 — 실제 논문 아님",
+  "body": [
+    {
+      "row": [
+        {
+          "group": "2-1 투입",
+          "tone": "mute",
+          "body": [
+            {
+              "title": "도입 수준",
+              "sub": "사용 부서 비율 · 사용 빈도",
+              "icon": "stack-2",
+              "layout": "side"
+            },
+            {
+              "title": "조직 여건",
+              "sub": "교육 시간 · 전담 인력",
+              "icon": "building",
+              "layout": "side"
+            },
+            {
+              "title": "업무 특성",
+              "sub": "정형 문서 비중",
+              "icon": "file-text",
+              "layout": "side"
+            }
+          ]
+        },
+        {
+          "group": "2-2 매개",
+          "tone": "main",
+          "body": [
+            {
+              "num": "1",
+              "title": "업무 재설계",
+              "sub": "절차 단축 · 검토 단계 조정",
+              "fill": "tint"
+            },
+            {
+              "num": "2",
+              "title": "역량 학습",
+              "sub": "프롬프트 · 검수 역량",
+              "fill": "tint"
+            },
+            {
+              "num": "3",
+              "title": "통제 장치",
+              "sub": "검수 기준 · 기록 의무",
+              "fill": "tint"
+            }
+          ],
+          "gap": 12
+        },
+        {
+          "group": "2-3 결과",
+          "tone": "go",
+          "body": [
+            {
+              "title": "효율성",
+              "sub": "처리 시간 · 처리량",
+              "icon": "trending-up",
+              "layout": "side",
+              "tone": "go"
+            },
+            {
+              "title": "품질",
+              "sub": "오류율 · 재작업 건수",
+              "icon": "circle-check",
+              "layout": "side",
+              "tone": "go"
+            },
+            {
+              "title": "신뢰",
+              "sub": "민원인 만족도",
+              "icon": "heart-handshake",
+              "layout": "side",
+              "tone": "go"
+            }
+          ]
+        }
+      ],
+      "join": "arrow",
+      "gap": 24
+    },
+    {
+      "band": "조절 요인 : 부서 규모 · 관리자 지지 · 개인정보 처리 비중",
+      "tone": "wait",
+      "style": "soft",
+      "label": "2-4 조절"
+    }
+  ]
+}

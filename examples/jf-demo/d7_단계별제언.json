@@ -1,0 +1,110 @@
+{
+  "template": "board",
+  "preset": "jf-pop",
+  "header": "headline",
+  "title": "5 결론 > 5-1 단계별 제언",
+  "tag": "더미 데이터 · 실제 결과 아님",
+  "footer": "더미 데이터 예시 — 실제 논문 아님",
+  "body": [
+    {
+      "row": [
+        {
+          "spacer": 1,
+          "w": 200
+        },
+        {
+          "steps": [
+            {
+              "title": "1단계 (6개월)",
+              "sub": "기반 정비"
+            },
+            {
+              "title": "2단계 (1년)",
+              "sub": "확대 적용"
+            },
+            {
+              "title": "3단계 (2년)",
+              "sub": "상시 운영"
+            }
+          ],
+          "on": 2
+        }
+      ],
+      "gap": 16
+    },
+    {
+      "row": [
+        {
+          "pill": "5-1 지침",
+          "shape": "square",
+          "w": 200
+        },
+        {
+          "title": "검수 체크리스트 배포",
+          "fill": "tint"
+        },
+        {
+          "title": "부서별 사용 범위 고시",
+          "fill": "tint"
+        },
+        {
+          "title": "정례 점검 · 지침 개정",
+          "focus": true
+        }
+      ],
+      "gap": 16
+    },
+    {
+      "row": [
+        {
+          "pill": "5-2 인력",
+          "shape": "square",
+          "w": 200,
+          "tone": "sub"
+        },
+        {
+          "title": "부서별 담당자 지정",
+          "tone": "sub",
+          "fill": "tint"
+        },
+        {
+          "title": "검수 역량 교육 8시간",
+          "tone": "sub",
+          "fill": "tint"
+        },
+        {
+          "title": "전담 인력 상시 배치",
+          "tone": "sub",
+          "fill": "tint"
+        }
+      ],
+      "gap": 16
+    },
+    {
+      "row": [
+        {
+          "pill": "5-3 기록",
+          "shape": "square",
+          "w": 200,
+          "tone": "go"
+        },
+        {
+          "title": "사용 이력 보관",
+          "tone": "go",
+          "fill": "tint"
+        },
+        {
+          "title": "오류 신고 창구",
+          "tone": "go",
+          "fill": "tint"
+        },
+        {
+          "title": "연 1회 성과 공개",
+          "tone": "go",
+          "fill": "tint"
+        }
+      ],
+      "gap": 16
+    }
+  ]
+}

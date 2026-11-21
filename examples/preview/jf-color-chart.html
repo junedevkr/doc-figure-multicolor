@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8">
+<title>june-figure 컬러차트</title>
+<style>
+/* june-figure 기본 글꼴 — 프리젠테이션(Freesentation), 눈누 배포 웹폰트 */
+@font-face { font-family: 'Presentation'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2404@1.0/Freesentation-1Thin.woff2') format('woff2'); font-weight: 100; font-display: swap; }
+@font-face { font-family: 'Presentation'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2404@1.0/Freesentation-2ExtraLight.woff2') format('woff2'); font-weight: 200; font-display: swap; }
+@font-face { font-family: 'Presentation'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2404@1.0/Freesentation-3Light.woff2') format('woff2'); font-weight: 300; font-display: swap; }
+@font-face { font-family: 'Presentation'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2404@1.0/Freesentation-4Regular.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+@font-face { font-family: 'Presentation'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2404@1.0/Freesentation-5Medium.woff2') format('woff2'); font-weight: 500; font-display: swap; }
+@font-face { font-family: 'Presentation'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2404@1.0/Freesentation-6SemiBold.woff2') format('woff2'); font-weight: 600; font-display: swap; }
+@font-face { font-family: 'Presentation'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2404@1.0/Freesentation-7Bold.woff2') format('woff2'); font-weight: 700; font-display: swap; }
+@font-face { font-family: 'Presentation'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2404@1.0/Freesentation-8ExtraBold.woff2') format('woff2'); font-weight: 800; font-display: swap; }
+@font-face { font-family: 'Presentation'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2404@1.0/Freesentation-9Black.woff2') format('woff2'); font-weight: 900; font-display: swap; }
+@font-face { font-family: 'PresentationVariable'; src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/2611030111@font-variable-1369/variable-1369/FreesentationVF.woff2') format('woff2'); font-weight: 100 800; font-display: swap; }
+/* 가변: font-family: 'PresentationVariable'; font-variation-settings: "wght" 100; */
+
+* { box-sizing: border-box; }
+html { background: #EFEEEA; scrollbar-gutter: stable; }
+body { margin: 0; color: #1E1E22; font-family: "Presentation", "Pretendard", "Apple SD Gothic Neo", sans-serif; -webkit-font-smoothing: antialiased; }
+.wrap { max-width: 1600px; margin: 0 auto; padding: 48px 40px 140px; }
+h1 { font-size: 40px; margin: 0 0 8px; font-weight: 800; }
+.lead { font-size: 19px; color: #55565E; margin: 0 0 22px; line-height: 1.5; }
+.lead a { color: inherit; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 22px; }
+.pal { background: #fff; border-radius: 16px; overflow: hidden; cursor: pointer; outline: 3px solid transparent; transition: outline-color .15s, transform .15s; }
+.pal:hover { transform: translateY(-2px); }
+.pal:focus-visible { outline-color: #8A8A92; }
+.pal.sel { outline-color: #1E1E22; }
+.mini { aspect-ratio: 16 / 9; padding: 16px 16px 12px; display: flex; flex-direction: column; gap: 8px; position: relative; border-bottom: 1px solid #EEE; }
+.mini .tag { display: block; width: 26px; height: 4px; border-radius: 2px; }
+.mini .mt { font-size: 15px; font-weight: 800; }
+.mrow { display: flex; gap: 6px; flex: 1; }
+.mc { flex: 1; display: flex; flex-direction: column; border-radius: 7px; overflow: hidden; }
+.mh { font-size: 10px; font-weight: 800; padding: 5px 4px; text-align: center; }
+.mb { flex: 1; font-size: 10px; font-weight: 700; padding: 6px 4px; text-align: center; color: #1E1E22; }
+.bars { width: 46px; display: flex; align-items: flex-end; gap: 3px; padding-bottom: 2px; }
+.bars b { flex: 1; border-radius: 2px 2px 0 0; }
+.mband { font-size: 11px; font-weight: 800; text-align: center; padding: 6px; border-radius: 7px; }
+.meta { padding: 12px 14px 14px; }
+.id { font-size: 15px; font-weight: 800; letter-spacing: .5px; display: flex; justify-content: space-between; align-items: center; }
+.chk { display: none; font-size: 13px; background: #1E1E22; color: #fff; border-radius: 999px; padding: 2px 10px; }
+.pal.sel .chk { display: inline-block; }
+.nm { font-size: 17px; font-weight: 700; margin-top: 2px; }
+.sws { display: flex; margin-top: 10px; border-radius: 8px; overflow: hidden; }
+.sw { flex: 1; height: 46px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 5px; }
+.sw i { font-style: normal; font-size: 11px; font-weight: 600; font-family: ui-monospace, Menlo, monospace; }
+.bar { position: fixed; left: 0; right: 0; bottom: 0; background: #1E1E22; color: #fff; }
+.bar .in { max-width: 1600px; margin: 0 auto; padding: 18px 40px; display: flex; align-items: center; gap: 18px; font-size: 19px; }
+.bar .ids { flex: 1; font-weight: 700; letter-spacing: .5px; min-height: 1em; }
+.bar .ids:empty::before { content: "카드를 눌러 마음에 드는 팔레트를 고르세요 (여러 개 가능)"; font-weight: 500; opacity: .6; }
+.bar button { font: inherit; font-size: 17px; font-weight: 700; border: 0; border-radius: 999px; padding: 10px 20px; cursor: pointer; }
+.bar .copy { background: #fff; color: #1E1E22; }
+.bar .clear { background: transparent; color: #fff; outline: 1px solid rgba(255,255,255,.4); }
+</style></head>
+<body>
+<div class="wrap">
+  <h1>june-figure 컬러차트</h1>
+  <p class="lead">공개된 프레젠테이션 팔레트 28개를 색상 코드 그대로 같은 미니 슬라이드에 입혀 비교합니다. 미리보기의 색 배치(제목·머리띠·띠)는 비교용 규칙이고, 고른 팔레트로 프리셋을 만들 때 다시 맞춥니다.</p>
+  <div class="grid" id="grid"><article class="pal" data-id="P-01" tabindex="0" role="button" aria-pressed="false">
+  <div class="mini" style="background:#FFFFFF;color:#1E1E22">
+    <i class="tag" style="background:#343752"></i>
+    <div class="mt">4 분석 결과 &gt; 4-1 집단별 변화</div>
+    <div class="mrow">
+      <div class="mc"><div class="mh" style="background:#343752;color:#FFFFFF">4-1 축산농민</div><div class="mb" style="background:#E3E3E7">경제적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#90ACC7;color:#1E1E22">4-2 전문가</div><div class="mb" style="background:#EFF3F7">과학적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#FAD12B;color:#1E1E22">4-3 공무원</div><div class="mb" style="background:#FEF9E1">정책적 불확실성</div></div>
+      <div class="bars"><b style="height:48%;background:#90ACC7"></b><b style="height:72%;background:#343752"></b><b style="height:60%;background:#FAD12B"></b><b style="height:88%;background:#343752"></b></div>
+    </div>
+    <div class="mband" style="background:#343752;color:#FFFFFF">5 불확실성의 거버넌스</div>
+  </div>
+  <div class="meta">
+    <div class="id">P-01 <span class="chk">선택됨</span></div>
+    <div class="nm">Timeless &amp; reliable</div>
+    <div class="sws"><span class="sw" style="background:#343752"><i style="color:#FFFFFF">#343752</i></span><span class="sw" style="background:#90ACC7"><i style="color:#1E1E22">#90ACC7</i></span><span class="sw" style="background:#FAD12B"><i style="color:#1E1E22">#FAD12B</i></span></div>
+  </div>
+</article>
+<article class="pal" data-id="P-02" tabindex="0" role="button" aria-pressed="false">
+  <div class="mini" style="background:#FFFFFF;color:#1E1E22">
+    <i class="tag" style="background:#A49393"></i>
+    <div class="mt">4 분석 결과 &gt; 4-1 집단별 변화</div>
+    <div class="mrow">
+      <div class="mc"><div class="mh" style="background:#A49393;color:#1E1E22">4-1 축산농민</div><div class="mb" style="background:#F2F0F0">경제적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#EED6D3;color:#1E1E22">4-2 전문가</div><div class="mb" style="background:#FDF9F9">과학적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#E8B4B8;color:#1E1E22">4-3 공무원</div><div class="mb" style="background:#FCF4F5">정책적 불확실성</div></div>
+      <div class="bars"><b style="height:48%;background:#EED6D3"></b><b style="height:72%;background:#A49393"></b><b style="height:60%;background:#E8B4B8"></b><b style="height:88%;background:#A49393"></b></div>
+    </div>
+    <div class="mband" style="background:#A49393;color:#1E1E22">5 불확실성의 거버넌스</div>
+  </div>
+  <div class="meta">
+    <div class="id">P-02 <span class="chk">선택됨</span></div>
+    <div class="nm">Serene &amp; warm</div>
+    <div class="sws"><span class="sw" style="background:#A49393"><i style="color:#1E1E22">#A49393</i></span><span class="sw" style="background:#EED6D3"><i style="color:#1E1E22">#EED6D3</i></span><span class="sw" style="background:#E8B4B8"><i style="color:#1E1E22">#E8B4B8</i></span></div>
+  </div>
+</article>
+<article class="pal" data-id="P-03" tabindex="0" role="button" aria-pressed="false">
+  <div class="mini" style="background:#FFFFFF;color:#1E1E22">
+    <i class="tag" style="background:#6B90B2"></i>
+    <div class="mt">4 분석 결과 &gt; 4-1 집단별 변화</div>
+    <div class="mrow">
+      <div class="mc"><div class="mh" style="background:#6B90B2;color:#FFFFFF">4-1 축산농민</div><div class="mb" style="background:#EAEFF4">경제적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#1B558E;color:#FFFFFF">4-2 전문가</div><div class="mb" style="background:#DFE7EF">과학적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#CCD64D;color:#1E1E22">4-3 공무원</div><div class="mb" style="background:#F8F9E6">정책적 불확실성</div></div>
+      <div class="bars"><b style="height:48%;background:#1B558E"></b><b style="height:72%;background:#6B90B2"></b><b style="height:60%;background:#CCD64D"></b><b style="height:88%;background:#6B90B2"></b></div>
+    </div>
+    <div class="mband" style="background:#6B90B2;color:#FFFFFF">5 불확실성의 거버넌스</div>
+  </div>
+  <div class="meta">
+    <div class="id">P-03 <span class="chk">선택됨</span></div>
+    <div class="nm">Professional with a fresh touch</div>
+    <div class="sws"><span class="sw" style="background:#6B90B2"><i style="color:#FFFFFF">#6B90B2</i></span><span class="sw" style="background:#1B558E"><i style="color:#FFFFFF">#1B558E</i></span><span class="sw" style="background:#CCD64D"><i style="color:#1E1E22">#CCD64D</i></span></div>
+  </div>
+</article>
+<article class="pal" data-id="P-04" tabindex="0" role="button" aria-pressed="false">
+  <div class="mini" style="background:#FFFFFF;color:#1E1E22">
+    <i class="tag" style="background:#F751A0"></i>
+    <div class="mt">4 분석 결과 &gt; 4-1 집단별 변화</div>
+    <div class="mrow">
+      <div class="mc"><div class="mh" style="background:#F751A0;color:#FFFFFF">4-1 축산농민</div><div class="mb" style="background:#FEE7F2">경제적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#5F3E8B;color:#FFFFFF">4-2 전문가</div><div class="mb" style="background:#E9E4EF">과학적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#2CF4E0;color:#1E1E22">4-3 공무원</div><div class="mb" style="background:#E1FDFB">정책적 불확실성</div></div>
+      <div class="bars"><b style="height:48%;background:#5F3E8B"></b><b style="height:72%;background:#F751A0"></b><b style="height:60%;background:#2CF4E0"></b><b style="height:88%;background:#F751A0"></b></div>
+    </div>
+    <div class="mband" style="background:#F751A0;color:#FFFFFF">5 불확실성의 거버넌스</div>
+  </div>
+  <div class="meta">
+    <div class="id">P-04 <span class="chk">선택됨</span></div>
+    <div class="nm">Playful &amp; unexpected</div>
+    <div class="sws"><span class="sw" style="background:#F751A0"><i style="color:#FFFFFF">#F751A0</i></span><span class="sw" style="background:#5F3E8B"><i style="color:#FFFFFF">#5F3E8B</i></span><span class="sw" style="background:#2CF4E0"><i style="color:#1E1E22">#2CF4E0</i></span></div>
+  </div>
+</article>
+<article class="pal" data-id="P-05" tabindex="0" role="button" aria-pressed="false">
+  <div class="mini" style="background:#FFFFFF;color:#1E1E22">
+    <i class="tag" style="background:#89DA59"></i>
+    <div class="mt">4 분석 결과 &gt; 4-1 집단별 변화</div>
+    <div class="mrow">
+      <div class="mc"><div class="mh" style="background:#89DA59;color:#1E1E22">4-1 축산농민</div><div class="mb" style="background:#EEFAE8">경제적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#229968;color:#FFFFFF">4-2 전문가</div><div class="mb" style="background:#E0F1EA">과학적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#F99653;color:#1E1E22">4-3 공무원</div><div class="mb" style="background:#FEF0E7">정책적 불확실성</div></div>
+      <div class="bars"><b style="height:48%;background:#229968"></b><b style="height:72%;background:#89DA59"></b><b style="height:60%;background:#F99653"></b><b style="height:88%;background:#89DA59"></b></div>
+    </div>
+    <div class="mband" style="background:#89DA59;color:#1E1E22">5 불확실성의 거버넌스</div>
+  </div>
+  <div class="meta">
+    <div class="id">P-05 <span class="chk">선택됨</span></div>
+    <div class="nm">Outdoorsy &amp; fresh</div>
+    <div class="sws"><span class="sw" style="background:#89DA59"><i style="color:#1E1E22">#89DA59</i></span><span class="sw" style="background:#229968"><i style="color:#FFFFFF">#229968</i></span><span class="sw" style="background:#F99653"><i style="color:#1E1E22">#F99653</i></span></div>
+  </div>
+</article>
+<article class="pal" data-id="P-06" tabindex="0" role="button" aria-pressed="false">
+  <div class="mini" style="background:#FFFFFF;color:#1E1E22">
+    <i class="tag" style="background:#5EA8A7"></i>
+    <div class="mt">4 분석 결과 &gt; 4-1 집단별 변화</div>
+    <div class="mrow">
+      <div class="mc"><div class="mh" style="background:#5EA8A7;color:#1E1E22">4-1 축산농민</div><div class="mb" style="background:#E8F3F3">경제적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#277884;color:#FFFFFF">4-2 전문가</div><div class="mb" style="background:#E1ECEE">과학적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#FE4447;color:#FFFFFF">4-3 공무원</div><div class="mb" style="background:#FFE5E5">정책적 불확실성</div></div>
+      <div class="bars"><b style="height:48%;background:#277884"></b><b style="height:72%;background:#5EA8A7"></b><b style="height:60%;background:#FE4447"></b><b style="height:88%;background:#5EA8A7"></b></div>
+    </div>
+    <div class="mband" style="background:#5EA8A7;color:#1E1E22">5 불확실성의 거버넌스</div>
+  </div>
+  <div class="meta">
+    <div class="id">P-06 <span class="chk">선택됨</span></div>
+    <div class="nm">Modern &amp; energetic</div>
+    <div class="sws"><span class="sw" style="background:#5EA8A7"><i style="color:#1E1E22">#5EA8A7</i></span><span class="sw" style="background:#277884"><i style="color:#FFFFFF">#277884</i></span><span class="sw" style="background:#FE4447"><i style="color:#FFFFFF">#FE4447</i></span></div>
+  </div>
+</article>
+<article class="pal" data-id="P-07" tabindex="0" role="button" aria-pressed="false">
+  <div class="mini" style="background:#FFFFFF;color:#1E1E22">
+    <i class="tag" style="background:#544089"></i>
+    <div class="mt">4 분석 결과 &gt; 4-1 집단별 변화</div>
+    <div class="mrow">
+      <div class="mc"><div class="mh" style="background:#544089;color:#FFFFFF">4-1 축산농민</div><div class="mb" style="background:#E7E4EE">경제적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#A5A5CE;color:#1E1E22">4-2 전문가</div><div class="mb" style="background:#F2F2F8">과학적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#FFBC00;color:#1E1E22">4-3 공무원</div><div class="mb" style="background:#FFF6DB">정책적 불확실성</div></div>
+      <div class="bars"><b style="height:48%;background:#A5A5CE"></b><b style="height:72%;background:#544089"></b><b style="height:60%;background:#FFBC00"></b><b style="height:88%;background:#544089"></b></div>
+    </div>
+    <div class="mband" style="background:#544089;color:#FFFFFF">5 불확실성의 거버넌스</div>
+  </div>
+  <div class="meta">
+    <div class="id">P-07 <span class="chk">선택됨</span></div>
+    <div class="nm">Modern &amp; crisp</div>
+    <div class="sws"><span class="sw" style="background:#544089"><i style="color:#FFFFFF">#544089</i></span><span class="sw" style="background:#A5A5CE"><i style="color:#1E1E22">#A5A5CE</i></span><span class="sw" style="background:#FFBC00"><i style="color:#1E1E22">#FFBC00</i></span></div>
+  </div>
+</article>
+<article class="pal" data-id="P-08" tabindex="0" role="button" aria-pressed="false">
+  <div class="mini" style="background:#FFFFFF;color:#1E1E22">
+    <i class="tag" style="background:#E0B90C"></i>
+    <div class="mt">4 분석 결과 &gt; 4-1 집단별 변화</div>
+    <div class="mrow">
+      <div class="mc"><div class="mh" style="background:#E0B90C;color:#1E1E22">4-1 축산농민</div><div class="mb" style="background:#FBF5DD">경제적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#EAE2D6;color:#1E1E22">4-2 전문가</div><div class="mb" style="background:#FCFBF9">과학적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#857766;color:#FFFFFF">4-3 공무원</div><div class="mb" style="background:#EEECEA">정책적 불확실성</div></div>
+      <div class="bars"><b style="height:48%;background:#EAE2D6"></b><b style="height:72%;background:#E0B90C"></b><b style="height:60%;background:#857766"></b><b style="height:88%;background:#E0B90C"></b></div>
+    </div>
+    <div class="mband" style="background:#E0B90C;color:#1E1E22">5 불확실성의 거버넌스</div>
+  </div>
+  <div class="meta">
+    <div class="id">P-08 <span class="chk">선택됨</span></div>
+    <div class="nm">Earthy with a vibrant twist</div>
+    <div class="sws"><span class="sw" style="background:#E0B90C"><i style="color:#1E1E22">#E0B90C</i></span><span class="sw" style="background:#EAE2D6"><i style="color:#1E1E22">#EAE2D6</i></span><span class="sw" style="background:#857766"><i style="color:#FFFFFF">#857766</i></span></div>
+  </div>
+</article>
+<article class="pal" data-id="P-09" tabindex="0" role="button" aria-pressed="false">
+  <div class="mini" style="background:#FFFFFF;color:#1E1E22">
+    <i class="tag" style="background:#FFA578"></i>
+    <div class="mt">4 분석 결과 &gt; 4-1 집단별 변화</div>
+    <div class="mrow">
+      <div class="mc"><div class="mh" style="background:#FFA578;color:#1E1E22">4-1 축산농민</div><div class="mb" style="background:#FFF2EC">경제적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#D45448;color:#FFFFFF">4-2 전문가</div><div class="mb" style="background:#F9E7E5">과학적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#896E6A;color:#FFFFFF">4-3 공무원</div><div class="mb" style="background:#EEEBEA">정책적 불확실성</div></div>
+      <div class="bars"><b style="height:48%;background:#D45448"></b><b style="height:72%;background:#FFA578"></b><b style="height:60%;background:#896E6A"></b><b style="height:88%;background:#FFA578"></b></div>
+    </div>
+    <div class="mband" style="background:#FFA578;color:#1E1E22">5 불확실성의 거버넌스</div>
+  </div>
+  <div class="meta">
+    <div class="id">P-09 <span class="chk">선택됨</span></div>
+    <div class="nm">Cosy &amp; versatile</div>
+    <div class="sws"><span class="sw" style="background:#FFA578"><i style="color:#1E1E22">#FFA578</i></span><span class="sw" style="background:#D45448"><i style="color:#FFFFFF">#D45448</i></span><span class="sw" style="background:#896E6A"><i style="color:#FFFFFF">#896E6A</i></span></div>
+  </div>
+</article>
+<article class="pal" data-id="P-10" tabindex="0" role="button" aria-pressed="false">
+  <div class="mini" style="background:#FFFFFF;color:#1E1E22">
+    <i class="tag" style="background:#3B4D54"></i>
+    <div class="mt">4 분석 결과 &gt; 4-1 집단별 변화</div>
+    <div class="mrow">
+      <div class="mc"><div class="mh" style="background:#3B4D54;color:#FFFFFF">4-1 축산농민</div><div class="mb" style="background:#E4E6E7">경제적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#B9BAB5;color:#1E1E22">4-2 전문가</div><div class="mb" style="background:#F5F5F5">과학적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#FE8D3F;color:#1E1E22">4-3 공무원</div><div class="mb" style="background:#FFEFE4">정책적 불확실성</div></div>
+      <div class="bars"><b style="height:48%;background:#B9BAB5"></b><b style="height:72%;background:#3B4D54"></b><b style="height:60%;background:#FE8D3F"></b><b style="height:88%;background:#3B4D54"></b></div>
+    </div>
+    <div class="mband" style="background:#3B4D54;color:#FFFFFF">5 불확실성의 거버넌스</div>
+  </div>
+  <div class="meta">
+    <div class="id">P-10 <span class="chk">선택됨</span></div>
+    <div class="nm">Corporate with personality</div>
+    <div class="sws"><span class="sw" style="background:#3B4D54"><i style="color:#FFFFFF">#3B4D54</i></span><span class="sw" style="background:#B9BAB5"><i style="color:#1E1E22">#B9BAB5</i></span><span class="sw" style="background:#FE8D3F"><i style="color:#1E1E22">#FE8D3F</i></span></div>
+  </div>
+</article>
+<article class="pal" data-id="P-11" tabindex="0" role="button" aria-pressed="false">
+  <div class="mini" style="background:#FFFFFF;color:#1E1E22">
+    <i class="tag" style="background:#FDB3AE"></i>
+    <div class="mt">4 분석 결과 &gt; 4-1 집단별 변화</div>
+    <div class="mrow">
+      <div class="mc"><div class="mh" style="background:#FDB3AE;color:#1E1E22">4-1 축산농민</div><div class="mb" style="background:#FFF4F4">경제적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#CAE4E2;color:#1E1E22">4-2 전문가</div><div class="mb" style="background:#F8FBFB">과학적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#FBDF74;color:#1E1E22">4-3 공무원</div><div class="mb" style="background:#FEFBEC">정책적 불확실성</div></div>
+      <div class="bars"><b style="height:48%;background:#CAE4E2"></b><b style="height:72%;background:#FDB3AE"></b><b style="height:60%;background:#FBDF74"></b><b style="height:88%;background:#FDB3AE"></b></div>
+    </div>
+    <div class="mband" style="background:#FDB3AE;color:#1E1E22">5 불확실성의 거버넌스</div>
+  </div>
+  <div class="meta">
+    <div class="id">P-11 <span class="chk">선택됨</span></div>
+    <div class="nm">Soothing pastels</div>
+    <div class="sws"><span class="sw" style="background:#FDB3AE"><i style="color:#1E1E22">#FDB3AE</i></span><span class="sw" style="background:#CAE4E2"><i style="color:#1E1E22">#CAE4E2</i></span><span class="sw" style="background:#FBDF74"><i style="color:#1E1E22">#FBDF74</i></span></div>
+  </div>
+</article>
+<article class="pal" data-id="P-12" tabindex="0" role="button" aria-pressed="false">
+  <div class="mini" style="background:#FFFFFF;color:#1E1E22">
+    <i class="tag" style="background:#03AEB8"></i>
+    <div class="mt">4 분석 결과 &gt; 4-1 집단별 변화</div>
+    <div class="mrow">
+      <div class="mc"><div class="mh" style="background:#03AEB8;color:#1E1E22">4-1 축산농민</div><div class="mb" style="background:#DCF4F5">경제적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#FFB402;color:#1E1E22">4-2 전문가</div><div class="mb" style="background:#FFF4DC">과학적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#FC4662;color:#FFFFFF">4-3 공무원</div><div class="mb" style="background:#FFE5E9">정책적 불확실성</div></div>
+      <div class="bars"><b style="height:48%;background:#FFB402"></b><b style="height:72%;background:#03AEB8"></b><b style="height:60%;background:#FC4662"></b><b style="height:88%;background:#03AEB8"></b></div>
+    </div>
+    <div class="mband" style="background:#03AEB8;color:#1E1E22">5 불확실성의 거버넌스</div>
+  </div>
+  <div class="meta">
+    <div class="id">P-12 <span class="chk">선택됨</span></div>
+    <div class="nm">Summer vibes</div>
+    <div class="sws"><span class="sw" style="background:#03AEB8"><i style="color:#1E1E22">#03AEB8</i></span><span class="sw" style="background:#FFB402"><i style="color:#1E1E22">#FFB402</i></span><span class="sw" style="background:#FC4662"><i style="color:#FFFFFF">#FC4662</i></span></div>
+  </div>
+</article>
+<article class="pal" data-id="P-13" tabindex="0" role="button" aria-pressed="false">
+  <div class="mini" style="background:#F7F9FC;color:#111111">
+    <i class="tag" style="background:#F26A21"></i>
+    <div class="mt">4 분석 결과 &gt; 4-1 집단별 변화</div>
+    <div class="mrow">
+      <div class="mc"><div class="mh" style="background:#F26A21;color:#FFFFFF">4-1 축산농민</div><div class="mb" style="background:#FDEAE0">경제적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#246BCE;color:#FFFFFF">4-2 전문가</div><div class="mb" style="background:#E0EAF8">과학적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#F26A21;color:#FFFFFF">4-3 공무원</div><div class="mb" style="background:#FDEAE0">정책적 불확실성</div></div>
+      <div class="bars"><b style="height:48%;background:#246BCE"></b><b style="height:72%;background:#F26A21"></b><b style="height:60%;background:#F26A21"></b><b style="height:88%;background:#F26A21"></b></div>
+    </div>
+    <div class="mband" style="background:#F26A21;color:#FFFFFF">5 불확실성의 거버넌스</div>
+  </div>
+  <div class="meta">
+    <div class="id">P-13 <span class="chk">선택됨</span></div>
+    <div class="nm">Energizing</div>
+    <div class="sws"><span class="sw" style="background:#F26A21"><i style="color:#FFFFFF">#F26A21</i></span><span class="sw" style="background:#246BCE"><i style="color:#FFFFFF">#246BCE</i></span><span class="sw" style="background:#111111"><i style="color:#FFFFFF">#111111</i></span><span class="sw" style="background:#F7F9FC"><i style="color:#1E1E22">#F7F9FC</i></span></div>
+  </div>
+</article>
+<article class="pal" data-id="P-14" tabindex="0" role="button" aria-pressed="false">
+  <div class="mini" style="background:#DCEAF7;color:#1E1E22">
+    <i class="tag" style="background:#173B63"></i>
+    <div class="mt">4 분석 결과 &gt; 4-1 집단별 변화</div>
+    <div class="mrow">
+      <div class="mc"><div class="mh" style="background:#173B63;color:#FFFFFF">4-1 축산농민</div><div class="mb" style="background:#DFE4E9">경제적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#2F6DB2;color:#FFFFFF">4-2 전문가</div><div class="mb" style="background:#E2EBF4">과학적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#F4C542;color:#1E1E22">4-3 공무원</div><div class="mb" style="background:#FDF7E5">정책적 불확실성</div></div>
+      <div class="bars"><b style="height:48%;background:#2F6DB2"></b><b style="height:72%;background:#173B63"></b><b style="height:60%;background:#F4C542"></b><b style="height:88%;background:#173B63"></b></div>
+    </div>
+    <div class="mband" style="background:#173B63;color:#FFFFFF">5 불확실성의 거버넌스</div>
+  </div>
+  <div class="meta">
+    <div class="id">P-14 <span class="chk">선택됨</span></div>
+    <div class="nm">Reliable</div>
+    <div class="sws"><span class="sw" style="background:#173B63"><i style="color:#FFFFFF">#173B63</i></span><span class="sw" style="background:#2F6DB2"><i style="color:#FFFFFF">#2F6DB2</i></span><span class="sw" style="background:#F4C542"><i style="color:#1E1E22">#F4C542</i></span><span class="sw" style="background:#DCEAF7"><i style="color:#1E1E22">#DCEAF7</i></span></div>
+  </div>
+</article>
+<article class="pal" data-id="P-15" tabindex="0" role="button" aria-pressed="false">
+  <div class="mini" style="background:#FFF6F0;color:#1E1E22">
+    <i class="tag" style="background:#C83A3A"></i>
+    <div class="mt">4 분석 결과 &gt; 4-1 집단별 변화</div>
+    <div class="mrow">
+      <div class="mc"><div class="mh" style="background:#C83A3A;color:#FFFFFF">4-1 축산농민</div><div class="mb" style="background:#F7E3E3">경제적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#E98B6A;color:#1E1E22">4-2 전문가</div><div class="mb" style="background:#FCEFEA">과학적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#E8A6A6;color:#1E1E22">4-3 공무원</div><div class="mb" style="background:#FCF3F3">정책적 불확실성</div></div>
+      <div class="bars"><b style="height:48%;background:#E98B6A"></b><b style="height:72%;background:#C83A3A"></b><b style="height:60%;background:#E8A6A6"></b><b style="height:88%;background:#C83A3A"></b></div>
+    </div>
+    <div class="mband" style="background:#C83A3A;color:#FFFFFF">5 불확실성의 거버넌스</div>
+  </div>
+  <div class="meta">
+    <div class="id">P-15 <span class="chk">선택됨</span></div>
+    <div class="nm">Confident</div>
+    <div class="sws"><span class="sw" style="background:#C83A3A"><i style="color:#FFFFFF">#C83A3A</i></span><span class="sw" style="background:#E98B6A"><i style="color:#1E1E22">#E98B6A</i></span><span class="sw" style="background:#E8A6A6"><i style="color:#1E1E22">#E8A6A6</i></span><span class="sw" style="background:#FFF6F0"><i style="color:#1E1E22">#FFF6F0</i></span></div>
+  </div>
+</article>
+<article class="pal" data-id="P-16" tabindex="0" role="button" aria-pressed="false">
+  <div class="mini" style="background:#F7F7F5;color:#1E1E22">
+    <i class="tag" style="background:#F47B20"></i>
+    <div class="mt">4 분석 결과 &gt; 4-1 집단별 변화</div>
+    <div class="mrow">
+      <div class="mc"><div class="mh" style="background:#F47B20;color:#1E1E22">4-1 축산농민</div><div class="mb" style="background:#FDEDE0">경제적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#33363A;color:#FFFFFF">4-2 전문가</div><div class="mb" style="background:#E2E3E3">과학적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#62676B;color:#FFFFFF">4-3 공무원</div><div class="mb" style="background:#E9EAEA">정책적 불확실성</div></div>
+      <div class="bars"><b style="height:48%;background:#33363A"></b><b style="height:72%;background:#F47B20"></b><b style="height:60%;background:#62676B"></b><b style="height:88%;background:#F47B20"></b></div>
+    </div>
+    <div class="mband" style="background:#F47B20;color:#1E1E22">5 불확실성의 거버넌스</div>
+  </div>
+  <div class="meta">
+    <div class="id">P-16 <span class="chk">선택됨</span></div>
+    <div class="nm">Fun Corporate</div>
+    <div class="sws"><span class="sw" style="background:#F47B20"><i style="color:#1E1E22">#F47B20</i></span><span class="sw" style="background:#33363A"><i style="color:#FFFFFF">#33363A</i></span><span class="sw" style="background:#62676B"><i style="color:#FFFFFF">#62676B</i></span><span class="sw" style="background:#F7F7F5"><i style="color:#1E1E22">#F7F7F5</i></span></div>
+  </div>
+</article>
+<article class="pal" data-id="P-17" tabindex="0" role="button" aria-pressed="false">
+  <div class="mini" style="background:#FFFFFF;color:#1E1E22">
+    <i class="tag" style="background:#542536"></i>
+    <div class="mt">4 분석 결과 &gt; 4-1 집단별 변화</div>
+    <div class="mrow">
+      <div class="mc"><div class="mh" style="background:#542536;color:#FFFFFF">4-1 축산농민</div><div class="mb" style="background:#E7E0E3">경제적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#7A2E2E;color:#FFFFFF">4-2 전문가</div><div class="mb" style="background:#ECE2E2">과학적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#B06F4A;color:#FFFFFF">4-3 공무원</div><div class="mb" style="background:#F4EBE6">정책적 불확실성</div></div>
+      <div class="bars"><b style="height:48%;background:#7A2E2E"></b><b style="height:72%;background:#542536"></b><b style="height:60%;background:#B06F4A"></b><b style="height:88%;background:#542536"></b></div>
+    </div>
+    <div class="mband" style="background:#542536;color:#FFFFFF">5 불확실성의 거버넌스</div>
+  </div>
+  <div class="meta">
+    <div class="id">P-17 <span class="chk">선택됨</span></div>
+    <div class="nm">High-End</div>
+    <div class="sws"><span class="sw" style="background:#542536"><i style="color:#FFFFFF">#542536</i></span><span class="sw" style="background:#7A2E2E"><i style="color:#FFFFFF">#7A2E2E</i></span><span class="sw" style="background:#B06F4A"><i style="color:#FFFFFF">#B06F4A</i></span><span class="sw" style="background:#5D6542"><i style="color:#FFFFFF">#5D6542</i></span></div>
+  </div>
+</article>
+<article class="pal" data-id="P-18" tabindex="0" role="button" aria-pressed="false">
+  <div class="mini" style="background:#F8F5F0;color:#1E1E22">
+    <i class="tag" style="background:#E76F51"></i>
+    <div class="mt">4 분석 결과 &gt; 4-1 집단별 변화</div>
+    <div class="mrow">
+      <div class="mc"><div class="mh" style="background:#E76F51;color:#FFFFFF">4-1 축산농민</div><div class="mb" style="background:#FCEBE7">경제적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#2A9D8F;color:#FFFFFF">4-2 전문가</div><div class="mb" style="background:#E1F1EF">과학적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#172A3A;color:#FFFFFF">4-3 공무원</div><div class="mb" style="background:#DFE1E3">정책적 불확실성</div></div>
+      <div class="bars"><b style="height:48%;background:#2A9D8F"></b><b style="height:72%;background:#E76F51"></b><b style="height:60%;background:#172A3A"></b><b style="height:88%;background:#E76F51"></b></div>
+    </div>
+    <div class="mband" style="background:#E76F51;color:#FFFFFF">5 불확실성의 거버넌스</div>
+  </div>
+  <div class="meta">
+    <div class="id">P-18 <span class="chk">선택됨</span></div>
+    <div class="nm">Modern</div>
+    <div class="sws"><span class="sw" style="background:#F8F5F0"><i style="color:#1E1E22">#F8F5F0</i></span><span class="sw" style="background:#E76F51"><i style="color:#FFFFFF">#E76F51</i></span><span class="sw" style="background:#2A9D8F"><i style="color:#FFFFFF">#2A9D8F</i></span><span class="sw" style="background:#172A3A"><i style="color:#FFFFFF">#172A3A</i></span></div>
+  </div>
+</article>
+<article class="pal" data-id="P-19" tabindex="0" role="button" aria-pressed="false">
+  <div class="mini" style="background:#F6F3EC;color:#1E1E22">
+    <i class="tag" style="background:#8FBF9F"></i>
+    <div class="mt">4 분석 결과 &gt; 4-1 집단별 변화</div>
+    <div class="mrow">
+      <div class="mc"><div class="mh" style="background:#8FBF9F;color:#1E1E22">4-1 축산농민</div><div class="mb" style="background:#EFF6F2">경제적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#6F8F9B;color:#FFFFFF">4-2 전문가</div><div class="mb" style="background:#EBEFF1">과학적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#76516B;color:#FFFFFF">4-3 공무원</div><div class="mb" style="background:#ECE7EA">정책적 불확실성</div></div>
+      <div class="bars"><b style="height:48%;background:#6F8F9B"></b><b style="height:72%;background:#8FBF9F"></b><b style="height:60%;background:#76516B"></b><b style="height:88%;background:#8FBF9F"></b></div>
+    </div>
+    <div class="mband" style="background:#8FBF9F;color:#1E1E22">5 불확실성의 거버넌스</div>
+  </div>
+  <div class="meta">
+    <div class="id">P-19 <span class="chk">선택됨</span></div>
+    <div class="nm">Calming</div>
+    <div class="sws"><span class="sw" style="background:#F6F3EC"><i style="color:#1E1E22">#F6F3EC</i></span><span class="sw" style="background:#8FBF9F"><i style="color:#1E1E22">#8FBF9F</i></span><span class="sw" style="background:#6F8F9B"><i style="color:#FFFFFF">#6F8F9B</i></span><span class="sw" style="background:#76516B"><i style="color:#FFFFFF">#76516B</i></span></div>
+  </div>
+</article>
+<article class="pal" data-id="P-20" tabindex="0" role="button" aria-pressed="false">
+  <div class="mini" style="background:#FFFFFF;color:#1E1E22">
+    <i class="tag" style="background:#18324B"></i>
+    <div class="mt">4 분석 결과 &gt; 4-1 집단별 변화</div>
+    <div class="mrow">
+      <div class="mc"><div class="mh" style="background:#18324B;color:#FFFFFF">4-1 축산농민</div><div class="mb" style="background:#DFE2E6">경제적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#456A82;color:#FFFFFF">4-2 전문가</div><div class="mb" style="background:#E5EAEE">과학적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#F2D44E;color:#1E1E22">4-3 공무원</div><div class="mb" style="background:#FDF9E6">정책적 불확실성</div></div>
+      <div class="bars"><b style="height:48%;background:#456A82"></b><b style="height:72%;background:#18324B"></b><b style="height:60%;background:#F2D44E"></b><b style="height:88%;background:#18324B"></b></div>
+    </div>
+    <div class="mband" style="background:#18324B;color:#FFFFFF">5 불확실성의 거버넌스</div>
+  </div>
+  <div class="meta">
+    <div class="id">P-20 <span class="chk">선택됨</span></div>
+    <div class="nm">Professional</div>
+    <div class="sws"><span class="sw" style="background:#18324B"><i style="color:#FFFFFF">#18324B</i></span><span class="sw" style="background:#456A82"><i style="color:#FFFFFF">#456A82</i></span><span class="sw" style="background:#F2D44E"><i style="color:#1E1E22">#F2D44E</i></span><span class="sw" style="background:#582F0E"><i style="color:#FFFFFF">#582F0E</i></span></div>
+  </div>
+</article>
+<article class="pal" data-id="P-21" tabindex="0" role="button" aria-pressed="false">
+  <div class="mini" style="background:#FFF9F3;color:#1E1E22">
+    <i class="tag" style="background:#178C7A"></i>
+    <div class="mt">4 분석 결과 &gt; 4-1 집단별 변화</div>
+    <div class="mrow">
+      <div class="mc"><div class="mh" style="background:#178C7A;color:#FFFFFF">4-1 축산농민</div><div class="mb" style="background:#DFEFEC">경제적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#E95D7A;color:#FFFFFF">4-2 전문가</div><div class="mb" style="background:#FCE8EC">과학적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#F47B44;color:#1E1E22">4-3 공무원</div><div class="mb" style="background:#FDEDE5">정책적 불확실성</div></div>
+      <div class="bars"><b style="height:48%;background:#E95D7A"></b><b style="height:72%;background:#178C7A"></b><b style="height:60%;background:#F47B44"></b><b style="height:88%;background:#178C7A"></b></div>
+    </div>
+    <div class="mband" style="background:#178C7A;color:#FFFFFF">5 불확실성의 거버넌스</div>
+  </div>
+  <div class="meta">
+    <div class="id">P-21 <span class="chk">선택됨</span></div>
+    <div class="nm">Creative</div>
+    <div class="sws"><span class="sw" style="background:#FFF9F3"><i style="color:#1E1E22">#FFF9F3</i></span><span class="sw" style="background:#178C7A"><i style="color:#FFFFFF">#178C7A</i></span><span class="sw" style="background:#E95D7A"><i style="color:#FFFFFF">#E95D7A</i></span><span class="sw" style="background:#F47B44"><i style="color:#1E1E22">#F47B44</i></span></div>
+  </div>
+</article>
+<article class="pal" data-id="P-22" tabindex="0" role="button" aria-pressed="false">
+  <div class="mini" style="background:#F8F1E9;color:#1E1E22">
+    <i class="tag" style="background:#C97979"></i>
+    <div class="mt">4 분석 결과 &gt; 4-1 집단별 변화</div>
+    <div class="mrow">
+      <div class="mc"><div class="mh" style="background:#C97979;color:#FFFFFF">4-1 축산농민</div><div class="mb" style="background:#F7ECEC">경제적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#9E3F3F;color:#FFFFFF">4-2 전문가</div><div class="mb" style="background:#F1E4E4">과학적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#5A252C;color:#FFFFFF">4-3 공무원</div><div class="mb" style="background:#E8E0E1">정책적 불확실성</div></div>
+      <div class="bars"><b style="height:48%;background:#9E3F3F"></b><b style="height:72%;background:#C97979"></b><b style="height:60%;background:#5A252C"></b><b style="height:88%;background:#C97979"></b></div>
+    </div>
+    <div class="mband" style="background:#C97979;color:#FFFFFF">5 불확실성의 거버넌스</div>
+  </div>
+  <div class="meta">
+    <div class="id">P-22 <span class="chk">선택됨</span></div>
+    <div class="nm">Warm</div>
+    <div class="sws"><span class="sw" style="background:#C97979"><i style="color:#FFFFFF">#C97979</i></span><span class="sw" style="background:#9E3F3F"><i style="color:#FFFFFF">#9E3F3F</i></span><span class="sw" style="background:#5A252C"><i style="color:#FFFFFF">#5A252C</i></span><span class="sw" style="background:#F8F1E9"><i style="color:#1E1E22">#F8F1E9</i></span></div>
+  </div>
+</article>
+<article class="pal" data-id="P-23" tabindex="0" role="button" aria-pressed="false">
+  <div class="mini" style="background:#FFFFFF;color:#1E1E22">
+    <i class="tag" style="background:#C9A84C"></i>
+    <div class="mt">4 분석 결과 &gt; 4-1 집단별 변화</div>
+    <div class="mrow">
+      <div class="mc"><div class="mh" style="background:#C9A84C;color:#1E1E22">4-1 축산농민</div><div class="mb" style="background:#F7F3E6">경제적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#2E4A7A;color:#FFFFFF">4-2 전문가</div><div class="mb" style="background:#E2E6EC">과학적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#1B2A4A;color:#FFFFFF">4-3 공무원</div><div class="mb" style="background:#DFE1E6">정책적 불확실성</div></div>
+      <div class="bars"><b style="height:48%;background:#2E4A7A"></b><b style="height:72%;background:#C9A84C"></b><b style="height:60%;background:#1B2A4A"></b><b style="height:88%;background:#C9A84C"></b></div>
+    </div>
+    <div class="mband" style="background:#C9A84C;color:#1E1E22">5 불확실성의 거버넌스</div>
+  </div>
+  <div class="meta">
+    <div class="id">P-23 <span class="chk">선택됨</span></div>
+    <div class="nm">Navy + White + Gold</div>
+    <div class="sws"><span class="sw" style="background:#1B2A4A"><i style="color:#FFFFFF">#1B2A4A</i></span><span class="sw" style="background:#FFFFFF"><i style="color:#1E1E22">#FFFFFF</i></span><span class="sw" style="background:#C9A84C"><i style="color:#1E1E22">#C9A84C</i></span></div>
+  </div>
+</article>
+<article class="pal" data-id="P-24" tabindex="0" role="button" aria-pressed="false">
+  <div class="mini" style="background:#F5F0E8;color:#1E1E22">
+    <i class="tag" style="background:#D4891A"></i>
+    <div class="mt">4 분석 결과 &gt; 4-1 집단별 변화</div>
+    <div class="mrow">
+      <div class="mc"><div class="mh" style="background:#D4891A;color:#1E1E22">4-1 축산농민</div><div class="mb" style="background:#F9EEDF">경제적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#4A7A28;color:#FFFFFF">4-2 전문가</div><div class="mb" style="background:#E6ECE1">과학적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#2D5016;color:#FFFFFF">4-3 공무원</div><div class="mb" style="background:#E2E6DE">정책적 불확실성</div></div>
+      <div class="bars"><b style="height:48%;background:#4A7A28"></b><b style="height:72%;background:#D4891A"></b><b style="height:60%;background:#2D5016"></b><b style="height:88%;background:#D4891A"></b></div>
+    </div>
+    <div class="mband" style="background:#D4891A;color:#1E1E22">5 불확실성의 거버넌스</div>
+  </div>
+  <div class="meta">
+    <div class="id">P-24 <span class="chk">선택됨</span></div>
+    <div class="nm">Forest Green + Cream + Amber</div>
+    <div class="sws"><span class="sw" style="background:#2D5016"><i style="color:#FFFFFF">#2D5016</i></span><span class="sw" style="background:#F5F0E8"><i style="color:#1E1E22">#F5F0E8</i></span><span class="sw" style="background:#D4891A"><i style="color:#1E1E22">#D4891A</i></span></div>
+  </div>
+</article>
+<article class="pal" data-id="P-25" tabindex="0" role="button" aria-pressed="false">
+  <div class="mini" style="background:#FFFFFF;color:#1E1E22">
+    <i class="tag" style="background:#0066FF"></i>
+    <div class="mt">4 분석 결과 &gt; 4-1 집단별 변화</div>
+    <div class="mrow">
+      <div class="mc"><div class="mh" style="background:#0066FF;color:#FFFFFF">4-1 축산농민</div><div class="mb" style="background:#DBEAFF">경제적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#00CCFF;color:#1E1E22">4-2 전문가</div><div class="mb" style="background:#DBF8FF">과학적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#2C2C2C;color:#FFFFFF">4-3 공무원</div><div class="mb" style="background:#E1E1E1">정책적 불확실성</div></div>
+      <div class="bars"><b style="height:48%;background:#00CCFF"></b><b style="height:72%;background:#0066FF"></b><b style="height:60%;background:#2C2C2C"></b><b style="height:88%;background:#0066FF"></b></div>
+    </div>
+    <div class="mband" style="background:#0066FF;color:#FFFFFF">5 불확실성의 거버넌스</div>
+  </div>
+  <div class="meta">
+    <div class="id">P-25 <span class="chk">선택됨</span></div>
+    <div class="nm">Charcoal + White + Electric Blue</div>
+    <div class="sws"><span class="sw" style="background:#2C2C2C"><i style="color:#FFFFFF">#2C2C2C</i></span><span class="sw" style="background:#FFFFFF"><i style="color:#1E1E22">#FFFFFF</i></span><span class="sw" style="background:#0066FF"><i style="color:#FFFFFF">#0066FF</i></span></div>
+  </div>
+</article>
+<article class="pal" data-id="P-26" tabindex="0" role="button" aria-pressed="false">
+  <div class="mini" style="background:#FFFFFF;color:#1E1E22">
+    <i class="tag" style="background:#F4845F"></i>
+    <div class="mt">4 분석 결과 &gt; 4-1 집단별 변화</div>
+    <div class="mrow">
+      <div class="mc"><div class="mh" style="background:#F4845F;color:#1E1E22">4-1 축산농민</div><div class="mb" style="background:#FDEEE9">경제적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#7B3AAE;color:#FFFFFF">4-2 전문가</div><div class="mb" style="background:#EDE3F4">과학적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#4A1C6B;color:#FFFFFF">4-3 공무원</div><div class="mb" style="background:#E6DFEA">정책적 불확실성</div></div>
+      <div class="bars"><b style="height:48%;background:#7B3AAE"></b><b style="height:72%;background:#F4845F"></b><b style="height:60%;background:#4A1C6B"></b><b style="height:88%;background:#F4845F"></b></div>
+    </div>
+    <div class="mband" style="background:#F4845F;color:#1E1E22">5 불확실성의 거버넌스</div>
+  </div>
+  <div class="meta">
+    <div class="id">P-26 <span class="chk">선택됨</span></div>
+    <div class="nm">Deep Purple + White + Coral</div>
+    <div class="sws"><span class="sw" style="background:#4A1C6B"><i style="color:#FFFFFF">#4A1C6B</i></span><span class="sw" style="background:#FFFFFF"><i style="color:#1E1E22">#FFFFFF</i></span><span class="sw" style="background:#F4845F"><i style="color:#1E1E22">#F4845F</i></span></div>
+  </div>
+</article>
+<article class="pal" data-id="P-27" tabindex="0" role="button" aria-pressed="false">
+  <div class="mini" style="background:#FAF9F7;color:#1E1E22">
+    <i class="tag" style="background:#059669"></i>
+    <div class="mt">4 분석 결과 &gt; 4-1 집단별 변화</div>
+    <div class="mrow">
+      <div class="mc"><div class="mh" style="background:#059669;color:#FFFFFF">4-1 축산농민</div><div class="mb" style="background:#DCF0EA">경제적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#6B7A9A;color:#FFFFFF">4-2 전문가</div><div class="mb" style="background:#EAECF1">과학적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#4A5568;color:#FFFFFF">4-3 공무원</div><div class="mb" style="background:#E6E7EA">정책적 불확실성</div></div>
+      <div class="bars"><b style="height:48%;background:#6B7A9A"></b><b style="height:72%;background:#059669"></b><b style="height:60%;background:#4A5568"></b><b style="height:88%;background:#059669"></b></div>
+    </div>
+    <div class="mband" style="background:#059669;color:#FFFFFF">5 불확실성의 거버넌스</div>
+  </div>
+  <div class="meta">
+    <div class="id">P-27 <span class="chk">선택됨</span></div>
+    <div class="nm">Warm White + Slate + Emerald</div>
+    <div class="sws"><span class="sw" style="background:#FAF9F7"><i style="color:#1E1E22">#FAF9F7</i></span><span class="sw" style="background:#4A5568"><i style="color:#FFFFFF">#4A5568</i></span><span class="sw" style="background:#059669"><i style="color:#FFFFFF">#059669</i></span></div>
+  </div>
+</article>
+<article class="pal" data-id="P-28" tabindex="0" role="button" aria-pressed="false">
+  <div class="mini" style="background:#FFFFFF;color:#0A0A0A">
+    <i class="tag" style="background:#E63946"></i>
+    <div class="mt">4 분석 결과 &gt; 4-1 집단별 변화</div>
+    <div class="mrow">
+      <div class="mc"><div class="mh" style="background:#E63946;color:#FFFFFF">4-1 축산농민</div><div class="mb" style="background:#FCE3E5">경제적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#FF4D57;color:#FFFFFF">4-2 전문가</div><div class="mb" style="background:#FFE6E7">과학적 불확실성</div></div>
+      <div class="mc"><div class="mh" style="background:#0A0A0A;color:#FFFFFF">4-3 공무원</div><div class="mb" style="background:#DDDDDD">정책적 불확실성</div></div>
+      <div class="bars"><b style="height:48%;background:#FF4D57"></b><b style="height:72%;background:#E63946"></b><b style="height:60%;background:#0A0A0A"></b><b style="height:88%;background:#E63946"></b></div>
+    </div>
+    <div class="mband" style="background:#E63946;color:#FFFFFF">5 불확실성의 거버넌스</div>
+  </div>
+  <div class="meta">
+    <div class="id">P-28 <span class="chk">선택됨</span></div>
+    <div class="nm">Black + White + Red</div>
+    <div class="sws"><span class="sw" style="background:#0A0A0A"><i style="color:#FFFFFF">#0A0A0A</i></span><span class="sw" style="background:#FFFFFF"><i style="color:#1E1E22">#FFFFFF</i></span><span class="sw" style="background:#E63946"><i style="color:#FFFFFF">#E63946</i></span></div>
+  </div>
+</article></div>
+</div>
+<div class="bar"><div class="in">
+  <span>고른 팔레트</span><div class="ids" id="ids"></div>
+  <button class="copy" id="copy" type="button">번호 복사</button><button class="clear" id="clear" type="button">모두 해제</button>
+</div></div>
+<script>
+(function(){
+  var cards = Array.prototype.slice.call(document.querySelectorAll('.pal')), sel = [];
+  try { sel = JSON.parse(localStorage.getItem('jf-chart-sel') || '[]'); } catch (e) {}
+  function sync(){
+    cards.forEach(function(c){ var on = sel.indexOf(c.dataset.id) >= 0; c.classList.toggle('sel', on); c.setAttribute('aria-pressed', on); });
+    document.getElementById('ids').textContent = sel.join(', ');
+    try { localStorage.setItem('jf-chart-sel', JSON.stringify(sel)); } catch (e) {}
+  }
+  function toggle(c){ var i = sel.indexOf(c.dataset.id); if (i >= 0) sel.splice(i, 1); else sel.push(c.dataset.id); sync(); }
+  cards.forEach(function(c){
+    c.addEventListener('click', function(e){ if (e.target.closest('a')) return; toggle(c); });
+    c.addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(c); } });
+  });
+  document.getElementById('clear').onclick = function(){ sel = []; sync(); };
+  document.getElementById('copy').onclick = function(){
+    var t = sel.join(', '); if (!t) return;
+    (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(function(){ document.getElementById('copy').textContent = '복사됨'; setTimeout(function(){ document.getElementById('copy').textContent = '번호 복사'; }, 1400); }, function(){});
+  };
+  sync();
+})();
+</script>
+</body></html>

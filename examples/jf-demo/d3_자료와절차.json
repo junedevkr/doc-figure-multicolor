@@ -1,0 +1,81 @@
+{
+  "template": "board",
+  "preset": "jf-pop",
+  "header": "headline",
+  "title": "3 연구방법 > 3-1 자료와 절차",
+  "tag": "더미 데이터 · 실제 결과 아님",
+  "footer": "더미 데이터 예시 — 실제 논문 아님",
+  "body": [
+    {
+      "steps": [
+        {
+          "title": "설문 설계",
+          "sub": "문항 42개"
+        },
+        {
+          "title": "표본 추출",
+          "sub": "12개 지자체"
+        },
+        {
+          "title": "설문 조사",
+          "sub": "응답 320명"
+        },
+        {
+          "title": "심층 면담",
+          "sub": "24명"
+        },
+        {
+          "title": "통합 분석",
+          "sub": "회귀 + 주제분석"
+        }
+      ],
+      "on": 4
+    },
+    {
+      "row": [
+        {
+          "title": "응답자",
+          "value": "320",
+          "unit": "명",
+          "sub": "응답률 64.0%",
+          "align": "center",
+          "fill": "tint",
+          "tone": "main"
+        },
+        {
+          "title": "참여 지자체",
+          "value": "12",
+          "unit": "곳",
+          "sub": "시 5 · 군 4 · 구 3",
+          "align": "center",
+          "fill": "tint",
+          "tone": "sub"
+        },
+        {
+          "title": "면담",
+          "value": "24",
+          "unit": "명",
+          "sub": "관리자 8 · 실무자 16",
+          "align": "center",
+          "fill": "tint",
+          "tone": "go"
+        },
+        {
+          "title": "분석 기간",
+          "value": "24",
+          "unit": "개월",
+          "sub": "2024.1 – 2025.12",
+          "align": "center",
+          "fill": "tint",
+          "tone": "wait"
+        }
+      ],
+      "gap": 20
+    },
+    {
+      "band": "분석 방법 : 이중차분(도입 부서 vs 미도입 부서) + 면담 자료 주제분석",
+      "tone": "main",
+      "label": "3-2 분석"
+    }
+  ]
+}

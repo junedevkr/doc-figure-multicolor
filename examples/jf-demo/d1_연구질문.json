@@ -1,0 +1,66 @@
+{
+  "template": "board",
+  "preset": "jf-pop",
+  "header": "headline",
+  "title": "1 서론 > 연구 질문",
+  "tag": "더미 데이터 · 실제 결과 아님",
+  "footer": "더미 데이터 예시 — 실제 논문 아님",
+  "body": [
+    {
+      "band": "생성형 AI 도입 이후 지방정부의 행정 업무는 어떻게 달라졌는가",
+      "label": "연구 목적",
+      "tone": "main"
+    },
+    {
+      "row": [
+        {
+          "head": "RQ1",
+          "tone": "main",
+          "fill": "tint",
+          "icon": "clock",
+          "title": "업무 시간",
+          "sub": "문서 작성·민원 응대 시간의 변화",
+          "items": [
+            "도입 전후 12개월 비교",
+            "부서 유형별 차이"
+          ]
+        },
+        {
+          "head": "RQ2",
+          "tone": "sub",
+          "fill": "tint",
+          "icon": "users",
+          "title": "역할 재편",
+          "sub": "담당자 역할과 협업 구조의 변화",
+          "items": [
+            "검토·승인 단계 증감",
+            "부서 간 요청 흐름"
+          ]
+        },
+        {
+          "head": "RQ3",
+          "tone": "go",
+          "fill": "tint",
+          "icon": "shield-check",
+          "title": "책임과 통제",
+          "sub": "오류·책임 소재 관리 방식",
+          "items": [
+            "검수 절차 도입 여부",
+            "오류 신고 건수"
+          ]
+        }
+      ],
+      "gap": 22
+    },
+    {
+      "chips": [
+        "12개 기초지자체",
+        "공무원 320명",
+        "2024–2025년",
+        "혼합방법"
+      ],
+      "label": "범위",
+      "fill": true
+    }
+  ]
+}

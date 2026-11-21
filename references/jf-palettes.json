@@ -1,0 +1,447 @@
+{
+  "_note": "june-figure 내용별 팔레트 원본. 값을 고친 뒤 `python3 scripts/jf_palette.py build`로 presets/jf-*.css를 다시 만든다. tone 뜻: main 핵심 개념·본체, sub 하위 개념·보조, go 결과·산출, wait 조건·주의·한계, stop 문제·탈락·위험, mute 기존·배경·선행연구",
+  "families": {
+    "policy": {
+      "label": "정책·제도",
+      "colors": {
+        "main": "#622A75",
+        "sub": "#8C58A6",
+        "go": "#2B7A6F",
+        "wait": "#A86F12",
+        "stop": "#B23A3A",
+        "mute": "#77707F"
+      },
+      "shape": {
+        "radius_box": 6,
+        "radius_bar": 4
+      },
+      "keywords": [
+        "정책",
+        "제도",
+        "거버넌스",
+        "행정",
+        "법",
+        "법률",
+        "입법",
+        "규제",
+        "정부",
+        "공공",
+        "국가",
+        "의회",
+        "국회",
+        "정책설계",
+        "정책도구",
+        "집행",
+        "의제",
+        "정책과정",
+        "중앙",
+        "지방정부",
+        "policy",
+        "governance",
+        "institution",
+        "regulation",
+        "public administration",
+        "government",
+        "legislation",
+        "law",
+        "state",
+        "agenda",
+        "implementation",
+        "policy design",
+        "policy tool"
+      ]
+    },
+    "tech": {
+      "label": "기술·혁신",
+      "colors": {
+        "main": "#33289A",
+        "sub": "#5E55D1",
+        "go": "#0A7F96",
+        "wait": "#B4700F",
+        "stop": "#C0394E",
+        "mute": "#6C7090"
+      },
+      "shape": {
+        "radius_box": 12,
+        "radius_bar": 8
+      },
+      "keywords": [
+        "기술",
+        "인공지능",
+        "AI",
+        "디지털",
+        "플랫폼",
+        "혁신",
+        "연구개발",
+        "R&D",
+        "데이터",
+        "알고리즘",
+        "로봇",
+        "반도체",
+        "소프트웨어",
+        "신흥기술",
+        "기술영향평가",
+        "자동화",
+        "LLM",
+        "생성형",
+        "technology",
+        "artificial intelligence",
+        "digital",
+        "platform",
+        "innovation",
+        "algorithm",
+        "data",
+        "emerging technology",
+        "technology assessment",
+        "automation",
+        "machine learning",
+        "generative"
+      ]
+    },
+    "method": {
+      "label": "방법론·분석",
+      "colors": {
+        "main": "#8C1F5E",
+        "sub": "#B24F8A",
+        "go": "#1F7A8C",
+        "wait": "#A8700E",
+        "stop": "#B5372F",
+        "mute": "#7C6F78"
+      },
+      "shape": {
+        "radius_box": 2,
+        "radius_bar": 2
+      },
+      "keywords": [
+        "방법론",
+        "분석틀",
+        "모형",
+        "모델",
+        "회귀",
+        "계량",
+        "통계",
+        "측정",
+        "지표",
+        "실험",
+        "설문",
+        "사례연구",
+        "질적",
+        "양적",
+        "이론",
+        "가설",
+        "검증",
+        "과학계량",
+        "서지",
+        "네트워크 분석",
+        "평가",
+        "프레임워크",
+        "methodology",
+        "framework",
+        "model",
+        "regression",
+        "statistics",
+        "measurement",
+        "indicator",
+        "experiment",
+        "survey",
+        "case study",
+        "qualitative",
+        "quantitative",
+        "theory",
+        "hypothesis",
+        "scientometric",
+        "bibliometric",
+        "evaluation"
+      ]
+    },
+    "risk": {
+      "label": "보건·안전·위험",
+      "colors": {
+        "main": "#A51E45",
+        "sub": "#C9506F",
+        "go": "#2A7468",
+        "wait": "#9C6A10",
+        "stop": "#6E1F5E",
+        "mute": "#7D7271"
+      },
+      "shape": {
+        "radius_box": 8,
+        "radius_bar": 6
+      },
+      "keywords": [
+        "위험",
+        "리스크",
+        "안전",
+        "보건",
+        "건강",
+        "의료",
+        "재난",
+        "감염",
+        "윤리",
+        "불확실성",
+        "피해",
+        "사고",
+        "위기",
+        "보안",
+        "프라이버시",
+        "악의",
+        "불응",
+        "risk",
+        "safety",
+        "health",
+        "medical",
+        "disaster",
+        "ethics",
+        "uncertainty",
+        "harm",
+        "crisis",
+        "security",
+        "privacy",
+        "maliciousness",
+        "noncompliance",
+        "hazard"
+      ]
+    },
+    "social": {
+      "label": "사회·사람",
+      "colors": {
+        "main": "#93421E",
+        "sub": "#BE6C45",
+        "go": "#2D7563",
+        "wait": "#9A7310",
+        "stop": "#A3303F",
+        "mute": "#857870"
+      },
+      "shape": {
+        "radius_box": 14,
+        "radius_bar": 10
+      },
+      "keywords": [
+        "사회",
+        "시민",
+        "참여",
+        "교육",
+        "노동",
+        "일자리",
+        "복지",
+        "불평등",
+        "공동체",
+        "젠더",
+        "세대",
+        "인식",
+        "수용성",
+        "이해관계자",
+        "숙의",
+        "문화",
+        "미디어",
+        "society",
+        "social",
+        "citizen",
+        "participation",
+        "education",
+        "labor",
+        "work",
+        "welfare",
+        "inequality",
+        "community",
+        "gender",
+        "public perception",
+        "acceptance",
+        "stakeholder",
+        "deliberation",
+        "culture"
+      ]
+    },
+    "economy": {
+      "label": "경제·산업",
+      "colors": {
+        "main": "#6E5210",
+        "sub": "#9E7B26",
+        "go": "#2B7552",
+        "wait": "#B5561C",
+        "stop": "#A3343A",
+        "mute": "#80786A"
+      },
+      "shape": {
+        "radius_box": 4,
+        "radius_bar": 3
+      },
+      "keywords": [
+        "경제",
+        "산업",
+        "재정",
+        "예산",
+        "시장",
+        "기업",
+        "투자",
+        "성장",
+        "생산성",
+        "무역",
+        "금융",
+        "비용",
+        "편익",
+        "고용",
+        "창업",
+        "스타트업",
+        "economy",
+        "economic",
+        "industry",
+        "fiscal",
+        "budget",
+        "market",
+        "firm",
+        "investment",
+        "growth",
+        "productivity",
+        "trade",
+        "finance",
+        "cost",
+        "benefit",
+        "employment",
+        "startup"
+      ]
+    },
+    "green": {
+      "label": "환경·에너지·지역",
+      "colors": {
+        "main": "#4A5A16",
+        "sub": "#768A2C",
+        "go": "#1F7A70",
+        "wait": "#A86A12",
+        "stop": "#A8402E",
+        "mute": "#787A6A"
+      },
+      "shape": {
+        "radius_box": 10,
+        "radius_bar": 8
+      },
+      "keywords": [
+        "환경",
+        "기후",
+        "에너지",
+        "탄소",
+        "지속가능",
+        "지역",
+        "도시",
+        "농업",
+        "농촌",
+        "생태",
+        "자원",
+        "전환",
+        "녹색",
+        "탄소중립",
+        "재생에너지",
+        "environment",
+        "climate",
+        "energy",
+        "carbon",
+        "sustainability",
+        "sustainable",
+        "regional",
+        "urban",
+        "agriculture",
+        "rural",
+        "ecology",
+        "resource",
+        "transition",
+        "green",
+        "net zero",
+        "renewable"
+      ]
+    }
+  },
+  "mono": {
+    "mono-ink": {
+      "label": "흑백 · 먹선",
+      "note": "순수 무채색, 직각, 강조 상자는 외곽선. 흑백 인쇄·제출용"
+    },
+    "mono-warm": {
+      "label": "흑백 · 바탕",
+      "note": "따뜻한 회색과 바탕색 패널. 화면 발표용 흑백"
+    },
+    "mono-spot": {
+      "label": "흑백 + 한 점 색",
+      "note": "무채색에 내용 색을 강조 한 곳(focus)과 제목 표식에만"
+    }
+  },
+  "concepts": {
+    "pop": {
+      "label": "쨍한 컨셉 (팝)",
+      "note": "내용 계열과 상관없이 고르는 선명한 컬러 컨셉. 흰 페이지 + 짙은 바깥 배경, 테두리 없는 색 면, 큰 둥근 모서리, 검은 제목 + 핑크 표식",
+      "colors": {
+        "main": "#3D3BF3",
+        "sub": "#E6247A",
+        "go": "#00A06A",
+        "wait": "#F08A00",
+        "stop": "#E5243B",
+        "mute": "#6B7280"
+      },
+      "min_contrast": 3.0,
+      "shape": {
+        "radius_box": 18,
+        "radius_bar": 12
+      },
+      "tokens": {
+        "ink": "#16161D",
+        "ink-soft": "#5B5D6B",
+        "board-link-w": "3.2px",
+        "board-icon-stroke": "2",
+        "title-tag-color": "#E6247A"
+      },
+      "css": "pop"
+    },
+    "serene": {
+      "label": "P-02 Serene & warm",
+      "note": "컬러차트 P-02(#A49393 · #EED6D3 · #E8B4B8)를 그대로 쓴 파스텔 컨셉. 원본 3색은 바꾸지 않고, 나머지 역할 색은 같은 색상의 명도·채도만 조절. 색 면 위 글자는 짙은 색, 화살표는 짙은 회갈색",
+      "exact": true,
+      "css": "soft",
+      "colors": {
+        "main": "#A49393",
+        "sub": "#E8B4B8",
+        "go": "#C7AFAD",
+        "wait": "#EED6D3",
+        "stop": "#B98A90",
+        "mute": "#CFC6C4"
+      },
+      "tints": {
+        "main": "#EED6D3",
+        "sub": "#F6E1E3",
+        "go": "#EFE6E5",
+        "wait": "#F8EDEB",
+        "stop": "#F2E2E4",
+        "mute": "#EEEAE9"
+      },
+      "shape": {
+        "radius_box": 18,
+        "radius_bar": 12
+      },
+      "tokens": {
+        "ink": "#2B2222",
+        "ink-soft": "#5E4F4F",
+        "navy-deep": "#A49393",
+        "navy-mid": "#E8B4B8",
+        "navy-marker": "#B98A90",
+        "strong-ink": "#2B2222",
+        "strong-ink-soft": "#5E4F4F",
+        "focus-ink": "#2B2222",
+        "focus-ink-soft": "#5E4F4F",
+        "title-ink": "#2B2222",
+        "title-tag-color": "#E8B4B8",
+        "board-link-w": "3px",
+        "board-panel": "#FBF5F4",
+        "board-chip": "#F6E1E3",
+        "board-line": "#E9DCDA",
+        "heat-1": "#F6E1E3",
+        "heat-2": "#E8B4B8",
+        "heat-3": "#A49393",
+        "heat-1-ink": "#2B2222",
+        "heat-2-ink": "#2B2222",
+        "heat-3-ink": "#2B2222",
+        "accent": "#B98A90",
+        "accent-soft": "#F2E2E4"
+      },
+      "min_text_contrast": 4.5,
+      "palette_id": "P-02"
+    }
+  }
+}

@@ -30,6 +30,8 @@ DOM에 배치하므로 글자 깨짐이 구조적으로 불가능하다.
   CHROME_BIN   크롬 실행 경로 (기본: macOS Google Chrome)
 """
 import argparse, json, os, subprocess, sys, tempfile
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import jf_page  # june-figure 페이지 틀
 
 ROOT      = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TEMPLATES = os.path.join(ROOT, "templates")
@@ -185,6 +187,8 @@ def build_html(template_html, spec, tokens_css, icons_dir=None):
       /*__FIGURE_DATA__*/    → spec JSON
       /*__ICONS__*/          → 아이콘 data URI 맵 (없으면 {})
     """
+    spec = jf_page.prepare_spec(spec)   # june-figure 페이지 틀(기본 16:9)
+    template_html = jf_page.prepare_template(template_html)
     html = template_html.replace("/*__STYLE_TOKENS__*/", tokens_css)
     icons = json.dumps(inline_icons(icons_dir, preset_color(tokens_css)), ensure_ascii=False)
     html = html.replace("/*__ICONS__*/ {}", icons)
@@ -201,7 +205,7 @@ def build_html(template_html, spec, tokens_css, icons_dir=None):
     # 두 형태 모두 대응: "/*__FIGURE_DATA__*/ null" 또는 단독 마커
     html = html.replace("/*__FIGURE_DATA__*/ null", data)
     html = html.replace("/*__FIGURE_DATA__*/", data)
-    return html
+    return jf_page.apply(html, spec)
 
 
 def chrome(args):
@@ -413,11 +417,18 @@ def main():
         f.write(html)
 
     width = max(CANVAS_W, int(spec.get("width") or CANVAS_W))
+    page = jf_page.mode(spec)
     try:
-        screenshot(html_path, out, a.height, a.scale, width)
+        if page:   # june-figure: 16:9 등 고정 페이지 — 창을 페이지+바깥 여백에 맞추고 여백을 자르지 않는다
+            pw, ph = jf_page.window(spec)
+            screenshot(html_path, out, ph, a.scale, pw)
+            size = (pw, ph)
+        else:
+            screenshot(html_path, out, a.height, a.scale, width)
         import re as _re
         keep_x = bool(_re.search(r"--trim-x:\s*none", tokens))
-        size = trim_white(out, a.margin, a.scale, keep_x, width)
+        if not page:
+            size = trim_white(out, a.margin, a.scale, keep_x, width)
         print("[doc-figure] ✓ %s  (%s)  template=%s  preset=%s"
               % (out, ("%dx%d" % size if size else "?"), template, preset))
         if a.verify:

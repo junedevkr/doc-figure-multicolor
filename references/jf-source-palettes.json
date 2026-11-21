@@ -1,0 +1,351 @@
+{
+ "_note": "공개된 프레젠테이션용 팔레트 28개의 색상 코드(2026-11 수집). 번호는 P-01~P-28. 고른 번호로 jf-palettes.json의 concepts에 컨셉을 추가한다",
+ "palettes": [
+  {
+   "id": "P-01",
+   "name": "Timeless & reliable",
+   "colors": [
+    "#343752",
+    "#90ACC7",
+    "#FAD12B"
+   ]
+  },
+  {
+   "id": "P-02",
+   "name": "Serene & warm",
+   "colors": [
+    "#A49393",
+    "#EED6D3",
+    "#E8B4B8"
+   ]
+  },
+  {
+   "id": "P-03",
+   "name": "Professional with a fresh touch",
+   "colors": [
+    "#6B90B2",
+    "#1B558E",
+    "#CCD64D"
+   ]
+  },
+  {
+   "id": "P-04",
+   "name": "Playful & unexpected",
+   "colors": [
+    "#F751A0",
+    "#5F3E8B",
+    "#2CF4E0"
+   ]
+  },
+  {
+   "id": "P-05",
+   "name": "Outdoorsy & fresh",
+   "colors": [
+    "#89DA59",
+    "#229968",
+    "#F99653"
+   ]
+  },
+  {
+   "id": "P-06",
+   "name": "Modern & energetic",
+   "colors": [
+    "#5EA8A7",
+    "#277884",
+    "#FE4447"
+   ]
+  },
+  {
+   "id": "P-07",
+   "name": "Modern & crisp",
+   "colors": [
+    "#544089",
+    "#A5A5CE",
+    "#FFBC00"
+   ]
+  },
+  {
+   "id": "P-08",
+   "name": "Earthy with a vibrant twist",
+   "colors": [
+    "#E0B90C",
+    "#EAE2D6",
+    "#857766"
+   ]
+  },
+  {
+   "id": "P-09",
+   "name": "Cosy & versatile",
+   "colors": [
+    "#FFA578",
+    "#D45448",
+    "#896E6A"
+   ]
+  },
+  {
+   "id": "P-10",
+   "name": "Corporate with personality",
+   "colors": [
+    "#3B4D54",
+    "#B9BAB5",
+    "#FE8D3F"
+   ]
+  },
+  {
+   "id": "P-11",
+   "name": "Soothing pastels",
+   "colors": [
+    "#FDB3AE",
+    "#CAE4E2",
+    "#FBDF74"
+   ]
+  },
+  {
+   "id": "P-12",
+   "name": "Summer vibes",
+   "colors": [
+    "#03AEB8",
+    "#FFB402",
+    "#FC4662"
+   ]
+  },
+  {
+   "id": "P-13",
+   "name": "Energizing",
+   "colors": [
+    "#F26A21",
+    "#246BCE",
+    "#111111",
+    "#F7F9FC"
+   ]
+  },
+  {
+   "id": "P-14",
+   "name": "Reliable",
+   "colors": [
+    "#173B63",
+    "#2F6DB2",
+    "#F4C542",
+    "#DCEAF7"
+   ]
+  },
+  {
+   "id": "P-15",
+   "name": "Confident",
+   "colors": [
+    "#C83A3A",
+    "#E98B6A",
+    "#E8A6A6",
+    "#FFF6F0"
+   ]
+  },
+  {
+   "id": "P-16",
+   "name": "Fun Corporate",
+   "colors": [
+    "#F47B20",
+    "#33363A",
+    "#62676B",
+    "#F7F7F5"
+   ]
+  },
+  {
+   "id": "P-17",
+   "name": "High-End",
+   "colors": [
+    "#542536",
+    "#7A2E2E",
+    "#B06F4A",
+    "#5D6542"
+   ]
+  },
+  {
+   "id": "P-18",
+   "name": "Modern",
+   "colors": [
+    "#F8F5F0",
+    "#E76F51",
+    "#2A9D8F",
+    "#172A3A"
+   ]
+  },
+  {
+   "id": "P-19",
+   "name": "Calming",
+   "colors": [
+    "#F6F3EC",
+    "#8FBF9F",
+    "#6F8F9B",
+    "#76516B"
+   ]
+  },
+  {
+   "id": "P-20",
+   "name": "Professional",
+   "colors": [
+    "#18324B",
+    "#456A82",
+    "#F2D44E",
+    "#582F0E"
+   ]
+  },
+  {
+   "id": "P-21",
+   "name": "Creative",
+   "colors": [
+    "#FFF9F3",
+    "#178C7A",
+    "#E95D7A",
+    "#F47B44"
+   ]
+  },
+  {
+   "id": "P-22",
+   "name": "Warm",
+   "colors": [
+    "#C97979",
+    "#9E3F3F",
+    "#5A252C",
+    "#F8F1E9"
+   ]
+  },
+  {
+   "id": "P-23",
+   "name": "Navy + White + Gold",
+   "colors": [
+    "#1B2A4A",
+    "#FFFFFF",
+    "#C9A84C"
+   ],
+   "theme12": [
+    "#1B2A4A",
+    "#F0F3F8",
+    "#0D1626",
+    "#FFFFFF",
+    "#C9A84C",
+    "#8C6E28",
+    "#E8CC80",
+    "#2E4A7A",
+    "#7A9CC4",
+    "#D8E0EC",
+    "#3A5A8C",
+    "#B8860B"
+   ]
+  },
+  {
+   "id": "P-24",
+   "name": "Forest Green + Cream + Amber",
+   "colors": [
+    "#2D5016",
+    "#F5F0E8",
+    "#D4891A"
+   ],
+   "theme12": [
+    "#2D5016",
+    "#F5F0E8",
+    "#172A0A",
+    "#FDFAF4",
+    "#D4891A",
+    "#8C5A0A",
+    "#F0B84A",
+    "#4A7A28",
+    "#8AB870",
+    "#DDE8CC",
+    "#3D6820",
+    "#A05C0A"
+   ]
+  },
+  {
+   "id": "P-25",
+   "name": "Charcoal + White + Electric Blue",
+   "colors": [
+    "#2C2C2C",
+    "#FFFFFF",
+    "#0066FF"
+   ],
+   "theme12": [
+    "#2C2C2C",
+    "#F4F4F4",
+    "#141414",
+    "#FFFFFF",
+    "#0066FF",
+    "#0044BB",
+    "#5599FF",
+    "#00CCFF",
+    "#FF6B2B",
+    "#E0E0E0",
+    "#0055DD",
+    "#CC4400"
+   ]
+  },
+  {
+   "id": "P-26",
+   "name": "Deep Purple + White + Coral",
+   "colors": [
+    "#4A1C6B",
+    "#FFFFFF",
+    "#F4845F"
+   ],
+   "theme12": [
+    "#4A1C6B",
+    "#F8F0FC",
+    "#260A3A",
+    "#FFFFFF",
+    "#F4845F",
+    "#C0422A",
+    "#FAB89A",
+    "#7B3AAE",
+    "#C090E0",
+    "#EAD8F8",
+    "#6028A0",
+    "#A83020"
+   ]
+  },
+  {
+   "id": "P-27",
+   "name": "Warm White + Slate + Emerald",
+   "colors": [
+    "#FAF9F7",
+    "#4A5568",
+    "#059669"
+   ],
+   "theme12": [
+    "#4A5568",
+    "#FAF9F7",
+    "#2D3748",
+    "#FFFFFF",
+    "#059669",
+    "#03533A",
+    "#34D399",
+    "#6B7A9A",
+    "#F59E42",
+    "#E2E8F0",
+    "#047A56",
+    "#B45309"
+   ]
+  },
+  {
+   "id": "P-28",
+   "name": "Black + White + Red",
+   "colors": [
+    "#0A0A0A",
+    "#FFFFFF",
+    "#E63946"
+   ],
+   "theme12": [
+    "#0A0A0A",
+    "#F5F5F5",
+    "#000000",
+    "#FFFFFF",
+    "#E63946",
+    "#9C1C24",
+    "#FF7B84",
+    "#FF4D57",
+    "#FF9500",
+    "#D0D0D0",
+    "#CC2E38",
+    "#7A0E14"
+   ]
+  }
+ ]
+}

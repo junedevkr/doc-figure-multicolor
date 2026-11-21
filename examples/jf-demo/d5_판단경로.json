@@ -1,0 +1,118 @@
+{
+  "template": "board",
+  "preset": "jf-pop",
+  "header": "headline",
+  "title": "4 분석 결과 > 4-2 판단 경로",
+  "tag": "더미 데이터 · 실제 결과 아님",
+  "footer": "더미 데이터 예시 — 실제 논문 아님",
+  "body": [
+    {
+      "row": [
+        {
+          "id": "req",
+          "title": "업무 요청 접수",
+          "sub": "민원 · 내부 문서",
+          "icon": "message-circle",
+          "fill": "tint",
+          "align": "center",
+          "w": 1
+        },
+        {
+          "id": "dec",
+          "diamond": "개인정보\n포함?",
+          "size_w": 300,
+          "size_h": 230,
+          "tone": "wait"
+        },
+        {
+          "col": [
+            {
+              "id": "ai",
+              "title": "AI 초안 작성",
+              "sub": "표준 서식 · 근거 조항 첨부",
+              "fill": "tint",
+              "tone": "main",
+              "head": "아니오"
+            },
+            {
+              "id": "manual",
+              "title": "담당자 직접 작성",
+              "sub": "AI 사용 제한",
+              "fill": "tint",
+              "tone": "mute",
+              "head": "예"
+            }
+          ],
+          "gap": 40,
+          "w": 1.1
+        },
+        {
+          "id": "review",
+          "title": "검수 · 승인",
+          "sub": "체크리스트 12항목",
+          "icon": "clipboard-check",
+          "fill": "tint",
+          "tone": "sub",
+          "align": "center",
+          "w": 1
+        },
+        {
+          "id": "done",
+          "title": "발송 · 기록",
+          "sub": "사용 이력 보관",
+          "icon": "send",
+          "fill": "solid",
+          "tone": "go",
+          "align": "center",
+          "w": 0.9
+        }
+      ],
+      "gap": 60,
+      "align": "center"
+    },
+    {
+      "band": "검수에서 반려된 초안은 사유를 기록해 서식과 지침 개선에 반영",
+      "tone": "go",
+      "style": "soft",
+      "label": "되먹임",
+      "id": "fb"
+    }
+  ],
+  "links": [
+    {
+      "from": "req",
+      "to": "dec"
+    },
+    {
+      "from": "dec",
+      "to": "ai",
+      "tone": "main"
+    },
+    {
+      "from": "dec",
+      "to": "manual",
+      "tone": "wait"
+    },
+    {
+      "from": "ai",
+      "to": "review",
+      "tone": "main"
+    },
+    {
+      "from": "manual",
+      "to": "review",
+      "tone": "mute"
+    },
+    {
+      "from": "review",
+      "to": "done",
+      "tone": "go"
+    },
+    {
+      "from": "review",
+      "to": "fb",
+      "tone": "go",
+      "dash": true
+    }
+  ]
+}
