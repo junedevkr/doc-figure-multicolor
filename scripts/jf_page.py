@@ -226,7 +226,18 @@ LOADER = r"""
   olds.forEach(function(s){ s.remove(); });
   var fig = document.getElementById('figure');
   var snap = fig ? fig.innerHTML : '', style0 = fig ? (fig.getAttribute('style') || '') : '';
-  function exec(){ texts.forEach(function(t){ var s = document.createElement('script'); s.text = t; document.body.appendChild(s); }); try { hugNotes(); } catch (e) {} }
+  function exec(){ texts.forEach(function(t){ var s = document.createElement('script'); s.text = t; document.body.appendChild(s); }); try { hugNotes(); } catch (e) {} try { layerLinks(); } catch (e) {} }
+  // 층 순서: 묶음 판 < 화살표 선 < 상자 < 화살표 이름표 — 선이 상자 위를 지나며 글자를 덮지 않게(지나가는 선은 상자 뒤로 숨는다)
+  function layerLinks(){
+    if (!fig) return;
+    var sv = fig.querySelector('svg#links'); if (!sv) return;
+    sv.style.zIndex = '1';
+    fig.querySelectorAll('.card, .band, .diamond, .pill, .steps, .chips, .kv, .tline, .mtx').forEach(function(b){
+      if (getComputedStyle(b).position === 'static') b.style.position = 'relative';
+      b.style.zIndex = '2';
+    });
+    fig.querySelectorAll('.lklabel').forEach(function(l){ l.style.zIndex = '3'; });
+  }
   // 그림판(stage) 왼쪽 끝에 붙던 단위·출처·범례·설명을 실제 그림의 왼쪽(오른쪽 맞춤이면 오른쪽) 끝에 맞춘다
   // — 그림이 그림판 가운데에 좁게 그려지면(기울기 등) 메모만 왼쪽에 떨어져 본문 둘레가 넓어지고 그림이 가운데에 오지 않는다
   function hugNotes(){
@@ -467,7 +478,7 @@ LOADER = r"""
     items.forEach(function(it, i){
       var d = Math.round(i * step); last = d;
       it.e.setAttribute('data-jf-anim', '1');
-      it.e.style.animation = it.k === 'up' ? ('jfUp .55s cubic-bezier(.2,.7,.2,1) ' + d + 'ms both') : ('jfWipe .9s cubic-bezier(.4,0,.2,1) ' + d + 'ms both');
+      it.e.style.animation = it.k === 'up' ? ('jfUp .55s cubic-bezier(.2,.7,.2,1) ' + d + 'ms backwards') : ('jfWipe .9s cubic-bezier(.4,0,.2,1) ' + d + 'ms backwards');   // both는 끝난 뒤에도 쌓임 맥락이 남아 선·상자 층 순서를 깬다
     });
     fig.querySelectorAll('svg#links path.lk').forEach(function(p, i){
       var len = 0; try { len = p.getTotalLength(); } catch (e) {}

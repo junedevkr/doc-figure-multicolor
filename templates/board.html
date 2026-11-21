@@ -551,7 +551,14 @@ const FIGURE=/*__FIGURE_DATA__*/ null; const ICONS=/*__ICONS__*/ {}; const ICON_
           if(vert && Math.abs(p2[1]-p1[1]) < lh+34){ at[0] += (L.label_side==='left' ? -(lw/2+10) : (lw/2+10)); lb.style.background='transparent'; }
           else if(horz && Math.abs(p2[0]-p1[0]) < lw+30){ at[1] -= lh/2+8; lb.style.background='transparent'; }
         }
-        lb.style.left=at[0]+(L.label_dx||0)+'px'; lb.style.top=at[1]+(L.label_dy||0)+'px'; }
+        lb.style.left=at[0]+(L.label_dx||0)+'px'; lb.style.top=at[1]+(L.label_dy||0)+'px';
+        // 이름표가 끝점 밖 상자를 덮으면 같은 선을 따라 상자와 겹치지 않는 가장 가까운 자리로 옮긴다(label_at을 준 경우는 그대로)
+        if(!L.label_at){ const R0=root.getBoundingClientRect(), pad=6;
+          const hits=(x,y)=>boxes.some(bx=>!(bx.e===A||bx.e===B) && x-lw/2-pad<bx.r.r && x+lw/2+pad>bx.r.l && y-lh/2-pad<bx.r.b && y+lh/2+pad>bx.r.t);
+          const cx=at[0]+(L.label_dx||0), cy=at[1]+(L.label_dy||0);
+          if(hits(cx,cy)){ const len0=p.getTotalLength(); let best=null;
+            for(let s0=lw/2; s0<len0-lw/2; s0+=4){ const q=p.getPointAtLength(s0); if(!hits(q.x,q.y)){ const dd=Math.hypot(q.x-cx,q.y-cy); if(!best||dd<best.d) best={x:q.x,y:q.y,d:dd}; } }
+            if(best){ lb.style.left=best.x+'px'; lb.style.top=best.y+'px'; } } } }
       // 상자 관통 점검: 경로 위 점을 표본으로 끝점 상자 밖 상자를 지나는지
       const len=p.getTotalLength(); const skip=new Set([A,B]); let hit=null;
       for(let s=14; s<len-14 && !hit; s+=7){ const q=p.getPointAtLength(s);
