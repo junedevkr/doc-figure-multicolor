@@ -190,10 +190,13 @@ html.jf-soft #figure svg#links marker path, html.jf-soft #figure svg#links marke
 html.jf-soft #figure .tline .tl-bar .knot { border-color: var(--ink-soft) !important; }
 
 /* ===== 그려지는 애니메이션(덱에서 페이지를 열 때) ===== */
-@keyframes jfUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+/* transform 대신 translate — 템플릿이 이름표 가운데 정렬에 쓰는 transform을 덮어쓰지 않는다 */
+@keyframes jfUp { from { opacity: 0; translate: 0 16px; } to { opacity: 1; translate: 0 0; } }
 @keyframes jfWipe { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
 @keyframes jfDraw { to { stroke-dashoffset: 0; } }
 @keyframes jfFade { from { opacity: 0; } to { opacity: 1; } }
+html.jf-hit #figure, html.jf-hit #figure * { pointer-events: auto !important; }
+html.jf-center #figure::before, html.jf-center #figure > .hd { transform: translate(var(--jf-hdx, 0px), var(--jf-hdy, 0px)); }
 @page { size: __W__px __H__px; margin: 0; }
 @media print {
   [data-jf-anim] { animation: none !important; opacity: 1 !important; clip-path: none !important; stroke-dashoffset: 0 !important; }
@@ -218,7 +221,48 @@ LOADER = r"""
   function exec(){ texts.forEach(function(t){ var s = document.createElement('script'); s.text = t; document.body.appendChild(s); }); }
   // 페이지 배율(s)을 그리기 전에 정한다 — 제목 크기 보정(42px ÷ s)을 그린 뒤에 바꾸면 템플릿이 이미 그은 선·표 줄과 어긋나므로,
   // 배율이 바뀌면 처음부터 다시 그린다
-  function scaleOf(){ var inner = C.W - 2 * C.PAD; return Math.min(inner / fig.offsetWidth, (C.H - 2 * C.PAD) / fig.offsetHeight, 1.3); }
+  function isBoard(){ return typeof FIGURE !== 'undefined' && FIGURE && FIGURE.template === 'board'; }
+  // 본문 상자 — 제목(.hd)을 뺀 나머지에서 실제로 칠해진 것(글자·색 칠한 상자·테두리·그림 도형)만 모아 그 둘레를 잰다(그림 좌표 단위)
+  function contentBox(){
+    var fr = fig.getBoundingClientRect(), u = fr.width / fig.offsetWidth || 1, hd = fig.querySelector('.hd');
+    var L = 1e9, T = 1e9, R = -1e9, B = -1e9;
+    function add(r){ if (!r || (r.width < 0.5 && r.height < 0.5)) return;   /* 가로·세로 직선은 한쪽 두께가 0이어도 센다 */ L = Math.min(L, r.left); T = Math.min(T, r.top); R = Math.max(R, r.right); B = Math.max(B, r.bottom); }
+    var all = fig.querySelectorAll('*'), rg = document.createRange();
+    for (var i = 0; i < all.length; i++) {
+      var e = all[i];
+      if (hd && (e === hd || hd.contains(e))) continue;
+      if (e.closest('defs, marker, clipPath, mask, pattern, linearGradient, radialGradient')) continue;
+      var cs = getComputedStyle(e);
+      if (cs.display === 'none' || cs.visibility === 'hidden' || cs.opacity === '0') continue;
+      if (e instanceof SVGElement) {
+        if (/^(path|rect|circle|ellipse|line|polyline|polygon|text|image|use)$/i.test(e.tagName) && !(cs.fill === 'none' && cs.stroke === 'none')) add(e.getBoundingClientRect());
+        continue;
+      }
+      for (var c = e.firstChild; c; c = c.nextSibling) if (c.nodeType === 3 && c.nodeValue.trim()) { rg.selectNodeContents(c); add(rg.getBoundingClientRect()); }
+      var bg = rgba(cs.backgroundColor);
+      if ((bg && bg[3] > 0.02) || cs.backgroundImage !== 'none' || parseFloat(cs.borderTopWidth) + parseFloat(cs.borderLeftWidth) + parseFloat(cs.borderBottomWidth) + parseFloat(cs.borderRightWidth) > 0 || /^(IMG|CANVAS|VIDEO)$/.test(e.tagName)) add(e.getBoundingClientRect());
+    }
+    if (L > R) return null;
+    return {l: (L - fr.left) / u, t: (T - fr.top) / u, w: (R - L) / u, h: (B - T) / u};
+  }
+  // 제목 묶음(h1 윗변 ~ .hd 아랫변)의 높이(그림 좌표 단위)
+  function headFig(){
+    var hd = fig.querySelector('.hd'), h1 = fig.querySelector('.hd h1'); if (!hd || !h1) return 0;
+    var u = fig.getBoundingClientRect().width / fig.offsetWidth || 1;
+    return (hd.getBoundingClientRect().bottom - h1.getBoundingClientRect().top) / u;
+  }
+  var GAP = 44;   // 제목 묶음과 본문 사이(페이지 px)
+  function layoutOf(){
+    var TX = C.TX || 104, TY = C.TY || 114, cb = contentBox(), hf = headFig();
+    if (!cb) return null;
+    var availW = C.W - 2 * TX, availH = C.H - C.PAD - (C.footRoom || 0) - TY - GAP;
+    var s = Math.min(availW / cb.w, availH / (cb.h + hf), 1.3);
+    return {s: s, cb: cb, hf: hf, TX: TX, TY: TY, availW: availW};
+  }
+  function scaleOf(){
+    if (!isBoard()) { var lo = layoutOf(); if (lo) return lo.s; }
+    var inner = C.W - 2 * C.PAD; return Math.min(inner / fig.offsetWidth, (C.H - 2 * C.PAD) / fig.offsetHeight, 1.3);
+  }
   function setS(v){ document.documentElement.style.setProperty('--jf-s', v.toFixed(4)); }
   function settleScale(){
     for (var k = 0; k < 3; k++) {
@@ -266,11 +310,29 @@ LOADER = r"""
     }
     var fw = fig.offsetWidth, fh = fig.offsetHeight;
     var s = Math.min(inner / fw, (H - 2 * P) / fh, 1.3);
+    var lo = isBoard() ? null : layoutOf(), h1 = fig.querySelector('.hd h1');
+    fig.style.setProperty('--jf-hdx', '0px'); fig.style.setProperty('--jf-hdy', '0px');
+    if (lo) {
+      // 판형이 아닌 도식: 제목 아래 16:9 영역의 가운데에 본문을 놓는다(4:3처럼 왼쪽에 붙고 오른쪽이 비지 않게)
+      document.documentElement.classList.add('jf-center');
+      s = lo.s;
+      var top0 = lo.TY + lo.hf * s + GAP, availH = H - P - (C.footRoom || 0) - top0;
+      fig.style.transform = 'scale(' + s.toFixed(4) + ')';
+      fig.style.left = (lo.TX + (lo.availW - lo.cb.w * s) / 2 - lo.cb.l * s).toFixed(1) + 'px';
+      fig.style.top = (top0 + Math.max(0, (availH - lo.cb.h * s) / 2) - lo.cb.t * s).toFixed(1) + 'px';
+      // 제목(과 그 위 짧은 표식)만 따로 옮겨 모든 페이지에서 같은 자리(TX, TY)에 — transform은 자리를 차지하지 않아 본문 선·표와 어긋나지 않는다
+      if (h1) {
+        var pr0 = page.getBoundingClientRect(), hr0 = h1.getBoundingClientRect(), k0 = pr0.width / W || 1;
+        fig.style.setProperty('--jf-hdx', ((lo.TX - (hr0.left - pr0.left) / k0) / s).toFixed(2) + 'px');
+        fig.style.setProperty('--jf-hdy', ((lo.TY - (hr0.top - pr0.top) / k0) / s).toFixed(2) + 'px');
+      }
+      h1 = null;
+    } else {
     fig.style.transform = 'scale(' + s.toFixed(4) + ')';
     fig.style.left = P + 'px';   // 왼쪽 위 여백에 붙인다 — 페이지마다 제목 위치·왼쪽 여백이 같게
     fig.style.top = P + 'px';
+    }
     // 템플릿마다 안쪽 여백이 달라도 제목 글자의 왼쪽 위가 모든 페이지에서 같은 자리(TX, TY)에 오도록 그림 전체를 옮긴다
-    var h1 = fig.querySelector('.hd h1');
     if (h1) {
       var pr = page.getBoundingClientRect(), hr = h1.getBoundingClientRect(), k = pr.width / W || 1;
       var TX = C.TX || 104, TY = C.TY || 114;
@@ -302,7 +364,40 @@ LOADER = r"""
     for (var i = chain.length - 1; i >= 0; i--) base = over(chain[i], base);
     return base;
   }
+  // 글자 바로 밑에 실제로 칠해진 색 — 템플릿이 상자를 SVG 도형으로 그리고 글자를 그 위에 얹는 경우가 많아
+  // 조상 요소의 배경만 보면 흰 바탕으로 잘못 읽는다(흰 글자를 회색으로 바꾸던 원인). 글자 가운데 점 아래를 차례로 훑는다
+  function bgAt(el, isSvg){
+    var r = el.getBoundingClientRect();
+    var x = r.left + r.width / 2, y = r.top + r.height / 2;
+    if (!r.width || x < 0 || y < 0 || x >= window.innerWidth || y >= window.innerHeight) return bgOf(isSvg ? (el.closest('svg') || el).parentElement || el : el);
+    var stack = document.elementsFromPoint(x, y), chain = [];
+    if (!stack.length) return bgOf(isSvg ? (el.closest('svg') || el).parentElement || el : el);
+    for (var i = 0; i < stack.length; i++) {
+      var e = stack[i];
+      if (e !== el && el.contains(e)) continue;          // 글자 요소 안쪽 조각은 건너뛰고
+      if (e === el && isSvg) continue;                    // SVG 글자의 fill은 글자색이므로 건너뛴다(HTML 글자 요소 자신의 배경은 센다)
+      var cs = getComputedStyle(e), col = null, op = parseFloat(cs.opacity) || 1;
+      if (e instanceof SVGElement) {
+        if (!/^(rect|path|polygon|polyline|circle|ellipse)$/i.test(e.tagName)) continue;
+        if (cs.fill === 'none') continue;
+        col = rgba(cs.fill); if (!col) return null;
+        col[3] *= (parseFloat(cs.fillOpacity) || (cs.fillOpacity === '0' ? 0 : 1)) * op;
+      } else {
+        col = rgba(cs.backgroundColor);
+        if ((!col || col[3] === 0) && cs.backgroundImage && cs.backgroundImage !== 'none') return null;
+        if (col) col[3] *= op;
+      }
+      if (col && col[3] > 0.01) { chain.push(col); if (col[3] >= 0.99) break; }
+    }
+    var base = [255,255,255,1];
+    for (var j = chain.length - 1; j >= 0; j--) base = over(chain[j], base);
+    return base;
+  }
   function fixContrast(root){
+    document.documentElement.classList.add('jf-hit');
+    try { fixContrast0(root); } finally { document.documentElement.classList.remove('jf-hit'); }
+  }
+  function fixContrast0(root){
     var n = 0, all = root.querySelectorAll('*');
     for (var i = 0; i < all.length; i++) {
       var el = all[i], own = false;
@@ -311,13 +406,15 @@ LOADER = r"""
       var cs = getComputedStyle(el); if (cs.visibility === 'hidden' || cs.display === 'none') continue;
       var isSvg = el instanceof SVGElement;
       var fg = rgba(isSvg ? cs.fill : cs.color); if (!fg) continue;
-      var bg = bgOf(isSvg ? (el.closest('svg') || el).parentElement || el : el);
+      var bg = bgAt(el, isSvg);
+      if (!bg) continue;   // 바탕을 알 수 없으면(그라데이션 등) 손대지 않는다
       fg = over(fg, bg);
       var fs = parseFloat(cs.fontSize), bold = parseInt(cs.fontWeight, 10) >= 700;
       var need = (fs >= 24 || (fs >= 18.5 && bold)) ? 3.0 : 4.5;
       if (ratio(fg, bg) >= need) continue;
       var dark = lumi(bg) > 0.18, t = 0, out = fg;
-      while (ratio(out, bg) < need && t < 1) { t += 0.08; var k = dark ? 0 : 255; out = [fg[0] + (k-fg[0])*t, fg[1] + (k-fg[1])*t, fg[2] + (k-fg[2])*t, 1]; }
+      // 반올림으로 기준선 바로 밑에 걸리지 않게 조금 여유(+0.15)
+      while (ratio(out, bg) < need + 0.15 && t < 1) { t += 0.08; var k = dark ? 0 : 255; out = [fg[0] + (k-fg[0])*t, fg[1] + (k-fg[1])*t, fg[2] + (k-fg[2])*t, 1]; }
       var v = 'rgb(' + out.slice(0,3).map(Math.round).join(',') + ')';
       if (isSvg) el.style.setProperty('fill', v, 'important'); else el.style.setProperty('color', v, 'important');
       n++;

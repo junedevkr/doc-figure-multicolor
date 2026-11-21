@@ -99,7 +99,7 @@ const FIGURE=/*__FIGURE_DATA__*/ null; const ICONS=/*__ICONS__*/ {};
       const lw=b._lw||220, lane=b._lane||0;
       const lb=div('blabel'); lb.style.width=lw+'px';
       lb.style.top=(52+lane*LANE_STEP)+'px';
-      let lx=cx-lw/2; if(b._inlet) lx=-16;
+      let lx=cx-lw/2; if(b._inlet){ lx=-20; lb.style.textAlign='left'; }   // 입구 표식은 맨 왼쪽이라 가운데 맞추면 행 이름과 겹친다 — 표식 왼쪽 끝에서 왼쪽 맞춤
       lb.style.left=lx+'px'; lb.textContent=b.label; pw.append(lb);
       maxLane=Math.max(maxLane,lane+1);
       links.push({from:lb, node:b._node||0, row:R, pw:pw, route:b._route||'side'});
@@ -125,12 +125,16 @@ const FIGURE=/*__FIGURE_DATA__*/ null; const ICONS=/*__ICONS__*/ {};
     '<path d="M0,0 L10,4 L0,8 z" fill="var(--navy-deep)"/></marker></defs>';
   links.forEach(k=>{
     const dEl=(k.row._nodeEls||[])[k.node]; if(!dEl) return;
-    const A=k.from.getBoundingClientRect(), B=dEl.getBoundingClientRect();
+    // 라벨 상자(폭 고정)가 아니라 실제 글자 끝에서 선을 시작한다
+    const rg=document.createRange(); rg.selectNodeContents(k.from);
+    const A=rg.getBoundingClientRect(), B=dEl.getBoundingClientRect();
     const P=k.pw.getBoundingClientRect();
-    const x0=A.right-R0.left+4, y0=A.top-R0.top+A.height/2;
+    const x0=A.right-R0.left+10;
+    let y0=A.top-R0.top+A.height/2;
     const x1=B.left-R0.left-5, y1=B.top-R0.top+B.height/2;
+    if(k.route!=='under' && y1>A.top-R0.top+2 && y1<A.bottom-R0.top-2) y0=y1;   // 장치 가운데 높이가 라벨 글자 높이 안이면 곧은 선
     const gx=(P.right-R0.left)+GW*0.55;
-    const r=9;
+    const r=Math.min(9,Math.abs(y1-y0)/2);
     let d;
     if(k.route==='under'){
       // 다른 병목 라벨을 피해 라벨 아래로 내려간 뒤 게이트를 타고 장치로

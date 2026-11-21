@@ -9,7 +9,7 @@
   전체화면에서는 화살표·체크박스·종료 버튼을 두지 않는다. 화면 클릭(왼쪽 1/4은 이전)·← →·Space로 넘기고 Esc로 나간다
 - --switcher: 아래쪽에 색상(컬러차트 28종·내용 계열·흑백)·글꼴(고딕·명조) 선택 상자. 내용은 그대로 두고 고르는 즉시 모든 페이지를 다시 그린다
 - --font <글꼴 키>|gothic|myeongjo: 모든 페이지 글꼴(references/jf-fonts.json, 기본 고딕=프리젠테이션, 기본 명조=Noto Serif KR)
-- --footer "논문 제목": 페이지마다 하단 왼쪽에 작게 이탤릭으로 (spec의 "footer"가 있으면 그 페이지는 그것)
+- --footer "논문 제목": 페이지마다 하단 왼쪽에 작게 이탤릭으로 (spec의 "page_footer"가 있으면 그 페이지는 그것, 문자열 "footer"도 같은 뜻)
 - 애니메이션: 페이지를 열 때 상자가 차례로 떠오르고 그림이 펼쳐지며 화살표가 그어진다. '애니메이션' 체크(A 키)로 끔. PDF에는 영향 없음
 - 페이지 번호: 'PT 하단에 페이지 번호' 선택(N 키)으로 슬라이드 오른쪽 아래 번호를 보이거나 숨긴다. PDF에도 그대로 적용
 - PDF(인쇄): 화살표·버튼·배경은 숨기고 페이지마다 1920×1080 한 장
@@ -372,6 +372,8 @@ def main():
         specs = [dict(s, preset=a.preset) for s in specs]
     if a.font:
         specs = [dict(s, font=a.font) for s in specs]
+    # 페이지 하단 글귀는 "page_footer" — 문자열 "footer"도 받되 템플릿에는 넘기지 않는다(간트 등은 footer를 하단 상자 사양으로 쓴다)
+    specs = [dict({k: v for k, v in s.items() if k != "footer"}, page_footer=s.get("page_footer") or s["footer"]) if isinstance(s.get("footer"), str) else s for s in specs]
     fk = jf_page.font_kind(specs[0])
     sizes = {jf_page.size(dict(s, page=jf_page.mode(s) or "16:9")) for s in specs}
     if len(sizes) != 1:
@@ -382,7 +384,7 @@ def main():
         s = dict(s, page=jf_page.mode(s) or "16:9")
         pages.append(B.build_string(s, embed=True))
         titles.append(s.get("title") or s.get("kicker") or "")
-        foots.append(s.get("footer", ""))
+        foots.append(s.get("page_footer", ""))
     title = a.title or titles[0]
     sw_data, sw_ui = "null", ""
     if a.switcher:
