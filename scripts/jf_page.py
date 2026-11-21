@@ -67,24 +67,43 @@ def concept(spec):
     mo = re.search(r"@concept:\s*([a-z]+)", open(path, encoding="utf-8").read(2000))
     return mo.group(1) if mo else None
 
-SERIF_CSS = os.path.join(ROOT, "references", "jf-font-serif.css")
-SERIF_STACK = '"Noto Serif KR", "AppleMyungjo", "Nanum Myeongjo", "NanumMyeongjo", "Batang", serif'
-FONTS = {
-    "gothic": {"css": FONT_CSS, "family": "Presentation", "stack": FONT_STACK, "label": "고딕(프리젠테이션)"},
-    "myeongjo": {"css": SERIF_CSS, "family": "Noto Serif KR", "stack": SERIF_STACK, "label": "명조(Noto Serif KR)"},
-}
-FONT_ALIAS = {"gothic": "gothic", "고딕": "gothic", "sans": "gothic", "presentation": "gothic",
-              "myeongjo": "myeongjo", "명조": "myeongjo", "serif": "myeongjo", "mincho": "myeongjo"}
+FONT_LIST = os.path.join(ROOT, "references", "jf-fonts.json")
+FALLBACK = {"gothic": '"Pretendard", "Apple SD Gothic Neo", "NanumSquare", "NanumGothic", "Malgun Gothic", sans-serif',
+            "myeongjo": '"AppleMyungjo", "Nanum Myeongjo", "NanumMyeongjo", "Batang", serif'}
+
+def _load_fonts():
+    d = json.load(open(FONT_LIST, encoding="utf-8"))
+    fonts, defaults = {}, {}
+    for f in d["fonts"]:
+        stack = '"%s", %s' % (f["family"], FALLBACK[f["kind"]])
+        if f["key"] == "presentation":
+            stack = FONT_STACK
+        fonts[f["key"]] = dict(f, css=os.path.join(ROOT, "references", "fonts", f["file"]), stack=stack)
+        defaults.setdefault(f["kind"], f["key"])
+    return fonts, defaults
+
+FONTS, FONT_DEFAULT = _load_fonts()
+SERIF_STACK = FONTS[FONT_DEFAULT["myeongjo"]]["stack"]
 
 def font_kind(spec):
-    """spec "font": "gothic"(기본·고딕) | "myeongjo"(명조)"""
-    return FONT_ALIAS.get(str(spec.get("font", "gothic")).strip().lower(), "gothic")
+    """spec "font": 글꼴 키(jf-fonts.json) | "gothic"·"고딕"(기본 고딕) | "myeongjo"·"명조"(기본 명조) — 글꼴 키를 돌려준다"""
+    v = str(spec.get("font", "gothic")).strip()
+    low = v.lower()
+    if low in FONTS:
+        return low
+    for k, f in FONTS.items():
+        if v == f["label"]:
+            return k
+    if low in ("myeongjo", "명조", "serif", "mincho"):
+        return FONT_DEFAULT["myeongjo"]
+    return FONT_DEFAULT["gothic"]
 
-def font_css(kind="gothic"):
-    f = FONTS[kind]
+def font_css(key="presentation"):
+    key = key if key in FONTS else font_kind({"font": key})
+    f = FONTS[key]
     css = open(f["css"], encoding="utf-8").read()
-    if kind != "gothic":   # 프리셋의 글꼴 토큰을 명조로 덮어쓴다(@import는 맨 앞에 와야 함)
-        css += "\n:root.jf-font-%s { --font: %s; --font-title: %s; --board-font: %s; }\n" % (kind, f["stack"], f["stack"], f["stack"])
+    if key != "presentation":   # 프리셋의 글꼴 토큰을 덮어쓴다(@import는 맨 앞에 와야 함)
+        css += "\n:root.jf-font-%s { --font: %s; --font-title: %s; --board-font: %s; }\n" % (key, f["stack"], f["stack"], f["stack"])
     return css
 
 PAGE_CSS = r"""
@@ -291,7 +310,7 @@ LOADER = r"""
     if (fig) fixContrast(fig);
     window.__JF_DONE__ = true;
   }
-  if (C.font && C.font !== 'gothic') document.documentElement.classList.add('jf-font-' + C.font);
+  if (C.font && C.font !== 'presentation') document.documentElement.classList.add('jf-font-' + C.font);
   var fam = C.fontFamily || 'Presentation';
   var loads = ['400', '500', '600', '700', '800'].map(function(w){ return document.fonts.load(w + ' 24px "' + fam + '"', '가나다ABC123'); });
   Promise.all(loads).then(run, run);

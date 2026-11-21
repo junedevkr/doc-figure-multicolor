@@ -112,9 +112,9 @@ def mono_tokens(kind, spot=None):
     if kind == "ink":
         g = lambda v: "#%02X%02X%02X" % (v, v, v)
         bg, card, fill = "#FFFFFF", "#FFFFFF", None
-    else:  # warm
-        g = lambda v: "#%02X%02X%02X" % (min(255, v + 4), min(255, v + 1), max(0, v - 4))
-        bg, card = "#FBF9F5", "#FFFFFF"
+    else:  # gray — 중립 회색 단계(그레이스케일)
+        g = lambda v: "#%02X%02X%02X" % (v, v, v)
+        bg, card = "#FFFFFF", "#FFFFFF"
     t = {
         "navy-deep": g(38), "navy-mid": g(84), "navy-marker": g(48),
         "bar-fill": g(236), "bar-fill-2": g(222), "bar-border": g(110), "grid-line": g(206),
@@ -124,12 +124,14 @@ def mono_tokens(kind, spot=None):
         "neutral-fill": g(244), "neutral-line": g(196), "neutral-ink": g(74),
         "accent": g(0), "accent-soft": g(220), "track-1": g(40), "track-2": g(110), "track-3": g(170),
         "neutral-head": g(88), "line-soft": g(198), "fill-faint": g(247), "line-track": g(200),
-        "board-line": g(200), "board-panel": g(246) if kind == "ink" else "#F4F1EA",
+        "board-line": g(200), "board-panel": g(246) if kind == "ink" else g(243),
         "board-chip": g(238), "board-step-mid": g(214), "card-fill": card,
         "title-tag-color": g(38),
     }
-    for k, v in (("main", 38), ("sub", 84), ("go", 62), ("wait", 96), ("stop", 0), ("mute", 112)):
-        t["tone-%s" % k] = g(v); t["tone-%s-tint" % k] = g(242); t["tone-%s-line" % k] = g(190)
+    steps = (("main", 26), ("sub", 26), ("go", 26), ("wait", 26), ("stop", 0), ("mute", 26)) if kind == "ink" else \
+            (("main", 38), ("sub", 84), ("go", 62), ("wait", 96), ("stop", 0), ("mute", 112))
+    for k, v in steps:   # 흑백: 검정 한 가지 + 흰 바탕 / 그레이스케일: 회색 단계
+        t["tone-%s" % k] = g(v); t["tone-%s-tint" % k] = g(244 if kind == "ink" else 240); t["tone-%s-line" % k] = g(170 if kind == "ink" else 190)
     if kind == "ink":
         shape = {"radius_box": 0, "radius_bar": 0}
         t.update({"strong-fill": "#FFFFFF", "strong-ink": g(26), "strong-ink-soft": g(88),
@@ -162,6 +164,55 @@ def write_preset(name, tokens, header):
 def load():
     return json.load(open(PAL, encoding="utf-8"))
 
+SRC = os.path.join(ROOT, "references", "jf-source-palettes.json")
+
+def chart_presets():
+    """컬러차트 순서(P-01~P-28)대로 [(팔레트 번호, 프리셋 이름, 컨셉 이름)] — 손으로 다듬은 컨셉이 있으면 그것, 없으면 jf-pNN"""
+    P = load(); src = json.load(open(SRC, encoding="utf-8"))
+    tuned = {d.get("palette_id"): "jf-" + k for k, d in P.get("concepts", {}).items() if d.get("palette_id")}
+    return [(q["id"], tuned.get(q["id"], "jf-p%s" % q["id"][2:]), q["name"]) for q in src["palettes"]]
+
+def build_auto_palettes(P):
+    """컬러차트 팔레트 중 손으로 다듬은 컨셉이 없는 것을 원본 색 그대로 프리셋으로 만든다.
+    원본 색은 바꾸지 않고, 모자란 역할 색은 원본 색과 같은 색상(hue)에서 명도·채도만 조절한다.
+    색 면 위 글자 대비는 페이지가 그린 뒤 자동으로 맞춘다."""
+    src = json.load(open(SRC, encoding="utf-8")); made = []
+    tuned = {d.get("palette_id") for d in P.get("concepts", {}).values()}
+    for q in src["palettes"]:
+        if q["id"] in tuned:
+            continue
+        cols = [c.upper() if c.startswith("#") else "#" + c.upper() for c in q["colors"]]
+        blacks = [c for c in cols if lum(c) < 0.02]
+        cand = [c for c in cols if 0.02 <= lum(c) <= 0.85] or cols
+        main = max(cand, key=lambda c: (1 - lum(c)) * 0.6 + hls(c)[2] * 0.4)
+        rest = [c for c in cand if c != main]
+        hm, lm, sm = hls(main)
+        sub = rest[0] if rest else mk(hm, min(0.8, lm + 0.25), sm * 0.8)
+        hs, ls, ss = hls(sub)
+        wait = rest[1] if len(rest) > 1 else mk(hs, min(0.85, ls + 0.18), ss)
+        c = {"main": main, "sub": sub, "wait": wait,
+             "go": darken_for_white(mk(hs, 0.40, min(ss, 0.55))), "stop": darken_for_white(mk(hm, max(0.22, lm - 0.12), sm)), "mute": mk(hm, 0.76, 0.12)}
+        ink = blacks[0] if blacks else "#1E1E22"
+        tints = {k: tint(v, 0.94, 0.9) for k, v in c.items()}
+        on = lambda bg: max(("#FFFFFF", ink, "#000000"), key=lambda fg: contrast(fg, bg))
+        css = "deep" if lum(main) < 0.12 else "soft"
+        tok = {**identity_tokens({"radius_box": 14, "radius_bar": 10}), **color_tokens(c, {}, 1.0, 1.0)}
+        for k, v in tints.items():
+            tok["tone-%s-tint" % k] = v; tok["tone-%s-line" % k] = v
+        tok.update({"ink": ink, "ink-soft": "#55565E", "navy-deep": main, "navy-mid": sub, "navy-marker": wait,
+                    "title-ink": ink, "title-tag-color": wait, "strong-fill": main, "strong-ink": on(main),
+                    "focus-fill": main, "focus-ink": on(main), "heat-1": tints["sub"], "heat-2": sub, "heat-3": main,
+                    "heat-1-ink": ink, "heat-2-ink": on(sub), "heat-3-ink": on(main), "accent": c["stop"],
+                    "accent-soft": tints["stop"], "board-panel": tint(main, 0.975, 0.6), "board-chip": tints["sub"],
+                    "board-line": tint(main, 0.88, 0.4), "board-link-w": "3px"})
+        name = "jf-p%s" % q["id"][2:]
+        write_preset(name, tok, {
+            "lines": ["컬러차트 %s %s — 원본 색 %s 그대로, 모자란 역할 색은 같은 색상에서 명도·채도만 조절" % (q["id"], q["name"], " · ".join(cols)),
+                      "@concept: %s" % css],
+            "image": "a clean presentation diagram using exactly these palette colors: %s, borderless blocks, rounded corners" % ", ".join(cols)})
+        made.append(name)
+    return made
+
 def build(_a):
     P = load(); made = []
     for fam, d in P["families"].items():
@@ -174,10 +225,6 @@ def build(_a):
             "image": "a clean Korean academic presentation diagram, %s family: main %s, secondary %s, outputs %s, caution %s, risk %s, pale tinted cards, %dpx corners, short color tag above a left-aligned title, no shadows, Freesentation-like Korean presentation sans-serif" % (
                 fam, c["main"], c["sub"], c["go"], c["wait"], c["stop"], d["shape"]["radius_box"])})
         made.append("jf-" + fam)
-        write_preset("jf-mono-spot-" + fam, mono_tokens("ink", spot=c["main"]), {
-            "lines": ["흑백 + 한 점 색: 무채색에 %s 계열 색을 강조 한 곳(focus)과 제목 표식에만" % d["label"]],
-            "image": "a grayscale academic diagram with a single %s highlight on the key element, square corners, outlined emphasis boxes, left-aligned title with a short color tag" % c["main"]})
-        made.append("jf-mono-spot-" + fam)
     for name, d in P.get("concepts", {}).items():
         c = d["colors"]; mc = 1.0 if d.get("exact") else d.get("min_contrast", 4.5)
         tok = {**identity_tokens(d["shape"]), **color_tokens(c, d["shape"], mc, 1.0)}
@@ -193,13 +240,14 @@ def build(_a):
             "image": "a vivid modern presentation diagram: electric indigo %s, hot pink %s, emerald %s, orange %s, red %s, borderless colored blocks, %dpx rounded corners, bold black title with a short pink tag, white slide on a dark backdrop" % (
                 c["main"], c["sub"], c["go"], c["wait"], c["stop"], d["shape"]["radius_box"])})
         made.append("jf-" + name)
+    made += build_auto_palettes(P)
     write_preset("jf-mono-ink", mono_tokens("ink"), {
-        "lines": ["흑백 · 먹선: 순수 무채색, 직각, 강조 상자는 외곽선. 흑백 인쇄·제출용"],
+        "lines": ["흑백: 검정 한 가지와 흰 바탕만, 직각, 강조 상자는 외곽선. 흑백 인쇄·제출용"],
         "image": "a strict black-and-white academic diagram, pure grayscale, square corners, outlined emphasis boxes, left-aligned title with a short black tag, no shadows"})
-    write_preset("jf-mono-warm", mono_tokens("warm"), {
-        "lines": ["흑백 · 바탕: 따뜻한 회색과 바탕색 패널. 화면 발표용 흑백"],
-        "image": "a warm grayscale academic diagram on an off-white paper panel, charcoal headers, 6px corners, left-aligned title with a short charcoal tag, no shadows"})
-    made += ["jf-mono-ink", "jf-mono-warm"]
+    write_preset("jf-mono-gray", mono_tokens("gray"), {
+        "lines": ["그레이스케일: 중립 회색 단계(진한 회색 머리띠·옅은 회색 바탕), 모서리 6px"],
+        "image": "a neutral grayscale academic diagram, charcoal and mid-gray headers on light gray panels, 6px corners, left-aligned title with a short charcoal tag, no shadows"})
+    made += ["jf-mono-ink", "jf-mono-gray"]
     print("만든 프리셋 %d벌: %s" % (len(made), ", ".join(made)))
 
 # ---------- 검사 ----------
@@ -215,6 +263,13 @@ def min_contrast_of(name):
             return d.get("min_contrast", 4.5)
     return 4.5
 
+def preset_concept(name):
+    path = os.path.join(PRESETS, name + ".css")
+    if not os.path.exists(path):
+        return None
+    mo = re.search(r"@concept:\s*([a-z]+)", open(path, encoding="utf-8").read(3000))
+    return mo.group(1) if mo else None
+
 def on_tone_ink(name):
     """파스텔 컨셉(css soft)은 색 면 위 글자가 짙은 색"""
     for cname, d in load().get("concepts", {}).items():
@@ -223,6 +278,8 @@ def on_tone_ink(name):
     return False
 
 def is_exact(name):
+    if re.fullmatch(r"jf-p\d\d", name):
+        return True
     for cname, d in load().get("concepts", {}).items():
         if name == "jf-" + cname:
             return bool(d.get("exact"))
@@ -247,7 +304,7 @@ def check(_a):
             if fg is None and on_tone_ink(n):
                 fgv = t["ink"]; need = 4.5; r = contrast(fgv, bgv)
             elif fg is None and is_exact(n):   # 원본 고정 색: 흰 글자·짙은 글자 중 나은 쪽(페이지가 자동으로 고름)
-                r = max(contrast("#FFFFFF", bgv), contrast(t["ink"], bgv)); need = 4.5
+                r = max(contrast("#FFFFFF", bgv), contrast(t["ink"], bgv), contrast("#000000", bgv)); need = 4.5
             if r < need:
                 print("✗ %s %s 대비 %.2f (<%.1f)" % (n, lab_, r, need)); bad += 1
     P = load(); mains = {"jf-" + f: d["colors"]["main"] for f, d in P["families"].items()}
@@ -295,7 +352,7 @@ def pick(a):
         top = "method"
     preset = "jf-" + top
     if a.mono:
-        preset = {"ink": "jf-mono-ink", "warm": "jf-mono-warm", "spot": "jf-mono-spot-" + top}[a.mono]
+        preset = {"ink": "jf-mono-ink", "gray": "jf-mono-gray"}[a.mono]
     out = {"preset": preset, "family": top, "label": P["families"][top]["label"],
            "reason": sorted(hits, key=lambda k: -hits[k])[:8] if s else ["키워드 없음 → 기본(방법론·분석)"],
            "ranking": [{"family": f, "score": v[0]} for f, v in rank],
@@ -319,12 +376,10 @@ def theme(a):
 def preview(a):
     jf = sorted(os.path.basename(p)[:-4] for p in glob.glob(os.path.join(PRESETS, "jf-*.css")))
     P = load(); fams = list(P["families"])
-    order = ["jf-" + f for f in fams] + ["jf-mono-ink", "jf-mono-warm"] + ["jf-mono-spot-" + f for f in fams]
+    order = ["jf-" + f for f in fams] + ["jf-mono-ink", "jf-mono-gray"]
     order = [n for n in order if n in jf]
     labels = {"jf-" + f: d["label"] for f, d in P["families"].items()}
-    labels.update({"jf-mono-ink": "흑백 · 먹선", "jf-mono-warm": "흑백 · 바탕"})
-    for f, d in P["families"].items():
-        labels["jf-mono-spot-" + f] = "흑백 + %s 한 점" % d["label"]
+    labels.update({"jf-mono-ink": "흑백", "jf-mono-gray": "그레이스케일"})
     tone_names = [("main", "핵심 개념"), ("sub", "하위 개념"), ("go", "결과·산출"), ("wait", "조건·주의"), ("stop", "문제·위험"), ("mute", "선행연구·배경")]
     cards = []
     for n in order:
@@ -358,7 +413,7 @@ h1{font-size:22px;margin:0 0 4px}.sub{margin:0 0 20px;opacity:.75;font-size:14px
 .flow{display:flex;align-items:center;gap:6px;margin-bottom:12px}.box{flex:1;text-align:center;padding:9px 4px;font-weight:700;font-size:13px}
 .tones{display:grid;grid-template-columns:1fr 1fr;gap:6px}.tone{display:flex;align-items:center;gap:6px;padding:5px 6px;border-radius:4px;font-size:12px}
 .tone b{width:14px;height:14px;border-radius:3px;flex:none}.tone span{flex:1}.tone code{font-size:10px}
-</style></head><body><h1>doc-figure-multicolor 팔레트</h1><p class="sub">내용 계열 7가지 · 흑백 2가지 · 흑백+한 점 7가지. 색 칩은 도식 안에서 맡는 뜻</p><div class="grid">%s</div></body></html>''' % (open(os.path.join(ROOT, "references", "jf-font.css"), encoding="utf-8").read(), "\n".join(cards))
+</style></head><body><h1>doc-figure-multicolor 팔레트</h1><p class="sub">내용 계열 7가지 · 흑백 · 그레이스케일. 색 칩은 도식 안에서 맡는 뜻</p><div class="grid">%s</div></body></html>''' % (open(os.path.join(ROOT, "references", "jf-font.css"), encoding="utf-8").read(), "\n".join(cards))
     with open(a.out, "w", encoding="utf-8") as f:
         f.write(doc)
     print("미리보기: %s (%d벌)" % (a.out, len(order)))
@@ -369,7 +424,7 @@ def main():
     sp.add_parser("build").set_defaults(fn=build)
     sp.add_parser("check").set_defaults(fn=check)
     p = sp.add_parser("pick"); p.add_argument("-f", "--file"); p.add_argument("--text")
-    p.add_argument("--mono", choices=["ink", "warm", "spot"]); p.set_defaults(fn=pick)
+    p.add_argument("--mono", choices=["ink", "gray"]); p.set_defaults(fn=pick)
     p = sp.add_parser("theme"); p.add_argument("preset"); p.set_defaults(fn=theme)
     p = sp.add_parser("preview"); p.add_argument("-o", "--out", default=os.path.join(ROOT, "examples", "preview", "jf-palettes.html")); p.set_defaults(fn=preview)
     a = ap.parse_args(); sys.exit(a.fn(a) or 0)

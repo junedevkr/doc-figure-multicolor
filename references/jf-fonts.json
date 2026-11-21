@@ -1,0 +1,101 @@
+{
+ "_note": "글꼴 목록(noonnu.cc 인기 웹폰트, 2026-11-21 주소 확인). kind: gothic(고딕) | myeongjo(명조). file은 references/fonts/ 안의 CSS. 각 kind의 첫 글꼴이 기본",
+ "fonts": [
+  {
+   "key": "presentation",
+   "label": "프리젠테이션",
+   "kind": "gothic",
+   "family": "Presentation",
+   "file": "presentation.css",
+   "license": "OFL"
+  },
+  {
+   "key": "pretendard",
+   "label": "프리텐다드",
+   "kind": "gothic",
+   "family": "Pretendard",
+   "file": "pretendard.css",
+   "license": "OFL"
+  },
+  {
+   "key": "paperlogy",
+   "label": "페이퍼로지",
+   "kind": "gothic",
+   "family": "Paperozi",
+   "file": "paperlogy.css",
+   "license": "OFL"
+  },
+  {
+   "key": "suit",
+   "label": "SUIT",
+   "kind": "gothic",
+   "family": "Suit",
+   "file": "suit.css",
+   "license": "OFL"
+  },
+  {
+   "key": "scoredream",
+   "label": "에스코어드림",
+   "kind": "gothic",
+   "family": "Escoredream",
+   "file": "scoredream.css",
+   "license": "수정 불가·상업 사용 가능"
+  },
+  {
+   "key": "gmarket-sans",
+   "label": "G마켓 산스",
+   "kind": "gothic",
+   "family": "GMarketSans",
+   "file": "gmarket-sans.css",
+   "license": "OFL"
+  },
+  {
+   "key": "noto-serif-kr",
+   "label": "Noto Serif KR",
+   "kind": "myeongjo",
+   "family": "Noto Serif KR",
+   "file": "noto-serif-kr.css",
+   "license": "OFL"
+  },
+  {
+   "key": "maruburi",
+   "label": "마루부리",
+   "kind": "myeongjo",
+   "family": "MaruBuri",
+   "file": "maruburi.css",
+   "license": "OFL"
+  },
+  {
+   "key": "bookk-myungjo",
+   "label": "부크크 명조",
+   "kind": "myeongjo",
+   "family": "BookkMyungjo",
+   "file": "bookk-myungjo.css",
+   "license": "수정 불가·상업 사용 가능"
+  },
+  {
+   "key": "gowun-batang",
+   "label": "고운바탕",
+   "kind": "myeongjo",
+   "family": "GounBatang",
+   "file": "gowun-batang.css",
+   "license": "OFL"
+  },
+  {
+   "key": "nanum-myeongjo",
+   "label": "나눔명조",
+   "kind": "myeongjo",
+   "family": "Nanum Myeongjo",
+   "file": "nanum-myeongjo.css",
+   "license": "OFL"
+  },
+  {
+   "key": "ridibatang",
+   "label": "리디바탕",
+   "kind": "myeongjo",
+   "family": "Ridibatang",
+   "file": "ridibatang.css",
+   "license": "OFL"
+  }
+ ]
+}

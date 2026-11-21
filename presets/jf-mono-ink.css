@@ -1,6 +1,6 @@
 /* =========================================================================
    doc-figure-multicolor 프리셋 — jf-mono-ink
-   흑백 · 먹선: 순수 무채색, 직각, 강조 상자는 외곽선. 흑백 인쇄·제출용
+   흑백: 검정 한 가지와 흰 바탕만, 직각, 강조 상자는 외곽선. 흑백 인쇄·제출용
 
    * 프리셋 규율: 토큰 '값'만 바꾸고 '이름'은 더하거나 빼지 않는다.
    * @image-style: a strict black-and-white academic diagram, pure grayscale, square corners, outlined emphasis boxes, left-aligned title with a short black tag, no shadows
@@ -99,12 +99,12 @@
   --ornament:    none;         /* none = 뜻 없이 겹치는 장식(중복 번호 뱃지 등)을 걷는다 */
 
   /* --- board (v2.0) — 뜻으로 고르는 색 6가지 + 조립 부품 --- */
-  --tone-main: #262626; --tone-main-tint: #F2F2F2; --tone-main-line: #BEBEBE;
-  --tone-sub: #545454; --tone-sub-tint: #F2F2F2; --tone-sub-line: #BEBEBE;
-  --tone-go: #3E3E3E; --tone-go-tint: #F2F2F2; --tone-go-line: #BEBEBE;
-  --tone-wait: #606060; --tone-wait-tint: #F2F2F2; --tone-wait-line: #BEBEBE;
-  --tone-stop: #000000; --tone-stop-tint: #F2F2F2; --tone-stop-line: #BEBEBE;
-  --tone-mute: #707070; --tone-mute-tint: #F2F2F2; --tone-mute-line: #BEBEBE;
+  --tone-main: #1A1A1A; --tone-main-tint: #F4F4F4; --tone-main-line: #AAAAAA;
+  --tone-sub: #1A1A1A; --tone-sub-tint: #F4F4F4; --tone-sub-line: #AAAAAA;
+  --tone-go: #1A1A1A; --tone-go-tint: #F4F4F4; --tone-go-line: #AAAAAA;
+  --tone-wait: #1A1A1A; --tone-wait-tint: #F4F4F4; --tone-wait-line: #AAAAAA;
+  --tone-stop: #000000; --tone-stop-tint: #F4F4F4; --tone-stop-line: #AAAAAA;
+  --tone-mute: #1A1A1A; --tone-mute-tint: #F4F4F4; --tone-mute-line: #AAAAAA;
   --board-font: "Presentation", "PresentationVariable", "Pretendard", "Apple SD Gothic Neo", "NanumSquare", "NanumGothic", "Malgun Gothic", sans-serif;
   --board-fs: 22px;                 /* 본문 기준 글자 — 그림 폭 1500px 의 1.5% (16cm 삽입 시 약 6.6pt) */
   --board-line: #C8C8C8;

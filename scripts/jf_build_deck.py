@@ -7,8 +7,8 @@
 - 아래쪽 화살표 버튼과 페이지 번호(1 / N), 키보드 ← → · PageUp/PageDown · Home/End · Space, 주소 #2 로 바로 가기
 - 전체화면 발표: 버튼이나 F 키. 화면 크기에 맞춰 16:9 무대를 통째로 확대·축소(배치는 그대로)하고 남는 곳은 검은 여백.
   전체화면에서는 화살표·체크박스·종료 버튼을 두지 않는다. 화면 클릭(왼쪽 1/4은 이전)·← →·Space로 넘기고 Esc로 나간다
-- --switcher: 아래쪽에 색상(프리셋 19종)·글꼴(고딕·명조) 선택 상자. 내용은 그대로 두고 고르는 즉시 모든 페이지를 다시 그린다
-- --font gothic|myeongjo: 모든 페이지 글꼴(고딕=프리젠테이션 기본, 명조=Noto Serif KR)
+- --switcher: 아래쪽에 색상(컬러차트 28종·내용 계열·흑백)·글꼴(고딕·명조) 선택 상자. 내용은 그대로 두고 고르는 즉시 모든 페이지를 다시 그린다
+- --font <글꼴 키>|gothic|myeongjo: 모든 페이지 글꼴(references/jf-fonts.json, 기본 고딕=프리젠테이션, 기본 명조=Noto Serif KR)
 - --footer "논문 제목": 페이지마다 하단 왼쪽에 작게 이탤릭으로 (spec의 "footer"가 있으면 그 페이지는 그것)
 - 페이지 번호: 'PT 하단에 페이지 번호' 선택(N 키)으로 슬라이드 오른쪽 아래 번호를 보이거나 숨긴다. PDF에도 그대로 적용
 - PDF(인쇄): 화살표·버튼·배경은 숨기고 페이지마다 1920×1080 한 장
@@ -57,31 +57,31 @@ body.show-pno .sheet .pno { display: block; }
   color: #6B6B70; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; }
 .tap { position: absolute; inset: 0; display: none; cursor: pointer; }
 
-.nav { width: var(--stage-w); height: 76px; margin: 20px auto 0; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; }
-.nav .ttl { font-size: 20px; font-weight: 600; opacity: .72; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 24px; }
-.ctl { display: flex; align-items: center; gap: 22px; }
-.rbtn { width: 56px; height: 56px; border-radius: 50%; border: 0; background: #fff; color: var(--ink); cursor: pointer;
+.nav { width: var(--stage-w); height: 52px; margin: 14px auto 0; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; }
+.nav .ttl { font-size: 15px; font-weight: 600; opacity: .72; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 24px; }
+.ctl { display: flex; align-items: center; gap: 12px; }
+.rbtn { width: 36px; height: 36px; border-radius: 50%; border: 0; background: #fff; color: var(--ink); cursor: pointer;
   display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,.14); flex: none; }
 .rbtn:hover { background: #F4F4F6; }
 button:focus-visible, .opt input:focus-visible { outline: 3px solid #1E1E22; outline-offset: 3px; }
 .rbtn:disabled { opacity: .35; cursor: default; box-shadow: none; }
-.rbtn svg { width: 26px; height: 26px; }
-.count { width: 132px; text-align: center; font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: .5px; }
+.rbtn svg { width: 18px; height: 18px; }
+.count { width: 76px; text-align: center; font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: .5px; }
 .count .tot { opacity: .55; font-weight: 600; }
-.nav .right { justify-self: end; display: flex; align-items: center; gap: 18px; }
-.sw { display: flex; align-items: center; gap: 8px; font-size: 16px; white-space: nowrap; }
-.sw select { font: inherit; font-size: 16px; font-weight: 600; height: 40px; border-radius: 20px; border: 0; padding: 0 12px; background: #fff; color: var(--ink); box-shadow: 0 2px 8px rgba(0,0,0,.14); cursor: pointer; max-width: 260px; }
+.nav .right { justify-self: end; display: flex; align-items: center; gap: 10px; }
+.sw { display: flex; align-items: center; gap: 6px; font-size: 13px; white-space: nowrap; }
+.sw select { font: inherit; font-size: 13px; font-weight: 600; height: 30px; border-radius: 15px; border: 0; padding: 0 8px; background: #fff; color: var(--ink); box-shadow: 0 2px 8px rgba(0,0,0,.14); cursor: pointer; max-width: 260px; }
 body.dark .sw select { background: rgba(255,255,255,.12); color: #F2F2F5; box-shadow: inset 0 0 0 1px rgba(255,255,255,.28); }
 body.dark .sw select option, body.dark .sw select optgroup { color: #1E1E22; }
-.nav.has-sw { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; height: auto; min-height: 76px; gap: 12px 18px; }
+.nav.has-sw { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; height: auto; min-height: 52px; gap: 8px 12px; }
 .nav.has-sw .ttl { display: none; }
-.nav.has-sw .right { flex-wrap: wrap; justify-content: flex-end; gap: 12px 16px; }
-.opt { display: flex; align-items: center; gap: 10px; font-size: 18px; cursor: pointer; user-select: none; white-space: nowrap; }
-.opt input { width: 20px; height: 20px; margin: 0; accent-color: #1E1E22; cursor: pointer; }
-.pill { height: 44px; border-radius: 22px; padding: 0 18px; border: 0; background: #fff; color: var(--ink); cursor: pointer;
-  font: inherit; font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 8px; box-shadow: 0 2px 8px rgba(0,0,0,.14); white-space: nowrap; }
+.nav.has-sw .right { flex-wrap: wrap; justify-content: flex-end; gap: 8px 10px; }
+.opt { display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; user-select: none; white-space: nowrap; }
+.opt input { width: 15px; height: 15px; margin: 0; accent-color: #1E1E22; cursor: pointer; }
+.pill { height: 30px; border-radius: 15px; padding: 0 12px; border: 0; background: #fff; color: var(--ink); cursor: pointer;
+  font: inherit; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(0,0,0,.14); white-space: nowrap; }
 .pill:hover { background: #F4F4F6; }
-.pill svg { width: 20px; height: 20px; }
+.pill svg { width: 15px; height: 15px; }
 
 /* 전체화면 발표 — 16:9 무대를 통째로 확대·축소, 남는 곳은 검은 여백 */
 #show:fullscreen, #show.present { width: 100vw; height: 100vh; background: #000; }
@@ -281,14 +281,25 @@ def is_dark(hexcolor):
     r, g, b = (int(hexcolor[i:i + 2], 16) / 255 for i in (1, 3, 5))
     return 0.2126 * r + 0.7152 * g + 0.0722 * b < 0.35
 
+def font_opts():
+    out = []
+    for kind, name in (("gothic", "고딕"), ("myeongjo", "명조")):
+        items = [(k, f["label"]) for k, f in jf_page.FONTS.items() if f["kind"] == kind]
+        if items:
+            out.append('<optgroup label="%s">' % name + "".join('<option value="%s">%s</option>' % (k, H.escape(l)) for k, l in items) + "</optgroup>")
+    return "".join(out)
+
 def switch_data(specs, fk):
     """선택 상자용 데이터: 프리셋 표식이 든 페이지 틀, 프리셋 CSS, 컨셉, 바깥 배경, 글꼴 CSS"""
     import glob, re
     pal = json.load(open(os.path.join(ROOT, "references", "jf-palettes.json"), encoding="utf-8"))
-    groups = [("컬러 컨셉", [("jf-" + k, d["label"]) for k, d in pal.get("concepts", {}).items()]),
+    import jf_palette
+    chart = [(pre, "%s %s" % (pid, name)) for pid, pre, name in jf_palette.chart_presets()]
+    in_chart = {pre for pre, _ in chart}
+    groups = [("컬러차트", chart),
+              ("그 밖의 컨셉", [("jf-" + k, d["label"]) for k, d in pal.get("concepts", {}).items() if "jf-" + k not in in_chart]),
               ("내용 계열", [("jf-" + k, d["label"]) for k, d in pal["families"].items()]),
-              ("흑백톤", [("jf-mono-ink", "흑백 · 먹선(인쇄)"), ("jf-mono-warm", "흑백 · 바탕(화면)")]),
-              ("흑백 + 한 점 색", [("jf-mono-spot-" + k, "흑백 + " + d["label"]) for k, d in pal["families"].items()])]
+              ("흑백", [("jf-mono-ink", "흑백"), ("jf-mono-gray", "그레이스케일")])]
     have = {os.path.basename(p)[:-4] for p in glob.glob(os.path.join(ROOT, "presets", "jf-*.css"))}
     css, concept, bd, dark = {}, {}, {}, {}
     opts = []
@@ -308,7 +319,7 @@ def switch_data(specs, fk):
             "cfg": jf_page.base_cfg(dict(specs[0], page=jf_page.mode(specs[0]) or "16:9")),
             "preset": first if first in css else sorted(css)[0], "font": fk}
     ui = ('<label class="sw">색상 <select id="sw-preset" aria-label="색상 프리셋">%s</select></label>'
-          '<label class="sw">글꼴 <select id="sw-font" aria-label="글꼴"><option value="gothic">고딕</option><option value="myeongjo">명조</option></select></label>') % "".join(opts)
+          '<label class="sw">글꼴 <select id="sw-font" aria-label="글꼴">%s</select></label>') % ("".join(opts), font_opts())
     return json.dumps(data, ensure_ascii=False).replace("</", "<\\/"), ui
 
 def main():
