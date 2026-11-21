@@ -21,8 +21,19 @@ spec 필드
 import json, os, re
 
 PAGE_W = 1920
+ELEM = json.load(open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "references", "jf-elements.json"), encoding="utf-8"))
+
+def elem_css():
+    """요소 기준(references/jf-elements.json)을 CSS 변수로 — 페이지 CSS와 덱이 이 변수만 쓴다"""
+    E = ELEM
+    v = {"title-size": E["title"]["size"], "title-lh": E["title"]["line_height"], "title-track": E["title"]["tracking"],
+         "title-weight": E["title"]["weight"], "mark-w": E["title_mark"]["width"], "mark-h": E["title_mark"]["height"],
+         "mark-gap": E["title_mark"]["gap"], "mark-r": E["title_mark"]["radius"], "kicker-size": E["kicker"]["size"],
+         "kicker-weight": E["kicker"]["weight"], "sub-size": E["subtitle"]["size"], "tag-size": E["tag"]["size"]}
+    unit = {"title-lh": "", "title-weight": ""}
+    return ":root { " + " ".join("--jf-%s: %s%s;" % (k, x, unit.get(k, "px")) for k, x in v.items()) + " }\n"
 MARGIN = 40            # 단독 HTML의 바깥 배경 여백
-DEFAULT_PAD = 64
+DEFAULT_PAD = ELEM["page"]["pad"]
 PAGE_PRINT_CM = 26     # 페이지 모드 board 배치 폭 기준(문서 삽입 기본 16cm보다 넓게)
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FONT_CSS = os.path.join(ROOT, "references", "jf-font.css")
@@ -60,7 +71,7 @@ def prepare_spec(spec):
     return spec
 
 def concept(spec):
-    """프리셋 머리 주석의 '@concept: pop|soft'로 컬러 컨셉을 정한다"""
+    """프리셋 머리 주석의 '@concept: soft|deep'으로 컬러 컨셉을 정한다"""
     path = os.path.join(ROOT, "presets", str(spec.get("preset", "")) + ".css")
     if not os.path.exists(path):
         return None
@@ -120,24 +131,27 @@ html.jf-embed #jf-page { box-shadow: none; }
 #jf-page > #figure { position: absolute; left: 0; top: 0; transform-origin: 0 0; background: transparent; }
 /* 제목 크기는 페이지마다 같게 — 본문 배치 기준(print_cm)이 페이지별로 달라져도 머리는 고정 px */
 html.jf-page #figure .hd { margin-bottom: 26px; }
-html.jf-page #figure .hd .kicker { font-size: calc(24px / var(--jf-s, 1)) !important; color: var(--ink-soft) !important; font-weight: 600; margin-bottom: 6px; }
-html.jf-page #figure .hd h1 { font-size: calc(42px / var(--jf-s, 1)) !important; line-height: 1.25 !important; letter-spacing: -0.5px; }
-html.jf-page #figure .hd .sub { font-size: calc(24px / var(--jf-s, 1)) !important; }
-html.jf-page #figure .hd .tag { font-size: calc(20px / var(--jf-s, 1)) !important; }
+html.jf-page #figure .hd .kicker { font-size: calc(var(--jf-kicker-size) / var(--jf-s, 1)) !important; color: var(--ink-soft) !important; font-weight: var(--jf-kicker-weight); margin-bottom: 6px; }
+html.jf-page #figure .hd h1 { font-size: calc(var(--jf-title-size) / var(--jf-s, 1)) !important; line-height: var(--jf-title-lh) !important; letter-spacing: var(--jf-title-track); position: relative; }
+html.jf-page #figure .hd .sub { font-size: calc(var(--jf-sub-size) / var(--jf-s, 1)) !important; }
+html.jf-page #figure .hd .tag { font-size: calc(var(--jf-tag-size) / var(--jf-s, 1)) !important; }
 /* 글자 값이 든 표(matrix에 문자열 값) — 점 칸용 작은 칸 대신 폭을 채우는 표로 */
 html.jf-page #figure .mtx:has(td.v) { width: 100%; border-spacing: 6px; padding: 10px; }
 html.jf-page #figure .mtx:has(td.v) th { font-size: calc(var(--B) * 0.9); color: var(--ink-soft); padding: 4px 8px; }
 html.jf-page #figure .mtx:has(td.v) th.rh { width: 20%; text-align: left; font-size: calc(var(--B) * 0.92); color: var(--ink); }
 html.jf-page #figure .mtx:has(td.v) td { width: auto; height: calc(var(--B) * 2); font-size: calc(var(--B) * 0.92); border-radius: 8px; }
 html.jf-page #figure .mtx td.v { background: var(--tt, var(--tone-main-tint)); color: var(--ink); border-color: transparent; }
-/* 세로 색 막대 대신 제목 위 짧은 가로 표식 (forms의 제목 표식도 같은 크기) */
-html.jf-page #figure::before { width: 48px !important; height: 6px !important; }
+/* 제목 위 짧은 가로 표식 — 템플릿마다 따로 그리던 표식(#figure::before, 판형 .headline::before)은 끄고,
+   요소 기준의 크기·간격으로 h1에 붙여 모든 페이지에서 같은 크기·같은 자리(제목 왼쪽 위)에 둔다. 그림 배율(--jf-s)로 나눠 화면 크기를 고정 */
+html.jf-page #figure::before, html.jf-page #figure .hd.headline::before { display: none !important; }
 html.jf-page #figure .hd.headline { padding-left: 0 !important; padding-top: 20px; padding-bottom: 18px; }
-html.jf-page #figure .hd.headline::before { left: 0 !important; top: 0 !important; bottom: auto !important; width: 48px !important; height: 6px !important; background: var(--tone-main) !important; }
-/* ===== 평면 모양(jf-flat): 쨍한 컨셉·출처 팔레트 컨셉 공통 — 테두리 없는 색 면, 큰 둥근 모서리, 검은 제목 ===== */
+html.jf-page #figure .hd h1::before { content: ""; position: absolute; left: 0; bottom: 100%;
+  width: calc(var(--jf-mark-w) / var(--jf-s, 1)); height: calc(var(--jf-mark-h) / var(--jf-s, 1));
+  margin-bottom: calc(var(--jf-mark-gap) / var(--jf-s, 1)); border-radius: calc(var(--jf-mark-r) / var(--jf-s, 1));
+  background: var(--jf-mark-color, var(--title-tag-color, var(--tone-main))); }
+/* ===== 평면 모양(jf-flat): 출처 팔레트 컨셉 공통 — 테두리 없는 색 면, 큰 둥근 모서리, 검은 제목 ===== */
 html.jf-flat #figure .hd h1 { color: var(--ink) !important; font-weight: 800; }
 html.jf-flat #figure .hd.headline { border-bottom: 0 !important; }
-html.jf-flat #figure .hd.headline::before { width: 64px !important; height: 8px !important; border-radius: 4px; }
 html.jf-flat #figure .group { border: 0 !important; border-radius: 26px !important; background: var(--tt, var(--tone-main-tint)) !important; }
 html.jf-flat #figure .group > .gh { background: transparent !important; color: var(--tc, var(--tone-main)) !important; text-align: left; padding: 20px 24px 2px !important; font-size: calc(var(--B) * 1.1) !important; }
 html.jf-flat #figure .group > .gb { padding: 14px 20px 20px !important; }
@@ -153,25 +167,19 @@ html.jf-flat #figure .chips .chip { border: 0 !important; }
 html.jf-flat #figure .pill { border-radius: 999px; }
 html.jf-flat #figure .steps .st { font-weight: 800; }
 
-/* ===== 쨍한 컨셉(jf-pop): 짙은 바깥 배경 + 핑크 표식 ===== */
-html.jf-page.jf-pop, html.jf-page.jf-pop body { background: #17171D !important; }
-html.jf-page.jf-pop.jf-embed, html.jf-page.jf-pop.jf-embed body { background: var(--bg, #fff) !important; }
-html.jf-pop #jf-page { box-shadow: 0 18px 50px rgba(0,0,0,.45); }
-html.jf-pop #figure .hd.headline::before { background: var(--tone-sub) !important; }
-html.jf-pop #figure::before { background: var(--tone-sub) !important; }
 
 /* ===== 짙은 바탕 컨셉(jf-deep): 주색을 바깥 배경으로, 표식은 강조색 ===== */
 html.jf-page.jf-deep, html.jf-page.jf-deep body { background: var(--tone-main) !important; }
 html.jf-page.jf-deep.jf-embed, html.jf-page.jf-deep.jf-embed body { background: var(--bg, #fff) !important; }
 html.jf-deep #jf-page { box-shadow: 0 18px 50px rgba(0,0,0,.35); }
-html.jf-deep #figure .hd.headline::before, html.jf-deep #figure::before { background: var(--tone-wait) !important; }
+html.jf-deep { --jf-mark-color: var(--tone-wait); }
 html.jf-deep #figure .card .ct, html.jf-deep #figure .group > .gh { color: var(--ink) !important; }
 
 /* ===== 파스텔 출처 팔레트(jf-soft): 원본 색 면 위 글자를 짙은 색으로, 화살표는 짙은 회갈색 ===== */
 html.jf-page.jf-soft, html.jf-page.jf-soft body { background: var(--tone-main-tint) !important; }
 html.jf-page.jf-soft.jf-embed, html.jf-page.jf-soft.jf-embed body { background: var(--bg, #fff) !important; }
 html.jf-soft #jf-page { box-shadow: 0 14px 40px rgba(60,30,30,.14); }
-html.jf-soft #figure .hd.headline::before, html.jf-soft #figure::before { background: var(--tone-sub) !important; }
+html.jf-soft { --jf-mark-color: var(--tone-sub); }
 html.jf-soft #figure .group > .gh, html.jf-soft #figure .card .chd, html.jf-soft #figure .band, html.jf-soft #figure .band .bl,
 html.jf-soft #figure .band .bt .s, html.jf-soft #figure .pill, html.jf-soft #figure .steps .st, html.jf-soft #figure .steps .st .s,
 html.jf-soft #figure .chips .clabel, html.jf-soft #figure .card.f-solid, html.jf-soft #figure .card.f-solid .ct,
@@ -196,7 +204,7 @@ html.jf-soft #figure .tline .tl-bar .knot { border-color: var(--ink-soft) !impor
 @keyframes jfDraw { to { stroke-dashoffset: 0; } }
 @keyframes jfFade { from { opacity: 0; } to { opacity: 1; } }
 html.jf-hit #figure, html.jf-hit #figure * { pointer-events: auto !important; }
-html.jf-center #figure::before, html.jf-center #figure > .hd { transform: translate(var(--jf-hdx, 0px), var(--jf-hdy, 0px)); }
+html.jf-center #figure > .hd { transform: translate(var(--jf-hdx, 0px), var(--jf-hdy, 0px)); }
 @page { size: __W__px __H__px; margin: 0; }
 @media print {
   [data-jf-anim] { animation: none !important; opacity: 1 !important; clip-path: none !important; stroke-dashoffset: 0 !important; }
@@ -273,7 +281,7 @@ LOADER = r"""
     var u = fig.getBoundingClientRect().width / fig.offsetWidth || 1;
     return (hd.getBoundingClientRect().bottom - h1.getBoundingClientRect().top) / u;
   }
-  var GAP = 44;   // 제목 묶음과 본문 사이(페이지 px)
+  var GAP = C.GAP || 44;   // 제목 묶음과 본문 사이(페이지 px, 요소 기준 body_gap)
   function layoutOf(){
     var TX = C.TX || 104, TY = C.TY || 114, cb = contentBox(), hf = headFig();
     if (!cb) return null;
@@ -491,7 +499,7 @@ LOADER = r"""
     if (o.css != null) swapBlock('/*JF-PRESET-BEGIN*/', '/*JF-PRESET-END*/', o.css);
     if (o.fontcss != null) swapBlock('/*JF-FONT-BEGIN*/', '/*JF-FONT-END*/', o.fontcss);
     var cl = document.documentElement.classList;
-    ['jf-flat', 'jf-pop', 'jf-soft', 'jf-deep'].forEach(function(k){ cl.remove(k); });
+    ['jf-flat', 'jf-soft', 'jf-deep'].forEach(function(k){ cl.remove(k); });
     Array.prototype.slice.call(cl).forEach(function(k){ if (k.indexOf('jf-font-') === 0) cl.remove(k); });
     C.concept = o.concept || null; C.font = o.font || C.font; C.fontFamily = o.fam || C.fontFamily;
     if (C.concept) { cl.add('jf-flat'); cl.add('jf-' + C.concept); }
@@ -533,7 +541,7 @@ def apply(html, spec, embed=False, placeholders=False):
     page_css = ""
     if m:
         w, h = size(spec)
-        page_css = PAGE_CSS.replace("__M__", str(MARGIN)).replace("__W__", str(w)).replace("__H__", str(h))
+        page_css = elem_css() + PAGE_CSS.replace("__M__", str(MARGIN)).replace("__W__", str(w)).replace("__H__", str(h))
     fk = font_kind(spec)
     css = '<style id="jf-font">\n' + ("/*JF-FONT-BEGIN*//*__JF_FONTCSS__*//*JF-FONT-END*/" if placeholders else font_css(fk)) + page_css + '</style>\n'
     i = html.find("</head>")
@@ -543,7 +551,7 @@ def apply(html, spec, embed=False, placeholders=False):
     body = re.sub(r"<script(?![^>]*\bsrc=)([^>]*)>", lambda mo: '<script type="text/jf-deferred"%s>' % mo.group(1), body)
     if m:
         w, h = size(spec)
-        cfg = {"page": True, "W": w, "H": h, "PAD": pad(spec), "embed": bool(embed), "concept": concept(spec), "M": MARGIN,
+        cfg = {"page": True, "W": w, "H": h, "PAD": pad(spec), "embed": bool(embed), "concept": concept(spec), "M": MARGIN, **elem_cfg(),
                "font": fk, "fontFamily": FONTS[fk]["family"],
                "minPc": float(spec.get("page_min_cm", 16)), "maxPc": 60, "animate": bool(spec.get("animate", False)) and not embed}
     else:
@@ -553,17 +561,18 @@ def apply(html, spec, embed=False, placeholders=False):
     body = body[:i] + loader + body[i:] if i >= 0 else body + loader
     return head + body
 
+def elem_cfg():
+    return {"TX": ELEM["title"]["x"], "TY": ELEM["title"]["y"], "GAP": ELEM["body_gap"]}
+
 def base_cfg(spec, embed=True):
     """선택 상자용 — 프리셋·글꼴과 무관한 페이지 설정"""
     w, h = size(spec)
-    return {"page": True, "W": w, "H": h, "PAD": pad(spec), "embed": bool(embed), "M": MARGIN,
+    return {"page": True, "W": w, "H": h, "PAD": pad(spec), "embed": bool(embed), "M": MARGIN, **elem_cfg(),
             "minPc": float(spec.get("page_min_cm", 16)), "maxPc": 60, "animate": False}
 
 def backdrop(tokens_css, preset=""):
-    """덱 바깥 배경 — 프리셋 주색 12% + 따뜻한 회색 (CSS color-mix와 같은 값). 쨍한 컨셉은 짙은 배경"""
+    """덱 바깥 배경 — 프리셋 주색 12% + 따뜻한 회색 (CSS color-mix와 같은 값). deep은 주색, soft는 주색 옅은 색"""
     c = concept({"preset": preset})
-    if c == "pop":
-        return "#17171D"
     if c == "deep":
         mo = re.search(r"--tone-main:\s*(#[0-9A-Fa-f]{6})", tokens_css)
         if mo:

@@ -1,0 +1,12 @@
+{
+  "_note": "페이지 요소 기준 — 모든 페이지(판형·템플릿·그래프·덱)가 이 값을 가져다 쓴다. 단위는 1920×1080 페이지 px. 그림 배율과 상관없이 화면에서 이 크기로 보인다",
+  "page":        {"margin_x": 104, "pad": 64},
+  "title":       {"x": 104, "y": 114, "size": 42, "weight": 800, "line_height": 1.25, "tracking": -0.5},
+  "title_mark":  {"width": 56, "height": 7, "gap": 14, "radius": 0},
+  "kicker":      {"size": 24, "weight": 600},
+  "subtitle":    {"size": 24},
+  "tag":         {"size": 20},
+  "body_gap":    44,
+  "footer":      {"size": 18, "x": 104, "bottom": 30},
+  "page_number": {"size": 20, "right": 104, "bottom": 30}
+}

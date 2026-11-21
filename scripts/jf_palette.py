@@ -128,10 +128,15 @@ def mono_tokens(kind, spot=None):
         "board-chip": g(238), "board-step-mid": g(214), "card-fill": card,
         "title-tag-color": g(38),
     }
-    steps = (("main", 26), ("sub", 26), ("go", 26), ("wait", 26), ("stop", 0), ("mute", 26)) if kind == "ink" else \
-            (("main", 38), ("sub", 84), ("go", 62), ("wait", 96), ("stop", 0), ("mute", 112))
-    for k, v in steps:   # 흑백: 검정 한 가지 + 흰 바탕 / 그레이스케일: 회색 단계
-        t["tone-%s" % k] = g(v); t["tone-%s-tint" % k] = g(244 if kind == "ink" else 240); t["tone-%s-line" % k] = g(170 if kind == "ink" else 190)
+    # 흑백: 검정 한 가지 + 흰 바탕
+    # 그레이스케일: 항목(tone)마다 명도를 40 안팎씩 벌려 나란히 놓여도 서로 구분되게 — 짙은 회색(main)부터 옅은 회색(wait)까지.
+    #   옅은 면 위 글자는 대비 자동 보정이 짙게 바꾼다. 옅은 바탕(tint)·테두리(line)도 항목마다 한 단계씩 다르게
+    if kind == "ink":
+        for k, v in (("main", 26), ("sub", 26), ("go", 26), ("wait", 26), ("stop", 0), ("mute", 26)):
+            t["tone-%s" % k] = g(v); t["tone-%s-tint" % k] = g(244); t["tone-%s-line" % k] = g(170)
+    else:
+        for k, v, tv in (("main", 34, 228), ("stop", 72, 233), ("go", 108, 237), ("sub", 146, 241), ("mute", 178, 244), ("wait", 204, 247)):
+            t["tone-%s" % k] = g(v); t["tone-%s-tint" % k] = g(tv); t["tone-%s-line" % k] = g(round(v + (255 - v) * 0.45))
     if kind == "ink":
         shape = {"radius_box": 0, "radius_bar": 0}
         t.update({"strong-fill": "#FFFFFF", "strong-ink": g(26), "strong-ink-soft": g(88),
@@ -236,9 +241,9 @@ def build(_a):
             tok["tone-%s-line" % k] = tok["tone-%s-tint" % k]   # 테두리를 바탕과 같게 — 선 없는 색 면
         tok.update(d.get("tokens", {}))
         write_preset("jf-" + name, tok, {
-            "lines": ["컬러 컨셉: %s" % d["label"], d["note"], "@concept: %s" % d.get("css", "pop")],
-            "image": "a vivid modern presentation diagram: electric indigo %s, hot pink %s, emerald %s, orange %s, red %s, borderless colored blocks, %dpx rounded corners, bold black title with a short pink tag, white slide on a dark backdrop" % (
-                c["main"], c["sub"], c["go"], c["wait"], c["stop"], d["shape"]["radius_box"])})
+            "lines": ["컬러 컨셉: %s" % d["label"], d["note"], "@concept: %s" % d.get("css", "soft")],
+            "image": "a modern presentation diagram in the %s palette: main %s, secondary %s, outputs %s, caution %s, risk %s, borderless colored blocks, %dpx rounded corners, bold title with a short color tag" % (
+                d["label"], c["main"], c["sub"], c["go"], c["wait"], c["stop"], d["shape"]["radius_box"])})
         made.append("jf-" + name)
     made += build_auto_palettes(P)
     write_preset("jf-mono-ink", mono_tokens("ink"), {
@@ -257,7 +262,7 @@ def tokens_of(name):
     return dict(re.findall(r"(?<![\w-])--([\w-]+)\s*:\s*([^;]+);", s))
 
 def min_contrast_of(name):
-    """흰 글자가 얹히는 색 면의 최소 대비 — 쨍한 컨셉은 굵은 큰 글자 기준(3.0)"""
+    """흰 글자가 얹히는 색 면의 최소 대비 — 컨셉에 min_contrast가 있으면 그 값"""
     for cname, d in load().get("concepts", {}).items():
         if name == "jf-" + cname:
             return d.get("min_contrast", 4.5)
@@ -303,7 +308,7 @@ def check(_a):
             need = min_contrast_of(n) if fg is None else 4.5
             if fg is None and on_tone_ink(n):
                 fgv = t["ink"]; need = 4.5; r = contrast(fgv, bgv)
-            elif fg is None and is_exact(n):   # 원본 고정 색: 흰 글자·짙은 글자 중 나은 쪽(페이지가 자동으로 고름)
+            elif fg is None and (is_exact(n) or n == "jf-mono-gray"):   # 원본 고정 색·그레이스케일 옅은 단계: 흰 글자·짙은 글자 중 나은 쪽(페이지가 자동으로 고름)
                 r = max(contrast("#FFFFFF", bgv), contrast(t["ink"], bgv), contrast("#000000", bgv)); need = 4.5
             if r < need:
                 print("✗ %s %s 대비 %.2f (<%.1f)" % (n, lab_, r, need)); bad += 1

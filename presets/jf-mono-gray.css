@@ -99,12 +99,12 @@
   --ornament:    none;         /* none = 뜻 없이 겹치는 장식(중복 번호 뱃지 등)을 걷는다 */
 
   /* --- board (v2.0) — 뜻으로 고르는 색 6가지 + 조립 부품 --- */
-  --tone-main: #262626; --tone-main-tint: #F0F0F0; --tone-main-line: #BEBEBE;
-  --tone-sub: #545454; --tone-sub-tint: #F0F0F0; --tone-sub-line: #BEBEBE;
-  --tone-go: #3E3E3E; --tone-go-tint: #F0F0F0; --tone-go-line: #BEBEBE;
-  --tone-wait: #606060; --tone-wait-tint: #F0F0F0; --tone-wait-line: #BEBEBE;
-  --tone-stop: #000000; --tone-stop-tint: #F0F0F0; --tone-stop-line: #BEBEBE;
-  --tone-mute: #707070; --tone-mute-tint: #F0F0F0; --tone-mute-line: #BEBEBE;
+  --tone-main: #222222; --tone-main-tint: #E4E4E4; --tone-main-line: #858585;
+  --tone-sub: #929292; --tone-sub-tint: #F1F1F1; --tone-sub-line: #C3C3C3;
+  --tone-go: #6C6C6C; --tone-go-tint: #EDEDED; --tone-go-line: #AEAEAE;
+  --tone-wait: #CCCCCC; --tone-wait-tint: #F7F7F7; --tone-wait-line: #E3E3E3;
+  --tone-stop: #484848; --tone-stop-tint: #E9E9E9; --tone-stop-line: #9A9A9A;
+  --tone-mute: #B2B2B2; --tone-mute-tint: #F4F4F4; --tone-mute-line: #D5D5D5;
   --board-font: "Presentation", "PresentationVariable", "Pretendard", "Apple SD Gothic Neo", "NanumSquare", "NanumGothic", "Malgun Gothic", sans-serif;
   --board-fs: 22px;                 /* 본문 기준 글자 — 그림 폭 1500px 의 1.5% (16cm 삽입 시 약 6.6pt) */
   --board-line: #C8C8C8;

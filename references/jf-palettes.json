@@ -361,31 +361,6 @@
     }
   },
   "concepts": {
-    "pop": {
-      "label": "쨍한 컨셉 (팝)",
-      "note": "내용 계열과 상관없이 고르는 선명한 컬러 컨셉. 흰 페이지 + 짙은 바깥 배경, 테두리 없는 색 면, 큰 둥근 모서리, 검은 제목 + 핑크 표식",
-      "colors": {
-        "main": "#3D3BF3",
-        "sub": "#E6247A",
-        "go": "#00A06A",
-        "wait": "#F08A00",
-        "stop": "#E5243B",
-        "mute": "#6B7280"
-      },
-      "min_contrast": 3.0,
-      "shape": {
-        "radius_box": 18,
-        "radius_bar": 12
-      },
-      "tokens": {
-        "ink": "#16161D",
-        "ink-soft": "#5B5D6B",
-        "board-link-w": "3.2px",
-        "board-icon-stroke": "2",
-        "title-tag-color": "#E6247A"
-      },
-      "css": "pop"
-    },
     "serene": {
       "label": "P-02 Serene & warm",
       "note": "컬러차트 P-02(#A49393 · #EED6D3 · #E8B4B8)를 그대로 쓴 파스텔 컨셉. 원본 3색은 바꾸지 않고, 나머지 역할 색은 같은 색상의 명도·채도만 조절. 색 면 위 글자는 짙은 색, 화살표는 짙은 회갈색",

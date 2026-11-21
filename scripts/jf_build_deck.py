@@ -14,7 +14,7 @@
 - 페이지 번호: 'PT 하단에 페이지 번호' 선택(N 키)으로 슬라이드 오른쪽 아래 번호를 보이거나 숨긴다. PDF에도 그대로 적용
 - PDF(인쇄): 화살표·버튼·배경은 숨기고 페이지마다 1920×1080 한 장
 - 16:9 비율을 유지한 채 화면 폭에 맞춰 무대를 통째로 확대·축소한다(안쪽 배치·줄바꿈은 그대로, 다시 배치하지 않음)
-- 바깥 배경이 짙으면(쨍한 컨셉 등) 화살표·페이지 번호·버튼·글자를 밝은색으로
+- 바깥 배경이 짙으면(짙은 주색 컨셉 등) 화살표·페이지 번호·버튼·글자를 밝은색으로
 """
 import argparse, html as H, json, os, sys
 
@@ -51,10 +51,10 @@ body { margin: 0; background: var(--backdrop); color: var(--ink);
   visibility: hidden; pointer-events: none; }
 .sheet.on { visibility: visible; pointer-events: auto; }
 .sheet iframe { display: block; width: var(--stage-w); height: var(--stage-h); border: 0; }
-.sheet .pno { display: none; position: absolute; right: 64px; bottom: 22px; font-size: 20px; font-weight: 600;
+.sheet .pno { display: none; position: absolute; right: __PNO_R__px; bottom: __PNO_B__px; font-size: __PNO_S__px; font-weight: 600;
   color: #6B6B70; font-variant-numeric: tabular-nums; letter-spacing: .5px; pointer-events: none; }
 body.show-pno .sheet .pno { display: block; }
-.sheet .foot { position: absolute; left: 64px; bottom: 22px; max-width: 1400px; font-size: 18px; font-style: italic; font-weight: 500;
+.sheet .foot { position: absolute; left: __FOOT_X__px; bottom: __FOOT_B__px; max-width: 1400px; font-size: __FOOT_S__px; font-style: italic; font-weight: 500;
   color: #6B6B70; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; }
 .tap { position: absolute; inset: 0; display: none; cursor: pointer; }
 
@@ -363,7 +363,7 @@ def main():
     ap.add_argument("--title", default="")
     ap.add_argument("--no-number", action="store_true", help="처음 열 때 페이지 번호를 숨긴 상태로")
     ap.add_argument("--footer", default="", help="페이지 하단 왼쪽에 작게 이탤릭으로 넣을 논문 제목")
-    ap.add_argument("--preset", default="", help="모든 페이지의 프리셋을 이것으로 (예: jf-pop)")
+    ap.add_argument("--preset", default="", help="모든 페이지의 프리셋을 이것으로 (예: jf-timeless)")
     ap.add_argument("--font", default="", help="모든 페이지 글꼴: gothic(고딕, 기본) | myeongjo(명조)")
     ap.add_argument("--switcher", action="store_true", help="아래쪽에 색상·글꼴 선택 상자를 넣어 프리셋을 바꿔 보게 한다")
     a = ap.parse_args()
@@ -390,7 +390,10 @@ def main():
     if a.switcher:
         sw_data, sw_ui = switch_data(specs, fk)
     out = SHELL
-    for k, v in (("__FONT__", jf_page.font_css(fk)), ("__BACKDROP__", jf_page.backdrop(B.preset_css(specs[0]), specs[0].get("preset", ""))),
+    E = jf_page.ELEM   # 하단 글귀·페이지 번호도 요소 기준(references/jf-elements.json)에서
+    for k, v in (("__PNO_R__", str(E["page_number"]["right"])), ("__PNO_B__", str(E["page_number"]["bottom"])), ("__PNO_S__", str(E["page_number"]["size"])),
+                 ("__FOOT_X__", str(E["footer"]["x"])), ("__FOOT_B__", str(E["footer"]["bottom"])), ("__FOOT_S__", str(E["footer"]["size"])),
+                 ("__FONT__", jf_page.font_css(fk)), ("__BACKDROP__", jf_page.backdrop(B.preset_css(specs[0]), specs[0].get("preset", ""))),
                  ("__W__", str(w)), ("__H__", str(h)), ("__FONT_STACK__", jf_page.FONTS[fk]["stack"]),
                  ("__I_PREV__", ICON["prev"]), ("__I_NEXT__", ICON["next"]), ("__I_FULL__", ICON["full"]),
                  ("__I_EXIT__", ICON["exit"]), ("__I_PDF__", ICON["pdf"]),

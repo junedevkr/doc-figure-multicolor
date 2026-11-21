@@ -5,7 +5,7 @@
    @concept: soft
 
    * 프리셋 규율: 토큰 '값'만 바꾸고 '이름'은 더하거나 빼지 않는다.
-   * @image-style: a vivid modern presentation diagram: electric indigo #A49393, hot pink #E8B4B8, emerald #C7AFAD, orange #EED6D3, red #B98A90, borderless colored blocks, 18px rounded corners, bold black title with a short pink tag, white slide on a dark backdrop
+   * @image-style: a modern presentation diagram in the P-02 Serene & warm palette: main #A49393, secondary #E8B4B8, outputs #C7AFAD, caution #EED6D3, risk #B98A90, borderless colored blocks, 18px rounded corners, bold title with a short color tag
    ========================================================================= */
 :root {
   /* v2.0.1 인쇄 크기 — 16cm 폭에 넣을 때 본문 약 10pt·최소 8pt 이상 (text-scale·caption-size·src-size·title-scale·word-break) */
