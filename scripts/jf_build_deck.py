@@ -12,7 +12,9 @@
 - --footer "논문 제목": 페이지마다 하단 왼쪽에 작게 이탤릭으로 (spec의 "page_footer"가 있으면 그 페이지는 그것, 문자열 "footer"도 같은 뜻)
 - 애니메이션: 페이지를 열 때 상자가 차례로 떠오르고 그림이 펼쳐지며 화살표가 그어진다. '애니메이션' 체크(A 키)로 끔. PDF에는 영향 없음
 - 페이지 번호: 'PT 하단에 페이지 번호' 선택(N 키)으로 슬라이드 오른쪽 아래 번호를 보이거나 숨긴다. PDF에도 그대로 적용
-- PDF(인쇄): 화살표·버튼·배경은 숨기고 페이지마다 1920×1080 한 장
+- PDF 버튼: 인쇄 대화상자 없이 지금 화면 그대로(고른 색·글꼴, 페이지 번호 표시 여부, 하단 글귀, 펜·형광펜 잉크) PDF 파일을
+  바로 내려받는다. 페이지마다 1920×1080(1440×810pt) 한 장, 2배 해상도 그림. 라이브러리(html-to-image·jsPDF)는 누를 때 받아 오며,
+  받을 수 없으면 인쇄로 대신한다. Ctrl/Cmd+P 인쇄도 그대로 쓸 수 있다(화살표·버튼·배경 숨김)
 - 16:9 비율을 유지한 채 화면 폭에 맞춰 무대를 통째로 확대·축소한다(안쪽 배치·줄바꿈은 그대로, 다시 배치하지 않음)
 - 발표 도구: 펜(P)·형광펜(H)·레이저 포인터(L), 이 페이지 잉크 지우기(E)·한 획 되돌리기(Z), 도구 끄기는 같은 키나 Esc.
   잉크는 페이지마다 따로 남고 전체화면에서도 그대로(키로만 바꿈). 도구를 켜면 화면 클릭으로 넘기기는 멈춘다. PDF에는 잉크를 넣지 않는다
@@ -172,7 +174,7 @@ body.dark button:focus-visible, body.dark .opt input:focus-visible { outline-col
       </div>
       <button class="pill" data-act="notes" type="button" aria-label="발표자 노트 창 열기 (S 키)">__I_NOTES__발표자 노트</button>
       <button class="pill" data-act="full" type="button" aria-label="전체화면 발표 (F 키)">__I_FULL__전체화면</button>
-      <button class="pill" data-act="print" type="button" aria-label="PDF로 저장">__I_PDF__PDF</button>
+      <button class="pill" data-act="pdf" type="button" aria-label="화면 그대로 PDF 파일로 바로 저장" title="지금 화면 그대로(색·글꼴·페이지 번호·잉크) PDF 파일을 바로 내려받음">__I_PDF__<span data-pdf-label>PDF</span></button>
     </div>
   </nav>
 </div>
@@ -316,6 +318,59 @@ body.dark button:focus-visible, body.dark .opt input:focus-visible { outline-col
   }
   window.addEventListener('beforeunload', function(){ try { if (nw && !nw.closed) nw.close(); } catch (e) {} });
 
+  // ── PDF: 인쇄 대화상자 없이 지금 화면 그대로 파일로 바로 저장 ──────────────
+  //   각 페이지를 보이는 그대로 그림으로 떠서(html-to-image, 페이지 안에서 실행해 웹폰트까지 담음)
+  //   하단 글귀·페이지 번호·잉크를 얹고, jsPDF로 1920×1080(1440×810pt) 한 장씩 묶어 내려받는다
+  var PDF_LIB = {cap: 'https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js',
+                 pdf: 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'};
+  var capSrc = null, busy = false;
+  function addScript(doc, text){ var sc = doc.createElement('script'); sc.text = text; (doc.head || doc.documentElement).appendChild(sc); }
+  function getText(u){ return fetch(u).then(function(r){ if (!r.ok) throw new Error(u); return r.text(); }); }
+  function wait(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
+  function overlay(g, i){
+    var sh = sheets[i], sr = sh.getBoundingClientRect(), k = sr.width / W || 1;
+    sh.querySelectorAll('.foot, .pno').forEach(function(el){
+      var cs = getComputedStyle(el); if (cs.display === 'none' || !el.textContent) return;
+      var r = el.getBoundingClientRect();
+      g.save(); g.font = cs.fontStyle + ' ' + cs.fontWeight + ' ' + cs.fontSize + ' ' + cs.fontFamily; g.fillStyle = cs.color; g.textBaseline = 'middle';
+      g.textAlign = el.classList.contains('pno') ? 'right' : 'left';
+      var y = (r.top + r.height / 2 - sr.top) / k, x = el.classList.contains('pno') ? (r.right - sr.left) / k : (r.left - sr.left) / k;
+      g.fillText(el.textContent, x, y); g.restore();
+    });
+    (INK[i] || []).forEach(function(st){ g.save(); if (st.k === 'hl') g.globalCompositeOperation = 'multiply'; paint(g, st); g.restore(); });
+  }
+  function savePdf(btn){
+    if (busy) return; busy = true;
+    var lab = btn.querySelector('[data-pdf-label]'), old = lab.textContent;
+    var setLab = function(t){ lab.textContent = t; };
+    setLab('준비 중');
+    var libs = [capSrc ? Promise.resolve(capSrc) : getText(PDF_LIB.cap),
+                window.jspdf ? Promise.resolve() : getText(PDF_LIB.pdf).then(function(t){ addScript(document, t); })];
+    Promise.all(libs).then(async function(res){
+      capSrc = res[0];
+      var doc = new window.jspdf.jsPDF({orientation: 'landscape', unit: 'px', format: [W, H], hotfixes: ['px_scaling'], compress: true});
+      for (var i = 0; i < PAGES.length; i++) {
+        setLab((i + 1) + ' / ' + PAGES.length);
+        var w = frameWin(i), t0 = Date.now();
+        while (!(w && w.__JF_DONE__) && Date.now() - t0 < 15000) { await wait(150); w = frameWin(i); }
+        if (w.__JF_ANIM__) w.__JF_ANIM__(false);   // 떠오르는 중간 모습이 찍히지 않게
+        if (!w.htmlToImage) addScript(w.document, capSrc);
+        var node = w.document.getElementById('jf-page') || w.document.body;
+        var cv = await w.htmlToImage.toCanvas(node, {width: W, height: H, pixelRatio: 2, backgroundColor: '#ffffff'});
+        var g = cv.getContext('2d'); g.setTransform(cv.width / W, 0, 0, cv.height / H, 0, 0);
+        overlay(g, i);
+        if (i > 0) doc.addPage([W, H], 'landscape');
+        doc.addImage(cv.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, W, H, undefined, 'FAST');
+      }
+      var name = (document.title || 'slides').replace(/[\\/:*?"<>|]+/g, ' ').trim() || 'slides';
+      doc.save(name + '.pdf');
+      setLab('저장됨'); setTimeout(function(){ setLab(old); }, 1800);
+    }).catch(function(e){
+      // 라이브러리를 못 받으면(오프라인 등) 인쇄로 대신 — 대상에서 'PDF로 저장'을 고르면 같은 1920×1080 한 장씩
+      console.error(e); setLab(old); window.print();
+    }).then(function(){ busy = false; animate(cur); });
+  }
+
   function go(n, push){
     n = Math.max(0, Math.min(PAGES.length - 1, n));
     sheets.forEach(function(s, i){ s.classList.toggle('on', i === n); });
@@ -385,7 +440,7 @@ body.dark button:focus-visible, body.dark .opt input:focus-visible { outline-col
       if (a === 'prev') go(cur - 1);
       else if (a === 'next') go(cur + 1);
       else if (a === 'full') toggleFull();
-      else if (a === 'print') window.print();
+      else if (a === 'pdf') savePdf(b);
       else if (a === 'erase') erase();
       else if (a === 'notes') openNotes();
     });
