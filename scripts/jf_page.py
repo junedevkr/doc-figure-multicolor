@@ -46,9 +46,10 @@ def window(spec):
 
 def prepare_template(tpl):
     """다시 그릴 수 있도록 전역 선언을 var로 바꾸고, 다시 그릴 때 덮어쓸 값을 받는 자리를 둔다"""
-    tpl = tpl.replace("const FIGURE=/*__FIGURE_DATA__*/ null",
-                      "var FIGURE=/*__FIGURE_DATA__*/ null;if(window.__JF_OVERRIDE__&&FIGURE)Object.assign(FIGURE,window.__JF_OVERRIDE__)", 1)
-    return re.sub(r"\bconst (ICONS|ICON_SET)\s*=", r"var \1=", tpl)
+    # 템플릿마다 띄어쓰기가 달라도(const FIGURE = …) 다시 그릴 수 있게 var로 바꾼다
+    tpl = re.sub(r"\bconst\s+FIGURE\s*=\s*/\*__FIGURE_DATA__\*/\s*null",
+                 "var FIGURE=/*__FIGURE_DATA__*/ null;if(window.__JF_OVERRIDE__&&FIGURE)Object.assign(FIGURE,window.__JF_OVERRIDE__)", tpl, count=1)
+    return re.sub(r"\b(?:const|let)\s+(ICONS|ICON_SET)\s*=", r"var \1=", tpl)
 
 def prepare_spec(spec):
     """페이지 모드에서 board 폭을 페이지 안쪽 폭에 맞춘다(화살표를 그리기 전에 정해야 한다)"""
@@ -119,10 +120,10 @@ html.jf-embed #jf-page { box-shadow: none; }
 #jf-page > #figure { position: absolute; left: 0; top: 0; transform-origin: 0 0; background: transparent; }
 /* 제목 크기는 페이지마다 같게 — 본문 배치 기준(print_cm)이 페이지별로 달라져도 머리는 고정 px */
 html.jf-page #figure .hd { margin-bottom: 26px; }
-html.jf-page #figure .hd .kicker { font-size: 24px !important; color: var(--ink-soft) !important; font-weight: 600; margin-bottom: 6px; }
-html.jf-page #figure .hd h1 { font-size: 42px !important; line-height: 1.25 !important; letter-spacing: -0.5px; }
-html.jf-page #figure .hd .sub { font-size: 24px !important; }
-html.jf-page #figure .hd .tag { font-size: 20px !important; }
+html.jf-page #figure .hd .kicker { font-size: calc(24px / var(--jf-s, 1)) !important; color: var(--ink-soft) !important; font-weight: 600; margin-bottom: 6px; }
+html.jf-page #figure .hd h1 { font-size: calc(42px / var(--jf-s, 1)) !important; line-height: 1.25 !important; letter-spacing: -0.5px; }
+html.jf-page #figure .hd .sub { font-size: calc(24px / var(--jf-s, 1)) !important; }
+html.jf-page #figure .hd .tag { font-size: calc(20px / var(--jf-s, 1)) !important; }
 /* 글자 값이 든 표(matrix에 문자열 값) — 점 칸용 작은 칸 대신 폭을 채우는 표로 */
 html.jf-page #figure .mtx:has(td.v) { width: 100%; border-spacing: 6px; padding: 10px; }
 html.jf-page #figure .mtx:has(td.v) th { font-size: calc(var(--B) * 0.9); color: var(--ink-soft); padding: 4px 8px; }
@@ -215,6 +216,19 @@ LOADER = r"""
   var fig = document.getElementById('figure');
   var snap = fig ? fig.innerHTML : '', style0 = fig ? (fig.getAttribute('style') || '') : '';
   function exec(){ texts.forEach(function(t){ var s = document.createElement('script'); s.text = t; document.body.appendChild(s); }); }
+  // 페이지 배율(s)을 그리기 전에 정한다 — 제목 크기 보정(42px ÷ s)을 그린 뒤에 바꾸면 템플릿이 이미 그은 선·표 줄과 어긋나므로,
+  // 배율이 바뀌면 처음부터 다시 그린다
+  function scaleOf(){ var inner = C.W - 2 * C.PAD; return Math.min(inner / fig.offsetWidth, (C.H - 2 * C.PAD) / fig.offsetHeight, 1.3); }
+  function setS(v){ document.documentElement.style.setProperty('--jf-s', v.toFixed(4)); }
+  function settleScale(){
+    for (var k = 0; k < 3; k++) {
+      var s = scaleOf(), cur = parseFloat(document.documentElement.style.getPropertyValue('--jf-s')) || 1;
+      if (Math.abs(s - cur) < 0.004) return;
+      setS(s);
+      var keep = window.__JF_OVERRIDE__;
+      fig.innerHTML = snap; fig.setAttribute('style', style0); window.__JF_OVERRIDE__ = keep; exec();
+    }
+  }
   function fitBoard(){
       // 페이지 높이의 88~100%를 채우도록 본문 배치 기준(print_cm)을 조정 — 넘치면 줄이고, 비면 키운다(폭은 그대로)
       var avail = C.H - 2 * C.PAD - (C.footRoom || 0), pc = FIGURE.print_cm || 16, n = 0, best = null;
@@ -252,13 +266,6 @@ LOADER = r"""
     }
     var fw = fig.offsetWidth, fh = fig.offsetHeight;
     var s = Math.min(inner / fw, (H - 2 * P) / fh, 1.3);
-    // 축소·확대 배율이 1이 아니면 제목 글자를 거꾸로 보정해 화면에서는 늘 42px·24px로 보이게
-    for (var it = 0; it < 2 && Math.abs(s - 1) > 0.005; it++) {
-      fig.querySelectorAll('.hd h1').forEach(function(e){ e.style.setProperty('font-size', (42 / s).toFixed(2) + 'px', 'important'); });
-      fig.querySelectorAll('.hd .kicker, .hd .sub').forEach(function(e){ e.style.setProperty('font-size', (24 / s).toFixed(2) + 'px', 'important'); });
-      fw = fig.offsetWidth; fh = fig.offsetHeight;
-      s = Math.min(inner / fw, (H - 2 * P) / fh, 1.3);
-    }
     fig.style.transform = 'scale(' + s.toFixed(4) + ')';
     fig.style.left = P + 'px';   // 왼쪽 위 여백에 붙인다 — 페이지마다 제목 위치·왼쪽 여백이 같게
     fig.style.top = P + 'px';
@@ -353,9 +360,11 @@ LOADER = r"""
   }
   function render(){
     if (fig) { fig.innerHTML = snap; fig.setAttribute('style', style0); }
+    if (C.page && typeof FIGURE !== 'undefined' && FIGURE) { var fw0 = FIGURE.template === 'board' ? (C.W - 2 * C.PAD) : (FIGURE.width || 1500); setS(Math.min((C.W - 2 * C.PAD) / fw0, 1.3)); }
     window.__JF_OVERRIDE__ = null;
     exec();
     if (C.page && fig && typeof FIGURE !== 'undefined' && FIGURE && FIGURE.template === 'board') fitBoard();
+    if (C.page && fig) settleScale();
     if (C.page && fig) place();
     if (fig) fixContrast(fig);
   }
@@ -377,8 +386,10 @@ LOADER = r"""
   function run(){
     if (done) return; done = true;
     if (C.page) { document.documentElement.classList.add('jf-page'); if (C.embed) document.documentElement.classList.add('jf-embed'); if (C.concept) { document.documentElement.classList.add('jf-flat'); document.documentElement.classList.add('jf-' + C.concept); } }
+    if (C.page && typeof FIGURE !== 'undefined' && FIGURE) { var fw0 = FIGURE.template === 'board' ? (C.W - 2 * C.PAD) : (FIGURE.width || 1500); setS(Math.min((C.W - 2 * C.PAD) / fw0, 1.3)); }
     exec();
     if (C.page && fig && typeof FIGURE !== 'undefined' && FIGURE && FIGURE.template === 'board') fitBoard();
+    if (C.page && fig) settleScale();
     if (C.page && fig) place();
     if (fig) fixContrast(fig);
     window.__JF_DONE__ = true;
