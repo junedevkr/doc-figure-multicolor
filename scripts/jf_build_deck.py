@@ -20,9 +20,9 @@
 - 드래그 금지: 체크하면 슬라이드 글자를 끌어 선택하지 못함
 - 조작 막대: 왼쪽 페이지 이동(이전·번호 목록·다음·전체 보기) · 가운데 발표 도구(펜·형광펜·레이저·클릭 강조·지우기) · 오른쪽 '보기' 메뉴(색상·글꼴·애니메이션·그라데이션·페이지 번호·드래그 금지)·발표자 노트·전체화면·PDF
 - 단축키 표시: 버튼 오른쪽 위에 겹친 키캡 배지(G P H L C E S F, 보기 메뉴 안 A D N). 좌우 이동 버튼에는 표시하지 않음. 한글 입력 상태에서도 같은 자리 키로 동작(물리 키로 판별) 전체화면에서는 막대 없이 키로만, 도구를 바꾸면 잠깐 이름을 띄움
-- PDF 버튼: 인쇄 대화상자 없이 지금 화면 그대로(고른 색·글꼴, 페이지 번호 표시 여부, 하단 글귀, 펜·형광펜 잉크) PDF 파일을
-  바로 내려받는다. 페이지마다 1920×1080(1440×810pt) 한 장, 2배 해상도 그림. 라이브러리(html-to-image·jsPDF)는 누를 때 받아 오며,
-  받을 수 없으면 인쇄로 대신한다. Ctrl/Cmd+P 인쇄도 그대로 쓸 수 있다(화살표·버튼·배경 숨김)
+- 저장 ▾ 메뉴: 인쇄 대화상자 없이 지금 화면 그대로(고른 색·글꼴, 페이지 번호, 하단 글귀, 잉크) PDF 또는 PPT(장마다 그림 + spec "notes"를 발표자 노트로)를
+  바로 내려받는다. 페이지마다 1920×1080, 2배 해상도. 라이브러리(html-to-image·jsPDF·PptxGenJS)는 누를 때 받아 오며, 못 받으면 PDF는 인쇄로 대신
+- ? 키: 단축키 도움말. 고정 페이지 ID(spec "id" 또는 파일 이름)를 window.__JF_DECK__로 내어 jf_live.py(화면에서 고치기)가 쓴다
 - 16:9 비율을 유지한 채 화면 폭에 맞춰 무대를 통째로 확대·축소한다(안쪽 배치·줄바꿈은 그대로, 다시 배치하지 않음)
 - 발표 도구: 펜(P)·형광펜(H)·레이저 포인터(L), 이 페이지 잉크 지우기(E)·한 획 되돌리기(Z), 도구 끄기는 같은 키나 Esc.
   잉크는 페이지마다 따로 남고 전체화면에서도 그대로(키로만 바꿈). 도구를 켜면 화면 클릭으로 넘기기는 멈춘다. PDF에는 잉크를 넣지 않는다
@@ -98,11 +98,21 @@ button:focus-visible, .opt input:focus-visible { outline: 3px solid #1E1E22; out
 .menuwrap { position: relative; }
 #setmenu { position: absolute; bottom: calc(100% + 10px); right: 0; width: min(330px, calc(100vw - 40px)); z-index: 30; display: none;
   background: #fff; color: #1E1E22; border-radius: 12px; padding: 10px 12px; box-shadow: 0 12px 36px rgba(0,0,0,.28); }
-#setmenu.on { display: block; }
+#setmenu.on, .popm.on { display: block; }
+.popm { position: absolute; bottom: calc(100% + 10px); right: 0; width: min(300px, calc(100vw - 40px)); z-index: 30; display: none;
+  background: #fff; color: #1E1E22; border-radius: 12px; padding: 6px; box-shadow: 0 12px 36px rgba(0,0,0,.28); }
+.mitem { display: block; width: 100%; text-align: left; border: 0; background: none; color: inherit; cursor: pointer; font: inherit; padding: 9px 10px; border-radius: 8px; }
+.mitem b { display: block; font-size: 14px; }
+.mitem span { display: block; font-size: 12px; opacity: .65; margin-top: 2px; }
+.mitem:hover { background: #F0F0F3; }
+body.dark .popm { background: #26262C; color: #F2F2F5; box-shadow: 0 12px 36px rgba(0,0,0,.5), inset 0 0 0 1px rgba(255,255,255,.12); }
+body.dark .mitem:hover { background: rgba(255,255,255,.1); }
 .mrow { display: flex; align-items: center; gap: 10px; padding: 6px 2px; font-size: 13px; }
 .mrow .ml { flex: none; min-width: 34px; }
 .mrow.opt .ml { flex: 1; }
 .msep { height: 1px; background: #E4E4EA; margin: 6px 0; }
+.mlink { width: 100%; border: 0; background: none; color: inherit; font: inherit; cursor: pointer; text-align: left; border-radius: 8px; }
+.mlink:hover { background: rgba(127,127,127,.12); }
 #setmenu .opt input { accent-color: #1E1E22; }
 body.dark #setmenu { background: #26262C; color: #F2F2F5; box-shadow: 0 12px 36px rgba(0,0,0,.5), inset 0 0 0 1px rgba(255,255,255,.12); }
 body.dark #setmenu .sw select { background: #33333A; color: #F2F2F5; border-color: rgba(255,255,255,.2); }
@@ -171,6 +181,14 @@ body.dark .pill.on { background: #F2F2F5; color: #1E1E22; }
 #picker button b { font-size: 15px; margin-right: 6px; font-variant-numeric: tabular-nums; }
 #picker button:hover, #picker button.cur { background: rgba(255,255,255,.24); box-shadow: inset 0 0 0 2px #F2F2F5; }
 #picker .ph { color: #F2F2F5; font-size: 14px; font-weight: 700; margin: 0 0 12px; opacity: .85; }
+/* 단축키 도움말 — ? 키, 전체화면에서도 */
+#help { position: absolute; inset: 0; z-index: 70; display: none; align-items: center; justify-content: center; background: rgba(14,14,18,.6); }
+#help.on { display: flex; }
+#help .hbox { background: #fff; color: #1E1E22; border-radius: 16px; padding: 26px 32px; min-width: 560px; box-shadow: 0 20px 60px rgba(0,0,0,.4); }
+#help h4 { margin: 0 0 14px; font-size: 20px; } #help h4 span { font-size: 13px; font-weight: 500; opacity: .6; }
+#help dl { display: grid; grid-template-columns: auto 1fr; gap: 9px 20px; margin: 0; font-size: 16px; align-items: center; }
+#help dt { white-space: nowrap; font-weight: 700; } #help dd { margin: 0; }
+#help .k { min-width: 22px; height: 22px; font-size: 12px; opacity: .85; margin: 0 1px; }
 /* 전체화면에서 도구·페이지 이동을 잠깐 알려 주는 표시 */
 #toast { position: absolute; left: 50%; bottom: 28px; transform: translateX(-50%); z-index: 60; padding: 8px 16px; border-radius: 18px;
   background: rgba(14,14,18,.82); color: #F2F2F5; font-size: 15px; font-weight: 700; pointer-events: none; opacity: 0; transition: opacity .25s; white-space: nowrap; }
@@ -209,7 +227,7 @@ body.dark button:focus-visible, body.dark .opt input:focus-visible { outline-col
   .stage { position: static; width: auto; height: auto; box-shadow: none; overflow: visible; background: none; transform: none !important; }
   .sheet { position: relative; visibility: visible; break-after: page; page-break-after: always; overflow: hidden; }
   .sheet:last-child { break-after: auto; page-break-after: auto; }
-  .nav, .tap, .ink, .laser, #notes-in, #picker, #toast { display: none !important; }
+  .nav, .tap, .ink, .laser, #notes-in, #picker, #toast, #help { display: none !important; }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
 </style>
@@ -221,6 +239,20 @@ body.dark button:focus-visible, body.dark .opt input:focus-visible { outline-col
     <div class="tap" id="tap" aria-hidden="true"></div>
     <div id="picker" role="dialog" aria-label="페이지 고르기"><p class="ph">전체 보기 — 눌러서 이동 (숫자 입력 후 Enter도 됨, G·Esc 닫기)</p><div class="grid"></div></div>
     <div id="toast" aria-live="polite"></div>
+    <div id="help" role="dialog" aria-label="단축키"><div class="hbox">
+      <h4>단축키 <span>(한글 입력 상태에서도 같은 자리 키)</span></h4>
+      <dl>
+        <dt><span class="k inl">←</span><span class="k inl">→</span> Space</dt><dd>이전·다음 페이지</dd>
+        <dt>숫자 + <span class="k inl">Enter</span></dt><dd>그 페이지로 이동</dd>
+        <dt><span class="k inl">G</span></dt><dd>전체 보기(미리보기)</dd>
+        <dt><span class="k inl">F</span> · <span class="k inl">Esc</span></dt><dd>전체화면 · 나가기</dd>
+        <dt><span class="k inl">P</span> <span class="k inl">H</span> <span class="k inl">L</span></dt><dd>펜 · 형광펜 · 레이저 (같은 키·Esc로 끔)</dd>
+        <dt><span class="k inl">C</span></dt><dd>클릭 강조 (글자 형광펜 · 상자 테두리 · 화살표 다시 그리기 · 그림 빛나기)</dd>
+        <dt><span class="k inl">E</span> · <span class="k inl">Z</span></dt><dd>이 페이지 잉크·강조 지우기 · 한 획 되돌리기</dd>
+        <dt><span class="k inl">S</span></dt><dd>발표자 노트 창</dd>
+        <dt><span class="k inl">A</span> <span class="k inl">D</span> <span class="k inl">N</span></dt><dd>애니메이션 · 그라데이션 · 페이지 번호</dd>
+        <dt><span class="k inl">?</span></dt><dd>이 도움말 열고 닫기</dd>
+      </dl></div></div>
   </div>
   <nav class="nav" aria-label="발표 조작">
     <div class="ctl" role="group" aria-label="페이지 이동">
@@ -244,18 +276,25 @@ body.dark button:focus-visible, body.dark .opt input:focus-visible { outline-col
           <label class="mrow opt" title="상자·도형·그래프에 위가 밝은 그라데이션. PDF에도 그대로"><input type="checkbox" data-grad><span class="ml">그라데이션</span><span class="k inl">D</span></label>
           <label class="mrow opt" title="슬라이드 오른쪽 아래에 페이지 번호. PDF에도 그대로"><input type="checkbox" data-pno><span class="ml">페이지 번호</span><span class="k inl">N</span></label>
           <label class="mrow opt" title="슬라이드 글자를 끌어 선택하지 못하게"><input type="checkbox" data-nosel><span class="ml">드래그 금지</span></label>
+          <div class="msep"></div>
+          <button type="button" class="mrow mlink" data-act="help"><span class="ml">단축키 모두 보기</span><span class="k inl">?</span></button>
         </div>
       </div>
       <button class="pill hk" data-act="notes" type="button" aria-label="발표자 노트 창 열기 (S 키)">__I_NOTES__발표자 노트<span class="k">S</span></button>
       <button class="pill hk" data-act="full" type="button" aria-label="전체화면 발표 (F 키)">__I_FULL__전체화면<span class="k">F</span></button>
-      <button class="pill" data-act="pdf" type="button" aria-label="화면 그대로 PDF 파일로 바로 저장" title="지금 화면 그대로(색·글꼴·페이지 번호·잉크) PDF 파일을 바로 내려받음">__I_PDF__<span data-pdf-label>PDF</span></button>
+      <div class="menuwrap"><button class="pill" data-act="savemenu" type="button" aria-haspopup="menu" aria-label="저장: PDF·PPT">__I_PDF__<span data-pdf-label>저장 ▾</span></button>
+        <div id="savemenu" class="popm" role="menu" aria-label="저장">
+          <button type="button" class="mitem" data-act="pdf" role="menuitem"><b>PDF</b><span>화면 그대로 · 페이지마다 1920×1080</span></button>
+          <button type="button" class="mitem" data-act="pptx" role="menuitem"><b>PPT (.pptx)</b><span>화면 그대로 그림 · 발표자 노트 포함 · 글자 편집은 안 됨</span></button>
+        </div>
+      </div>
     </div>
   </nav>
 </div>
 <div id="notes-in" role="dialog" aria-label="발표자 노트"></div>
 <script>
 (function(){
-  var PAGES = __PAGES__, TITLES = __TITLES__, FOOTS = __FOOTS__, NOTES = __NOTES__, PNO_DEFAULT = __PNO__, FOOT = __FOOT__;
+  var PAGES = __PAGES__, TITLES = __TITLES__, FOOTS = __FOOTS__, NOTES = __NOTES__, IDS = __IDS__, PNO_DEFAULT = __PNO__, FOOT = __FOOT__;
   var SW = __SWITCH__, curP = null, curF = null;
   function fill(i, p, f){
     var pg = SW.pages[i], t = SW.tpls[pg.t];
@@ -418,7 +457,7 @@ body.dark button:focus-visible, body.dark .opt input:focus-visible { outline-col
   }
   document.addEventListener('click', function(ev){ if (pgmenu.classList.contains('on') && !ev.target.closest('.pgwrap')) openMenu(false); });
   var setmenu = document.getElementById('setmenu');
-  function openSettings(on){ if (on === undefined) on = !setmenu.classList.contains('on'); setmenu.classList.toggle('on', on); if (on) openMenu(false); }
+  function openSettings(on){ if (on === undefined) on = !setmenu.classList.contains('on'); setmenu.classList.toggle('on', on); if (on) { openMenu(false); var sm = document.getElementById('savemenu'); if (sm) sm.classList.remove('on'); } }
   document.addEventListener('click', function(ev){ if (setmenu.classList.contains('on') && !ev.target.closest('.menuwrap')) openSettings(false); });
   // 전체 보기 → 미리보기 칸(보이는 칸만 그때그때 그림, 색·글꼴·그라데이션도 지금 화면 그대로)
   var thumbKey = '', thumbIO = null;
@@ -473,7 +512,8 @@ body.dark button:focus-visible, body.dark .opt input:focus-visible { outline-col
   //   각 페이지를 보이는 그대로 그림으로 떠서(html-to-image, 페이지 안에서 실행해 웹폰트까지 담음)
   //   하단 글귀·페이지 번호·잉크를 얹고, jsPDF로 1920×1080(1440×810pt) 한 장씩 묶어 내려받는다
   var PDF_LIB = {cap: 'https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js',
-                 pdf: 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'};
+                 pdf: 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
+                 pptx: 'https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js'};
   var capSrc = null, busy = false;
   function addScript(doc, text){ var sc = doc.createElement('script'); sc.text = text; (doc.head || doc.documentElement).appendChild(sc); }
   function getText(u){ return fetch(u).then(function(r){ if (!r.ok) throw new Error(u); return r.text(); }); }
@@ -490,37 +530,61 @@ body.dark button:focus-visible, body.dark .opt input:focus-visible { outline-col
     });
     (INK[i] || []).forEach(function(st){ g.save(); if (st.k === 'hl') g.globalCompositeOperation = 'multiply'; paint(g, st); g.restore(); });
   }
-  function savePdf(btn){
-    if (busy) return; busy = true;
-    var lab = btn.querySelector('[data-pdf-label]'), old = lab.textContent;
+  // 페이지 i를 지금 보이는 그대로 그림(캔버스)으로 — PDF·PPT 공통
+  async function capturePage(i){
+    var w = frameWin(i), t0 = Date.now();
+    while (!(w && w.__JF_DONE__) && Date.now() - t0 < 15000) { await wait(150); w = frameWin(i); }
+    if (w.__JF_ANIM__) w.__JF_ANIM__(false);   // 떠오르는 중간 모습이 찍히지 않게
+    if (!w.htmlToImage) addScript(w.document, capSrc);
+    var node = w.document.getElementById('jf-page') || w.document.body;
+    var cv = await w.htmlToImage.toCanvas(node, {width: W, height: H, pixelRatio: 2, backgroundColor: '#ffffff'});
+    var g = cv.getContext('2d'); g.setTransform(cv.width / W, 0, 0, cv.height / H, 0, 0);
+    overlay(g, i);
+    return cv;
+  }
+  function fileBase(){ return (document.title || 'slides').replace(/[\\/:*?"<>|]+/g, ' ').trim() || 'slides'; }
+  // PDF·PPT 저장 — 인쇄 대화상자 없이 화면 그대로. PPT는 장마다 그림 한 장 + 발표자 노트(spec "notes")
+  function exportDeck(kind){
+    if (busy) return; busy = true; openSave(false);
+    var btn = document.querySelector('[data-act="savemenu"]'), lab = btn.querySelector('[data-pdf-label]'), old = lab.textContent;
     var setLab = function(t){ lab.textContent = t; };
     setLab('준비 중');
-    var libs = [capSrc ? Promise.resolve(capSrc) : getText(PDF_LIB.cap),
-                window.jspdf ? Promise.resolve() : getText(PDF_LIB.pdf).then(function(t){ addScript(document, t); })];
+    var libs = [capSrc ? Promise.resolve(capSrc) : getText(PDF_LIB.cap)];
+    if (kind === 'pdf' && !window.jspdf) libs.push(getText(PDF_LIB.pdf).then(function(t){ addScript(document, t); }));
+    if (kind === 'pptx' && !window.PptxGenJS) libs.push(getText(PDF_LIB.pptx).then(function(t){ addScript(document, t); }));
     Promise.all(libs).then(async function(res){
       capSrc = res[0];
-      var doc = new window.jspdf.jsPDF({orientation: 'landscape', unit: 'px', format: [W, H], hotfixes: ['px_scaling'], compress: true});
-      for (var i = 0; i < PAGES.length; i++) {
-        setLab((i + 1) + ' / ' + PAGES.length);
-        var w = frameWin(i), t0 = Date.now();
-        while (!(w && w.__JF_DONE__) && Date.now() - t0 < 15000) { await wait(150); w = frameWin(i); }
-        if (w.__JF_ANIM__) w.__JF_ANIM__(false);   // 떠오르는 중간 모습이 찍히지 않게
-        if (!w.htmlToImage) addScript(w.document, capSrc);
-        var node = w.document.getElementById('jf-page') || w.document.body;
-        var cv = await w.htmlToImage.toCanvas(node, {width: W, height: H, pixelRatio: 2, backgroundColor: '#ffffff'});
-        var g = cv.getContext('2d'); g.setTransform(cv.width / W, 0, 0, cv.height / H, 0, 0);
-        overlay(g, i);
-        if (i > 0) doc.addPage([W, H], 'landscape');
-        doc.addImage(cv.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, W, H, undefined, 'FAST');
+      if (kind === 'pdf') {
+        var doc = new window.jspdf.jsPDF({orientation: 'landscape', unit: 'px', format: [W, H], hotfixes: ['px_scaling'], compress: true});
+        for (var i = 0; i < PAGES.length; i++) {
+          setLab('PDF ' + (i + 1) + ' / ' + PAGES.length);
+          var cv = await capturePage(i);
+          if (i > 0) doc.addPage([W, H], 'landscape');
+          doc.addImage(cv.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, W, H, undefined, 'FAST');
+        }
+        doc.save(fileBase() + '.pdf');
+      } else {
+        var pp = new window.PptxGenJS(); pp.layout = 'LAYOUT_16x9'; pp.title = document.title || '';
+        for (var j = 0; j < PAGES.length; j++) {
+          setLab('PPT ' + (j + 1) + ' / ' + PAGES.length);
+          var cv2 = await capturePage(j), sl = pp.addSlide();
+          sl.addImage({data: cv2.toDataURL('image/jpeg', 0.92), x: 0, y: 0, w: 10, h: 5.625});
+          if ((NOTES[j] || '').trim()) sl.addNotes(NOTES[j]);
+        }
+        await pp.writeFile({fileName: fileBase() + '.pptx'});
       }
-      var name = (document.title || 'slides').replace(/[\\/:*?"<>|]+/g, ' ').trim() || 'slides';
-      doc.save(name + '.pdf');
       setLab('저장됨'); setTimeout(function(){ setLab(old); }, 1800);
     }).catch(function(e){
-      // 라이브러리를 못 받으면(오프라인 등) 인쇄로 대신 — 대상에서 'PDF로 저장'을 고르면 같은 1920×1080 한 장씩
-      console.error(e); setLab(old); window.print();
+      // 라이브러리를 못 받으면(오프라인 등) PDF는 인쇄로 대신 — 대상에서 'PDF로 저장'을 고르면 같은 1920×1080 한 장씩
+      console.error(e); setLab(old); if (kind === 'pdf') window.print(); else toastAny('PPT 라이브러리를 받지 못함 — 인터넷 연결을 확인');
     }).then(function(){ busy = false; animate(cur); });
   }
+  var helpEl = document.getElementById('help');
+  function toggleHelp(on){ if (on === undefined) on = !helpEl.classList.contains('on'); helpEl.classList.toggle('on', on); }
+  helpEl.addEventListener('click', function(){ toggleHelp(false); });
+  var savemenu = document.getElementById('savemenu');
+  function openSave(on){ if (on === undefined) on = !savemenu.classList.contains('on'); savemenu.classList.toggle('on', on); if (on) { openMenu(false); openSettings(false); } }
+  document.addEventListener('click', function(ev){ if (savemenu.classList.contains('on') && !ev.target.closest('.menuwrap')) openSave(false); });
 
   function go(n, push){
     n = Math.max(0, Math.min(PAGES.length - 1, n));
@@ -591,7 +655,10 @@ body.dark button:focus-visible, body.dark .opt input:focus-visible { outline-col
       if (a === 'prev') go(cur - 1);
       else if (a === 'next') go(cur + 1);
       else if (a === 'full') toggleFull();
-      else if (a === 'pdf') savePdf(b);
+      else if (a === 'pdf') exportDeck('pdf');
+      else if (a === 'pptx') exportDeck('pptx');
+      else if (a === 'savemenu') openSave();
+      else if (a === 'help') { openSettings(false); toggleHelp(true); }
       else if (a === 'pick') openPicker();
       else if (a === 'menu') openMenu();
       else if (a === 'settings') openSettings();
@@ -609,6 +676,9 @@ body.dark button:focus-visible, body.dark .opt input:focus-visible { outline-col
     var D = c.indexOf('Digit') === 0 ? c.slice(5) : (/^Numpad[0-9]$/.test(c) ? c.slice(6) : (/^[0-9]$/.test(k) ? k : ''));
     if (t === 'SELECT' || (t === 'INPUT' && e.target.type !== 'checkbox')) return;
     if (setmenu.classList.contains('on') && k === 'Escape') { openSettings(false); e.preventDefault(); return; }
+    if (savemenu.classList.contains('on') && k === 'Escape') { openSave(false); e.preventDefault(); return; }
+    if (k === '?' || (c === 'Slash' && e.shiftKey)) { toggleHelp(); e.preventDefault(); return; }
+    if (helpEl.classList.contains('on') && k === 'Escape') { toggleHelp(false); e.preventDefault(); return; }
     if (pgmenu.classList.contains('on') && k === 'Escape') { openMenu(false); e.preventDefault(); return; }
     if (picker.classList.contains('on') && (k === 'Escape' || L === 'g')) { openPicker(false); e.preventDefault(); return; }
     if (D) { typeNum(D); e.preventDefault(); return; }
@@ -669,6 +739,8 @@ body.dark button:focus-visible, body.dark .opt input:focus-visible { outline-col
     nav.classList.add('has-sw');
   }
   nav.classList.add('has-sw');   // 버튼이 많아 좁은 화면에서는 두 줄로 접는다(제목은 숨김)
+  // 화면에서 고치기(jf_live.py)가 쓰는 창구 — 지금 페이지·고정 ID(spec 파일 이름)·제목
+  window.__JF_DECK__ = {cur: function(){ return cur; }, ids: IDS, titles: TITLES, go: function(n){ go(n); }};
   window.addEventListener('beforeprint', function(){ stage.style.transform = ''; });
   window.addEventListener('afterprint', fit);
   fit();
@@ -759,6 +831,10 @@ def main():
         sys.exit("페이지 비율이 서로 다름: %s — 한 덱은 한 비율로" % sizes)
     w, h = sizes.pop()
     pages, titles, foots, notes = [], [], [], []
+    ids = [s.get("id") or os.path.splitext(os.path.basename(path))[0] for s, path in zip(specs, a.specs)]   # 고정 ID: spec의 "id" 또는 파일 이름
+    dup = sorted({x for x in ids if ids.count(x) > 1})
+    if dup:
+        sys.exit("페이지 ID가 겹침: %s — spec 파일 이름이나 \"id\"를 서로 다르게" % ", ".join(dup))
     for s in specs:
         s = dict(s, page=jf_page.mode(s) or "16:9")
         pages.append(B.build_string(s, embed=True))
@@ -780,6 +856,7 @@ def main():
                  ("__I_EXIT__", ICON["exit"]), ("__I_PDF__", ICON["pdf"]),
                  ("__I_GRID__", ICON["grid"]), ("__I_VIEW__", ICON["view"]), ("__I_FX__", ICON["fx"]), ("__I_PEN__", ICON["pen"]), ("__I_HL__", ICON["hl"]), ("__I_LASER__", ICON["laser"]), ("__I_ERASE__", ICON["erase"]), ("__I_NOTES__", ICON["notes"]),
                  ("__NOTES__", json.dumps(notes, ensure_ascii=False).replace("</", "<\\/")),
+                 ("__IDS__", json.dumps(ids, ensure_ascii=False).replace("</", "<\\/")),
                  ("__PNO__", "false" if a.no_number else "true"),
                  ("__DARK__", "true" if is_dark(jf_page.backdrop(B.preset_css(specs[0]), specs[0].get("preset", ""))) else "false"),
                  ("__FOOT__", json.dumps(a.footer, ensure_ascii=False).replace("</", "<\\/")),
